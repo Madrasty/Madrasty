@@ -53,6 +53,7 @@ These are correctness/security/legal invariants, not style preferences:
 - **Every user-facing string goes through i18n (ar/en), RTL/LTR aware.** No hardcoded Arabic or English in components (doc 07). Wire i18n in from day one — retrofitting is painful.
 - **Home Tutoring uses escrow payout.** Payment is captured but held (`payout_status = 'held'`) until the in-person session is marked `completed`, then released minus commission. This is a distinct field from `transactions.status` — do not infer "pay the teacher yet?" from payment status alone (doc 04 §6, doc 13).
 - **RBAC is enforced at the API layer**, not just the UI. Rate-limit auth and payment/checkout endpoints.
+- **Never hardcode environment-specific values** — URLs, ports, hostnames, secrets, API keys, or the like. Read them from environment variables via a typed config module, so moving to production is a config change, not a code change. `localhost`, `:5432`, real domains, and provider keys must never appear as literals in the source.
 
 Read payment, refund, and auth code yourself before accepting it — these are where a plausible-looking hallucination (trusting a client amount, skipping a webhook signature check) is a financial/security risk, not just a bug.
 
