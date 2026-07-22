@@ -48,3 +48,30 @@ export interface LoginResponse {
 export interface RefreshResponse {
   accessToken: string;
 }
+
+// --- Registration DTOs (doc 11 features 5-7) ---
+export type GuardianRelationship = 'father' | 'mother' | 'guardian' | 'other';
+
+// Feature 5 — parent adds a student sub-profile.
+export interface AddStudentRequest {
+  name: string;
+  dateOfBirth: string; // YYYY-MM-DD
+  grade: string;
+  school?: string;
+  city?: string;
+  relationship?: GuardianRelationship;
+}
+
+// Feature 6 — student-first self-registration.
+export interface StudentSelfRegisterRequest {
+  name: string;
+  grade: string;
+  parentMobile: string;
+}
+
+// Feature 7 — what a parent sees when opening the approval link (no PII/token).
+export interface GuardianApprovalView {
+  student: { name: string | null; grade: string | null };
+  status: 'awaiting_parent' | 'approved' | 'rejected' | 'expired';
+  expiresAt: string | null;
+}

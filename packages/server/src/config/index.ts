@@ -32,6 +32,12 @@ const envSchema = z.object({
   // Auth token lifetimes (sensible defaults; doc 01 §5, doc 11).
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+
+  // Registration / OTP / guardian approval (doc 11 §3-4, §8).
+  OTP_CODE_LENGTH: z.coerce.number().int().min(4).max(8).default(6),
+  OTP_EXPIRES_IN_MINUTES: z.coerce.number().int().positive().default(10),
+  OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
+  GUARDIAN_APPROVAL_EXPIRES_IN_HOURS: z.coerce.number().int().positive().default(72),
   // App URLs.
   API_BASE_URL: z.string().optional(),
   CLIENT_BASE_URL: z.string().optional(),

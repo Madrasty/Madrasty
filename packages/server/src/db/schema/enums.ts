@@ -36,6 +36,18 @@ export const guardianRelationship = pgEnum('guardian_relationship', [
   'other',
 ]);
 
+// --- Registration / consent (doc 11 §8) ---
+// Channel an OTP was delivered over.
+export const otpChannel = pgEnum('otp_channel', ['sms', 'email']);
+
+// Lifecycle of a student-first (Flow B) guardian approval request.
+export const guardianApprovalStatus = pgEnum('guardian_approval_status', [
+  'awaiting_parent',
+  'approved',
+  'rejected',
+  'expired',
+]);
+
 // --- Learning programs / content (doc 03, doc 12) ---
 export const programStatus = pgEnum('program_status', [
   'draft',
