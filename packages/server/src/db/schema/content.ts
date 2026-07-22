@@ -3,6 +3,7 @@ import {
   uuid,
   text,
   integer,
+  boolean,
   jsonb,
   numeric,
   timestamp,
@@ -88,4 +89,46 @@ export const lessons = pgTable('lessons', {
   metadata: jsonb('metadata').notNull().default({}),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+// --- Per-lesson-type detail tables (doc 12 §6) ---
+// One row per lesson, only for types that carry structured fields beyond the
+// shared `lessons` row. A new lesson type = a new table here, never a rewrite of
+// `lessons`. quiz/homework/exam/private_session reuse other modules' tables.
+
+export const recordedLessonDetails = pgTable('recorded_lesson_details', {
+  lessonId: uuid('lesson_id')
+    .primaryKey()
+    .references(() => lessons.id),
+  videoUrl: text('video_url'),
+  durationSeconds: integer('duration_seconds'),
+  attachments: jsonb('attachments'),
+});
+
+export const liveLessonDetails = pgTable('live_lesson_details', {
+  lessonId: uuid('lesson_id')
+    .primaryKey()
+    .references(() => lessons.id),
+  scheduledStart: timestamp('scheduled_start', { withTimezone: true }),
+  scheduledEnd: timestamp('scheduled_end', { withTimezone: true }),
+  meetingUrl: text('meeting_url'),
+  // Populated after the session; once set, the lesson replays like a recorded one.
+  recordingUrl: text('recording_url'),
+  attendanceTaken: boolean('attendance_taken').notNull().default(false),
+});
+
+export const pdfLessonDetails = pgTable('pdf_lesson_details', {
+  lessonId: uuid('lesson_id')
+    .primaryKey()
+    .references(() => lessons.id),
+  fileUrl: text('file_url'),
+  pageCount: integer('page_count'),
+});
+
+export const audioLessonDetails = pgTable('audio_lesson_details', {
+  lessonId: uuid('lesson_id')
+    .primaryKey()
+    .references(() => lessons.id),
+  audioUrl: text('audio_url'),
+  durationSeconds: integer('duration_seconds'),
 });

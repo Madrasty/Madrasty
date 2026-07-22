@@ -15,6 +15,13 @@
       "when": 1784735765139,
       "tag": "0001_fresh_black_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784737089335,
+      "tag": "0002_typical_stranger",
+      "breakpoints": true
     }
   ]
 }

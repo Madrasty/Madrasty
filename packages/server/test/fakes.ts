@@ -18,6 +18,22 @@ import type {
 } from '../src/modules/auth/registration.repository';
 import type { SmsSender } from '../src/modules/auth/sms-sender';
 import { normalizePhone } from '../src/lib/phone';
+import type {
+  ChapterRecord,
+  LessonRecord,
+  LessonType,
+  ProgramRecord,
+} from '../src/modules/learning-programs/types';
+import type {
+  CreateChapterInput,
+  CreateLessonInput,
+  CreateProgramInput,
+  LearningProgramsRepository,
+  ListPublishedFilter,
+  UpdateChapterPatch,
+  UpdateLessonPatch,
+  UpdateProgramPatch,
+} from '../src/modules/learning-programs/learning-programs.repository';
 
 // In-memory UserRepository — same contract as the Drizzle one, no Postgres.
 export class InMemoryUserRepository implements UserRepository {
@@ -256,5 +272,209 @@ export class InMemoryRegistrationRepository implements RegistrationRepository {
   expireOtp(studentId: string): void {
     const otp = this.otps.find((o) => o.userId === studentId);
     if (otp) otp.expiresAt = new Date(Date.now() - 1000);
+  }
+}
+
+// In-memory LearningProgramsRepository — mirrors the Drizzle contract without a
+// live Postgres. Soft-deleted rows are excluded from reads.
+interface StoredProgram extends ProgramRecord {
+  deleted: boolean;
+  seq: number;
+}
+interface StoredChapter extends ChapterRecord {
+  deleted: boolean;
+}
+interface StoredLesson extends LessonRecord {
+  deleted: boolean;
+}
+
+export class InMemoryLearningProgramsRepository implements LearningProgramsRepository {
+  private programs = new Map<string, StoredProgram>();
+  private chapters = new Map<string, StoredChapter>();
+  private lessons = new Map<string, StoredLesson>();
+  private details = new Map<string, Record<string, unknown>>();
+  private seq = 0;
+
+  // --- Programs ---
+  async createProgram(input: CreateProgramInput): Promise<ProgramRecord> {
+    const record: StoredProgram = {
+      id: randomUUID(),
+      teacherId: input.teacherId,
+      subjectId: input.subjectId ?? null,
+      gradeLevel: input.gradeLevel ?? null,
+      semester: input.semester ?? null,
+      priceEgp: input.priceEgp ?? null,
+      status: 'draft',
+      metadata: input.metadata ?? {},
+      deleted: false,
+      seq: this.seq++,
+    };
+    this.programs.set(record.id, record);
+    return this.program(record);
+  }
+
+  async getProgramById(id: string): Promise<ProgramRecord | null> {
+    const p = this.programs.get(id);
+    return p && !p.deleted ? this.program(p) : null;
+  }
+
+  async listPublishedPrograms(filter: ListPublishedFilter): Promise<ProgramRecord[]> {
+    return [...this.programs.values()]
+      .filter(
+        (p) =>
+          !p.deleted &&
+          p.status === 'published' &&
+          (!filter.subjectId || p.subjectId === filter.subjectId) &&
+          (!filter.gradeLevel || p.gradeLevel === filter.gradeLevel) &&
+          (!filter.semester || p.semester === filter.semester),
+      )
+      .sort((a, b) => a.seq - b.seq)
+      .map((p) => this.program(p));
+  }
+
+  async listProgramsByTeacher(teacherId: string): Promise<ProgramRecord[]> {
+    return [...this.programs.values()]
+      .filter((p) => !p.deleted && p.teacherId === teacherId)
+      .sort((a, b) => a.seq - b.seq)
+      .map((p) => this.program(p));
+  }
+
+  async updateProgram(id: string, patch: UpdateProgramPatch): Promise<ProgramRecord | null> {
+    const p = this.programs.get(id);
+    if (!p || p.deleted) return null;
+    Object.assign(p, patch);
+    return this.program(p);
+  }
+
+  async softDeleteProgram(id: string): Promise<void> {
+    const p = this.programs.get(id);
+    if (p) p.deleted = true;
+  }
+
+  // --- Chapters ---
+  async createChapter(input: CreateChapterInput): Promise<ChapterRecord> {
+    const record: StoredChapter = {
+      id: randomUUID(),
+      programId: input.programId,
+      orderIndex: input.orderIndex,
+      title: input.title ?? null,
+      metadata: input.metadata ?? {},
+      deleted: false,
+    };
+    this.chapters.set(record.id, record);
+    return this.chapter(record);
+  }
+
+  async getChapterById(id: string): Promise<ChapterRecord | null> {
+    const c = this.chapters.get(id);
+    return c && !c.deleted ? this.chapter(c) : null;
+  }
+
+  async listChaptersByProgram(programId: string): Promise<ChapterRecord[]> {
+    return [...this.chapters.values()]
+      .filter((c) => !c.deleted && c.programId === programId)
+      .sort((a, b) => a.orderIndex - b.orderIndex)
+      .map((c) => this.chapter(c));
+  }
+
+  async updateChapter(id: string, patch: UpdateChapterPatch): Promise<ChapterRecord | null> {
+    const c = this.chapters.get(id);
+    if (!c || c.deleted) return null;
+    Object.assign(c, patch);
+    return this.chapter(c);
+  }
+
+  async softDeleteChapter(id: string): Promise<void> {
+    const c = this.chapters.get(id);
+    if (c) c.deleted = true;
+  }
+
+  // --- Lessons ---
+  async createLesson(input: CreateLessonInput): Promise<LessonRecord> {
+    const record: StoredLesson = {
+      id: randomUUID(),
+      chapterId: input.chapterId,
+      orderIndex: input.orderIndex,
+      lessonType: input.lessonType,
+      status: input.status ?? 'draft',
+      visibility: input.visibility ?? 'paid',
+      prerequisiteLessonId: input.prerequisiteLessonId ?? null,
+      metadata: input.metadata ?? {},
+      deleted: false,
+    };
+    this.lessons.set(record.id, record);
+    return this.lesson(record);
+  }
+
+  async getLessonById(id: string): Promise<LessonRecord | null> {
+    const l = this.lessons.get(id);
+    return l && !l.deleted ? this.lesson(l) : null;
+  }
+
+  async listLessonsByChapter(chapterId: string): Promise<LessonRecord[]> {
+    return [...this.lessons.values()]
+      .filter((l) => !l.deleted && l.chapterId === chapterId)
+      .sort((a, b) => a.orderIndex - b.orderIndex)
+      .map((l) => this.lesson(l));
+  }
+
+  async updateLesson(id: string, patch: UpdateLessonPatch): Promise<LessonRecord | null> {
+    const l = this.lessons.get(id);
+    if (!l || l.deleted) return null;
+    Object.assign(l, patch);
+    return this.lesson(l);
+  }
+
+  async softDeleteLesson(id: string): Promise<void> {
+    const l = this.lessons.get(id);
+    if (l) l.deleted = true;
+  }
+
+  // --- Lesson detail store ---
+  async upsertDetails(
+    type: LessonType,
+    lessonId: string,
+    row: Record<string, unknown>,
+  ): Promise<void> {
+    this.details.set(`${type}:${lessonId}`, { lessonId, ...row });
+  }
+
+  async getDetails(type: LessonType, lessonId: string): Promise<Record<string, unknown> | null> {
+    return this.details.get(`${type}:${lessonId}`) ?? null;
+  }
+
+  // Return copies so callers can't mutate internal state.
+  private program(p: StoredProgram): ProgramRecord {
+    return {
+      id: p.id,
+      teacherId: p.teacherId,
+      subjectId: p.subjectId,
+      gradeLevel: p.gradeLevel,
+      semester: p.semester,
+      priceEgp: p.priceEgp,
+      status: p.status,
+      metadata: { ...p.metadata },
+    };
+  }
+  private chapter(c: StoredChapter): ChapterRecord {
+    return {
+      id: c.id,
+      programId: c.programId,
+      orderIndex: c.orderIndex,
+      title: c.title,
+      metadata: { ...c.metadata },
+    };
+  }
+  private lesson(l: StoredLesson): LessonRecord {
+    return {
+      id: l.id,
+      chapterId: l.chapterId,
+      orderIndex: l.orderIndex,
+      lessonType: l.lessonType,
+      status: l.status,
+      visibility: l.visibility,
+      prerequisiteLessonId: l.prerequisiteLessonId,
+      metadata: { ...l.metadata },
+    };
   }
 }

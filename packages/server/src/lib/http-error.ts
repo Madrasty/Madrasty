@@ -22,6 +22,10 @@ export class HttpError extends Error {
     return new HttpError(403, code, message);
   }
 
+  static notFound(code: string, message: string) {
+    return new HttpError(404, code, message);
+  }
+
   static conflict(code: string, message: string) {
     return new HttpError(409, code, message);
   }
