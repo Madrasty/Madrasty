@@ -1,0 +1,16 @@
+{
+  "name": "madrasty",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Madrasty — Egyptian EdTech SaaS platform (monorepo)",
+  "workspaces": [
+    "packages/shared",
+    "packages/server",
+    "packages/client"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace @madrasty/server",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  }
+}

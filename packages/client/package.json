@@ -1,0 +1,6 @@
+{
+  "name": "@madrasty/client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Madrasty web client (React + Vite + TypeScript) — placeholder, not yet scaffolded"
+}
