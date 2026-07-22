@@ -1,0 +1,46 @@
+# Local development infrastructure for Madrasty (doc 01 §5, doc 14 §9).
+# Brings up PostgreSQL + Redis for the app to run against locally.
+# The application itself (packages/server, packages/client) runs on the host
+# via Node/Vite — only the stateful backing services are containerized here.
+#
+#   docker compose up -d      # start postgres + redis
+#   docker compose ps         # check status
+#   docker compose down       # stop (keeps data in the pgdata volume)
+#   docker compose down -v    # stop and wipe the database volume
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: madrasty-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-madrasty}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-madrasty_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-madrasty_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-madrasty} -d ${POSTGRES_DB:-madrasty_dev}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: madrasty-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  redisdata:
