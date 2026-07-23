@@ -7,6 +7,8 @@ import { ParentDashboardPage } from '../features/parent-dashboard/ParentDashboar
 import { TeacherDashboardPage } from '../features/teacher-dashboard/TeacherDashboardPage';
 import { AdminDashboardPage } from '../features/admin-dashboard/AdminDashboardPage';
 import { TeacherMarketplacePage } from '../features/home-tutoring/TeacherMarketplacePage';
+import { CatalogBrowsePage } from '../features/catalog/CatalogBrowsePage';
+import { ProgramDetailPage } from '../features/catalog/ProgramDetailPage';
 import { LearningPlayerPage } from '../features/learning-player/LearningPlayerPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { ParentRegisterPage } from '../features/auth/ParentRegisterPage';
@@ -102,6 +104,25 @@ export const routes: RouteObject[] = [
     element: (
       <DashboardLayout role="student">
         <TeacherMarketplacePage />
+      </DashboardLayout>
+    ),
+  },
+  // Learning Program catalog (doc 12) — real, wired to the browse API. Free
+  // preview only; enrollment/checkout is roadmap step 4. Reachable directly
+  // until auth-based role gating lands; the shell uses the student sidebar.
+  {
+    path: '/app/catalog',
+    element: (
+      <DashboardLayout role="student">
+        <CatalogBrowsePage />
+      </DashboardLayout>
+    ),
+  },
+  {
+    path: '/app/catalog/:programId',
+    element: (
+      <DashboardLayout role="student">
+        <ProgramDetailPage />
       </DashboardLayout>
     ),
   },

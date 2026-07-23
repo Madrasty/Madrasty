@@ -21,7 +21,7 @@ export function dashboardPath(role: DashboardRole): string {
 export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   student: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/student' },
-    { labelKey: 'learningPrograms', icon: 'school', path: '/learn' },
+    { labelKey: 'learningPrograms', icon: 'school', path: '/app/catalog' },
     { labelKey: 'marketplace', icon: 'storefront', path: '/app/marketplace' },
     { labelKey: 'tutoring', icon: 'record_voice_over' },
     { labelKey: 'profile', icon: 'account_circle' },
@@ -29,6 +29,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   parent: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/parent' },
     { labelKey: 'children', icon: 'family_restroom' },
+    { labelKey: 'learningPrograms', icon: 'school', path: '/app/catalog' },
     { labelKey: 'marketplace', icon: 'storefront', path: '/app/marketplace' },
     { labelKey: 'tutoring', icon: 'record_voice_over' },
     { labelKey: 'billing', icon: 'payments' },

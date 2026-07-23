@@ -506,6 +506,29 @@
       "reloadError": "Could not load this program."
     }
   },
+  "catalog": {
+    "title": "Learning programs",
+    "subtitle": "Browse published programs and preview free lessons before you enroll.",
+    "found": "{{count}} programs",
+    "allGrades": "All grades",
+    "empty": "No programs yet",
+    "emptyHint": "Published programs will appear here as teachers add them.",
+    "error": "Could not load programs.",
+    "untitled": "Untitled program",
+    "free": "Free",
+    "price": "EGP {{price}}",
+    "view": "View",
+    "backToCatalog": "Back to catalog",
+    "notFound": "This program is unavailable.",
+    "lessonCount": "{{count}} lessons",
+    "contents": "Program contents",
+    "noContent": "No chapters have been published yet.",
+    "untitledChapter": "Untitled chapter",
+    "noLessons": "No lessons published yet.",
+    "freePreview": "Free preview",
+    "enroll": "Enroll",
+    "enrollSoon": "Enrollment opens soon."
+  },
   "styleGuide": {
     "title": "Madrasty Design System",
     "subtitle": "Foundation components and tokens shared by every dashboard.",

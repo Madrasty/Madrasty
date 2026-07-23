@@ -21,6 +21,8 @@ const CASES: Array<{ path: string; heading: RegExp }> = [
   { path: '/app/teacher', heading: /Welcome back, Mr\. Hassan/ },
   { path: '/app/admin', heading: /Platform overview/ },
   { path: '/app/marketplace', heading: /Find a private tutor/ },
+  { path: '/app/catalog', heading: /Learning programs/ },
+  { path: '/app/catalog/some-program-id', heading: /Back to catalog/ },
   { path: '/learn', heading: /core concepts of calculus/ },
   { path: '/style-guide', heading: /Madrasty Design System/ },
 ];
