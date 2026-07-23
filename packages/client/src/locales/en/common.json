@@ -527,7 +527,42 @@
     "noLessons": "No lessons published yet.",
     "freePreview": "Free preview",
     "enroll": "Enroll",
-    "enrollSoon": "Enrollment opens soon."
+    "enrollSoon": "Enrollment opens soon.",
+    "freeNote": "Free — open any lesson to start."
+  },
+  "checkout": {
+    "enrollNow": "Enroll now",
+    "processing": "Starting checkout…",
+    "loginToEnroll": "Log in to enroll",
+    "parentSoon": "Buying for your child is coming soon — parent checkout isn't available yet.",
+    "staffCannotBuy": "This account type can't purchase programs.",
+    "return": {
+      "pollingTitle": "Confirming your payment",
+      "pollingBody": "This only takes a moment — please don't close this page.",
+      "paidTitle": "You're enrolled!",
+      "paidBody": "Your payment went through and the program is unlocked.",
+      "failedTitle": "Payment didn't go through",
+      "failedBody": "No charge was completed. You can try again.",
+      "timeoutTitle": "Still confirming",
+      "timeoutBody": "This is taking longer than usual. We'll unlock the program the moment your payment clears.",
+      "errorTitle": "Couldn't check your payment",
+      "errorBody": "Please refresh in a moment, or check your programs.",
+      "missingTitle": "Nothing to confirm",
+      "missingBody": "We couldn't find a payment to confirm.",
+      "openProgram": "Open program",
+      "myLearning": "Go to my dashboard",
+      "backToCatalog": "Back to catalog",
+      "tryAgain": "Try again"
+    },
+    "errors": {
+      "already_enrolled": "You already have access to this program.",
+      "provider_unavailable": "Payment isn't available right now — please try again later.",
+      "program_not_purchasable": "This program isn't for sale.",
+      "program_is_free": "This program is free — no payment is needed.",
+      "not_your_purchase": "You can only enroll yourself.",
+      "rate_limited": "Too many attempts — please wait a moment and try again.",
+      "unknown_error": "Something went wrong starting checkout. Please try again."
+    }
   },
   "styleGuide": {
     "title": "Madrasty Design System",

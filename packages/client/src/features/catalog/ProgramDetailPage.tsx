@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { catalogApi } from './catalog.api';
 import { lessonTypeIcon, lessonTypeLabelKey } from './lessonTypeMeta';
+import { EnrollButton } from '../payments/EnrollButton';
 
 // Public program detail (doc 12): the full chapter/lesson tree with per-lesson
 // access already resolved server-side (`locked`). Free-preview lessons open in
@@ -87,14 +88,14 @@ export function ProgramDetailPage() {
               <span className="text-headline-md font-bold text-primary">
                 {isFree ? t('catalog.free') : t('catalog.price', { price: program.priceEgp })}
               </span>
-              {/* Payments are roadmap step 4 — the CTA is intentionally disabled. */}
-              <Button variant="primary" size="large" disabled title={t('catalog.enrollSoon')}>
-                <Icon name="lock" filled className="text-[1.1rem]" />
-                {t('catalog.enroll')}
-              </Button>
-              <span className="text-label-sm text-on-surface-variant">
-                {t('catalog.enrollSoon')}
-              </span>
+              {isFree ? (
+                <span className="inline-flex items-center gap-1 text-label-sm text-on-surface-variant">
+                  <Icon name="lock_open" className="text-[1rem]" />
+                  {t('catalog.freeNote')}
+                </span>
+              ) : (
+                <EnrollButton programId={program.id} />
+              )}
             </div>
           </header>
 

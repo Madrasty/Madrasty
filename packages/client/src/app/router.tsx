@@ -9,6 +9,7 @@ import { AdminDashboardPage } from '../features/admin-dashboard/AdminDashboardPa
 import { TeacherMarketplacePage } from '../features/home-tutoring/TeacherMarketplacePage';
 import { CatalogBrowsePage } from '../features/catalog/CatalogBrowsePage';
 import { ProgramDetailPage } from '../features/catalog/ProgramDetailPage';
+import { CheckoutReturnPage } from '../features/payments/CheckoutReturnPage';
 import { LearningPlayerPage } from '../features/learning-player/LearningPlayerPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { ParentRegisterPage } from '../features/auth/ParentRegisterPage';
@@ -127,6 +128,8 @@ export const routes: RouteObject[] = [
     ),
   },
   { path: '/learn', element: <LearningPlayerPage /> },
+  // Post-checkout status screen (doc 04 §3 — polls the webhook-confirmed status).
+  { path: '/checkout/return', element: <CheckoutReturnPage /> },
   { path: '/style-guide', element: <StyleGuidePage /> },
 ];
 

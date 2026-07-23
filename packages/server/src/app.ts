@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import { errorMiddleware } from './lib/error-middleware';
 import { createAuthRouter } from './modules/auth/index';
 import { createLearningProgramsRouter } from './modules/learning-programs/index';
+import { createPaymentsRouter } from './modules/payments/index';
 
 // Builds the Express app (no network listen), so tests can import it and the
 // bootstrap in server.ts owns process concerns.
@@ -18,6 +19,7 @@ export function buildApp() {
 
   app.use('/api/auth', createAuthRouter());
   app.use('/api/learning-programs', createLearningProgramsRouter());
+  app.use('/api/payments', createPaymentsRouter());
 
   // Central error handler must be registered last.
   app.use(errorMiddleware);

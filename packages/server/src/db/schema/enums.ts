@@ -98,3 +98,34 @@ export const enrollmentStatus = pgEnum('enrollment_status', [
   'expired',
   'cancelled',
 ]);
+
+// --- Payments (doc 03, doc 04) ---
+// Adding a gateway = a new value here + a new provider class — zero other schema
+// change (doc 04 §1). `mock` is a dev/test-only provider (never enabled in prod).
+export const paymentProvider = pgEnum('payment_provider', [
+  'paymob',
+  'fawry',
+  'vodafone_cash',
+  'instapay',
+  'stripe',
+  'mock',
+]);
+
+// What a transaction buys. Only 'learning_program' is wired now; the rest are
+// reserved so the column is stable as subscriptions/bookings land (doc 04 §3).
+export const purchasableType = pgEnum('purchasable_type', [
+  'learning_program',
+  'subscription',
+  'booking',
+  'center_plan',
+]);
+
+// Transaction lifecycle (doc 03). This is the CUSTOMER-paid lifecycle; teacher
+// payout (escrow, doc 13) is a separate field and must not be inferred from this.
+export const transactionStatus = pgEnum('transaction_status', [
+  'pending',
+  'paid',
+  'failed',
+  'refunded',
+  'partially_refunded',
+]);

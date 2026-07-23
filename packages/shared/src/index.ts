@@ -257,3 +257,71 @@ export interface AuthoredLesson {
   description: string | null;
   details: Record<string, unknown> | null;
 }
+
+// ---------------------------------------------------------------------------
+// Payments (doc 04). Adding a gateway = a new value here + a new provider class
+// server-side — no other type change (doc 04 §1).
+// ---------------------------------------------------------------------------
+export const PAYMENT_PROVIDERS = [
+  'paymob',
+  'fawry',
+  'vodafone_cash',
+  'instapay',
+  'stripe',
+  'mock',
+] as const;
+export type PaymentProviderName = (typeof PAYMENT_PROVIDERS)[number];
+
+export const PURCHASABLE_TYPES = [
+  'learning_program',
+  'subscription',
+  'booking',
+  'center_plan',
+] as const;
+export type PurchasableType = (typeof PURCHASABLE_TYPES)[number];
+
+export const TRANSACTION_STATUSES = [
+  'pending',
+  'paid',
+  'failed',
+  'refunded',
+  'partially_refunded',
+] as const;
+export type TransactionStatus = (typeof TRANSACTION_STATUSES)[number];
+
+// Start a checkout. The client sends WHAT to buy and for WHOM — never a price.
+// The server recalculates the amount from its own records (doc 04 §3). A parent
+// paying for a child sets `studentId` to the child; a student self-purchasing
+// may omit it (defaults to self).
+export interface CheckoutRequest {
+  purchasableType: PurchasableType;
+  purchasableId: string;
+  studentId?: string;
+  provider: PaymentProviderName;
+  couponCode?: string;
+}
+
+// What the client needs to complete payment on the provider's hosted page. The
+// shape is provider-agnostic: `redirectUrl` for a hosted page/iframe, plus the
+// transaction id the client polls for the final (webhook-driven) status.
+export interface CheckoutResult {
+  transactionId: string;
+  status: TransactionStatus;
+  amountEgp: string;
+  provider: PaymentProviderName;
+  redirectUrl: string | null;
+  providerReference: string | null;
+}
+
+// Read model for polling a transaction's status after redirect (doc 04 §3 — the
+// UI shows success only once the server-verified status says `paid`).
+export interface TransactionView {
+  id: string;
+  purchasableType: PurchasableType;
+  purchasableId: string;
+  amountEgp: string;
+  currency: string;
+  provider: PaymentProviderName;
+  status: TransactionStatus;
+  createdAt: string;
+}

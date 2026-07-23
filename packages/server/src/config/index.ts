@@ -51,6 +51,10 @@ const envSchema = z.object({
   PAYMOB_API_KEY: z.string().optional(),
   PAYMOB_HMAC_SECRET: z.string().optional(),
   PAYMOB_INTEGRATION_ID: z.string().optional(),
+  // Paymob's API host + hosted-iframe id. Defaulted (not hard-coded in provider
+  // source) so sandbox↔prod is a config change; override per environment.
+  PAYMOB_BASE_URL: z.string().default('https://accept.paymob.com/api'),
+  PAYMOB_IFRAME_ID: z.string().optional(),
   FAWRY_API_KEY: z.string().optional(),
   FAWRY_MERCHANT_CODE: z.string().optional(),
   VODAFONE_CASH_API_KEY: z.string().optional(),

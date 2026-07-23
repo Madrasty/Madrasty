@@ -36,6 +36,13 @@
       "when": 1784804995607,
       "tag": "0004_backfill_title_translations",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784834632207,
+      "tag": "0005_clever_ironclad",
+      "breakpoints": true
     }
   ]
 }
