@@ -313,7 +313,9 @@
       "school": "School (optional)",
       "city": "City (optional)",
       "otp": "Verification code",
-      "otpPlaceholder": "6-digit code"
+      "otpPlaceholder": "6-digit code",
+      "currentPassword": "Current password",
+      "newPassword": "New password"
     },
     "validation": {
       "fullName": "Please enter your full name.",
@@ -323,7 +325,8 @@
       "confirm": "Passwords do not match.",
       "name": "Please enter the student's name.",
       "grade": "Please enter a grade.",
-      "dateOfBirth": "Please enter a valid date of birth."
+      "dateOfBirth": "Please enter a valid date of birth.",
+      "currentPassword": "Please enter your current password."
     },
     "relationships": {
       "father": "Father",
@@ -344,6 +347,20 @@
       "submit": "Create account",
       "haveAccount": "Already have an account?",
       "loginLink": "Log in"
+    },
+    "teacherRegister": {
+      "title": "Create a teacher account",
+      "subtitle": "Sign up to build and publish your learning programs.",
+      "submit": "Create teacher account",
+      "hint": "Your account is reviewed by an admin before your programs go live."
+    },
+    "changePassword": {
+      "title": "Change password",
+      "subtitle": "Update your account password.",
+      "submit": "Update password",
+      "doneTitle": "Password updated",
+      "doneBody": "Your password has been changed.",
+      "backToDashboard": "Back to dashboard"
     },
     "studentRegister": {
       "title": "Student sign-up",
@@ -383,6 +400,7 @@
       "validation_error": "Please check the highlighted fields and try again.",
       "account_exists": "An account with this email or phone already exists.",
       "invalid_credentials": "Incorrect email/phone or password.",
+      "invalid_current_password": "Your current password is incorrect.",
       "account_not_active": "This account is not active yet.",
       "invalid_refresh_token": "Your session has expired. Please log in again.",
       "approval_request_not_found": "This approval link is invalid or no longer exists.",
@@ -397,6 +415,95 @@
       "missing_token": "Please log in to continue.",
       "invalid_token": "Your session has expired. Please log in again.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "authoring": {
+    "lessonTypes": {
+      "recorded": "Recorded video",
+      "live": "Live session",
+      "pdf": "PDF / notes",
+      "audio": "Audio",
+      "quiz": "Quiz",
+      "homework": "Homework",
+      "exam": "Exam",
+      "private_session": "Private session"
+    },
+    "visibilities": {
+      "free": "Free",
+      "paid": "Paid",
+      "locked": "Locked (prerequisite)",
+      "prerequisite": "Prerequisite",
+      "invite_only": "Invite only"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "published": "Published",
+      "archived": "Archived",
+      "pending_review": "In review"
+    },
+    "myPrograms": {
+      "title": "My programs",
+      "subtitle": "Create, edit, and publish your learning programs.",
+      "new": "New program",
+      "empty": "You haven't created any programs yet.",
+      "emptyHint": "Start by creating your first learning program.",
+      "open": "Open",
+      "lessonsCount": "{{count}} lessons",
+      "colTitle": "Program",
+      "colGrade": "Grade",
+      "colPrice": "Price",
+      "colStatus": "Status",
+      "untitled": "Untitled program"
+    },
+    "newProgram": {
+      "title": "New program",
+      "subtitle": "You can add chapters and lessons after creating it.",
+      "titleEn": "Title (English)",
+      "titleAr": "Title (Arabic)",
+      "descriptionEn": "Description (English)",
+      "descriptionAr": "Description (Arabic)",
+      "grade": "Grade level",
+      "gradePlaceholder": "e.g. Grade 8",
+      "semester": "Semester",
+      "semesterPlaceholder": "e.g. Semester 1",
+      "price": "Price (EGP)",
+      "submit": "Create program",
+      "cancel": "Cancel",
+      "needTitle": "Please enter a title in at least one language."
+    },
+    "editor": {
+      "back": "Back to my programs",
+      "draftBadge": "Draft — not visible to students",
+      "publishProgram": "Publish program",
+      "publishedBadge": "Published",
+      "priceLabel": "Price",
+      "addChapter": "Add chapter",
+      "chapterTitleEn": "Chapter title (English)",
+      "chapterTitleAr": "Chapter title (Arabic)",
+      "saveChapter": "Add chapter",
+      "noChapters": "No chapters yet. Add your first chapter to begin.",
+      "chapterLabel": "Chapter {{n}}",
+      "noLessons": "No lessons in this chapter yet.",
+      "addLesson": "Add lesson",
+      "lessonTitleEn": "Lesson title (English)",
+      "lessonTitleAr": "Lesson title (Arabic)",
+      "lessonType": "Lesson type",
+      "visibility": "Visibility",
+      "status": "Status",
+      "prerequisite": "Unlocks after",
+      "prerequisitePlaceholder": "Select a lesson",
+      "saveLesson": "Add lesson",
+      "publishLesson": "Publish",
+      "videoUrl": "Video URL",
+      "audioUrl": "Audio URL",
+      "fileUrl": "File URL",
+      "meetingUrl": "Meeting URL",
+      "durationSeconds": "Duration (seconds)",
+      "pageCount": "Page count",
+      "scheduledStart": "Scheduled start",
+      "detailsNote": "This lesson type reuses another module and has no extra fields yet.",
+      "reloadError": "Could not load this program."
     }
   },
   "styleGuide": {

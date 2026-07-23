@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from './Icon';
 import { LanguageToggle } from './LanguageToggle';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -44,6 +44,14 @@ export function TopBar({ role }: TopBarProps) {
                 {user.fullName}
               </span>
             )}
+            <Link
+              to="/account/password"
+              aria-label={t('auth.changePassword.title')}
+              title={t('auth.changePassword.title')}
+              className="rounded-full p-1 text-on-surface-variant transition-colors hover:text-primary"
+            >
+              <Icon name="lock_reset" />
+            </Link>
             <button
               type="button"
               onClick={onLogout}

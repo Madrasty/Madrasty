@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
-// Localized text stored as { ar, en } (doc 12 uses JSONB titles for chapters;
-// program/lesson titles ride in metadata until translations wiring lands).
+// Localized text as { ar?, en? }. Persisted to the `translations` table (doc 03 /
+// doc 12 §6), one row per (entity, locale, field) — not metadata/JSONB columns.
 const localized = z.object({ ar: z.string().optional(), en: z.string().optional() });
+export type Localized = z.infer<typeof localized>;
 
 const lessonTypeEnum = z.enum([
   'recorded',
@@ -20,6 +21,7 @@ const lessonVisibilityEnum = z.enum(['free', 'paid', 'locked', 'prerequisite', '
 // --- Programs ---
 export const createProgramSchema = z.object({
   title: localized.optional(),
+  description: localized.optional(),
   subjectId: z.string().uuid().optional(),
   gradeLevel: z.string().trim().min(1).max(60).optional(),
   semester: z.string().trim().min(1).max(60).optional(),
@@ -32,6 +34,7 @@ export const updateProgramSchema = createProgramSchema.partial();
 // --- Chapters ---
 export const createChapterSchema = z.object({
   title: localized.optional(),
+  description: localized.optional(),
   orderIndex: z.number().int().nonnegative().optional(),
   metadata: z.record(z.unknown()).optional(),
 });
@@ -42,6 +45,7 @@ export const updateChapterSchema = createChapterSchema.partial();
 export const createLessonSchema = z.object({
   lessonType: lessonTypeEnum,
   title: localized.optional(),
+  description: localized.optional(),
   status: lessonStatusEnum.optional(),
   visibility: lessonVisibilityEnum.optional(),
   orderIndex: z.number().int().nonnegative().optional(),

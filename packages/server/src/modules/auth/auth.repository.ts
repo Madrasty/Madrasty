@@ -1,7 +1,7 @@
 import { and, eq, isNull, or } from 'drizzle-orm';
 import type { UserRole, UserStatus } from '@madrasty/shared';
 import { db as defaultDb, type Database } from '../../db/client';
-import { users } from '../../db/schema/index';
+import { teacherProfiles, users } from '../../db/schema/index';
 
 // Full internal record, including the password hash (never sent to clients).
 export interface UserRecord {
@@ -24,6 +24,9 @@ export interface CreateParentInput {
   localePreference: string;
 }
 
+// Teacher self-registration carries the same fields as a parent.
+export type CreateTeacherInput = CreateParentInput;
+
 // Data-access boundary for auth. The service depends on this interface, so tests
 // can inject an in-memory fake instead of a live Postgres.
 export interface UserRepository {
@@ -31,6 +34,9 @@ export interface UserRepository {
   findByIdentifier(identifier: string): Promise<UserRecord | null>;
   existsByEmailOrPhone(email: string, phone: string): Promise<boolean>;
   createParent(input: CreateParentInput): Promise<UserRecord>;
+  // Creates a teacher user plus its (unverified) teacher_profiles row.
+  createTeacher(input: CreateTeacherInput): Promise<UserRecord>;
+  updatePassword(userId: string, passwordHash: string): Promise<void>;
 }
 
 // The full name is not a first-class column in the `users` schema (doc 03); it
@@ -97,5 +103,33 @@ export class DrizzleUserRepository implements UserRepository {
       })
       .returning();
     return toRecord(rows[0]);
+  }
+
+  async createTeacher(input: CreateTeacherInput): Promise<UserRecord> {
+    // User + teacher_profiles created atomically; the profile starts unverified
+    // (verification_status defaults to 'pending') until an admin verifies them.
+    return this.db.transaction(async (tx) => {
+      const rows = await tx
+        .insert(users)
+        .values({
+          email: input.email,
+          phone: input.phone,
+          passwordHash: input.passwordHash,
+          role: 'teacher',
+          localePreference: input.localePreference,
+          verificationLevel: 1,
+          metadata: { fullName: input.fullName },
+        })
+        .returning();
+      await tx.insert(teacherProfiles).values({ userId: rows[0].id });
+      return toRecord(rows[0]);
+    });
+  }
+
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    await this.db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, userId));
   }
 }

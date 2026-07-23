@@ -33,6 +33,7 @@ import type {
   CreateProgramInput,
   LearningProgramsRepository,
   ListPublishedFilter,
+  TranslationRow,
   UpdateChapterPatch,
   UpdateLessonPatch,
   UpdateProgramPatch,
@@ -61,13 +62,26 @@ export class InMemoryUserRepository implements UserRepository {
   }
 
   async createParent(input: CreateParentInput): Promise<UserRecord> {
+    return this.createWithRole(input, 'parent');
+  }
+
+  async createTeacher(input: CreateParentInput): Promise<UserRecord> {
+    return this.createWithRole(input, 'teacher');
+  }
+
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    const rec = this.byId.get(userId);
+    if (rec) rec.passwordHash = passwordHash;
+  }
+
+  private createWithRole(input: CreateParentInput, role: UserRecord['role']): UserRecord {
     const record: UserRecord = {
       id: randomUUID(),
       fullName: input.fullName,
       email: input.email,
       phone: input.phone,
       passwordHash: input.passwordHash,
-      role: 'parent',
+      role,
       localePreference: input.localePreference,
       status: 'active',
       verificationLevel: 1,
@@ -299,6 +313,7 @@ export class InMemoryLearningProgramsRepository implements LearningProgramsRepos
   private enrollments: EnrollmentRecord[] = [];
   private progress = new Map<string, LessonProgressRecord>();
   private invites = new Set<string>();
+  private translations: TranslationRow[] = [];
   private seq = 0;
 
   // --- Programs ---
@@ -553,6 +568,32 @@ export class InMemoryLearningProgramsRepository implements LearningProgramsRepos
 
   async isLessonInvited(lessonId: string, studentId: string): Promise<boolean> {
     return this.invites.has(`${lessonId}:${studentId}`);
+  }
+
+  // --- Translations ---
+  async setTranslation(
+    entityType: string,
+    entityId: string,
+    locale: string,
+    field: string,
+    value: string,
+  ): Promise<void> {
+    const existing = this.translations.find(
+      (t) =>
+        t.entityType === entityType &&
+        t.entityId === entityId &&
+        t.locale === locale &&
+        t.field === field,
+    );
+    if (existing) existing.value = value;
+    else this.translations.push({ entityType, entityId, locale, field, value });
+  }
+
+  async listTranslations(entityType: string, entityIds: string[]): Promise<TranslationRow[]> {
+    const set = new Set(entityIds);
+    return this.translations
+      .filter((t) => t.entityType === entityType && set.has(t.entityId))
+      .map((t) => ({ ...t }));
   }
 
   // Return copies so callers can't mutate internal state.

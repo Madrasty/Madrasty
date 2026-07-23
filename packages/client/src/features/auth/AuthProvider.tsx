@@ -1,6 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { AuthUser, LoginRequest, RegisterParentRequest } from '@madrasty/shared';
+import type {
+  AuthUser,
+  LoginRequest,
+  RegisterParentRequest,
+  RegisterTeacherRequest,
+} from '@madrasty/shared';
 import { setAccessToken } from '../../lib/api';
 import { authApi } from './auth.api';
 
@@ -11,6 +16,7 @@ interface AuthContextValue {
   status: AuthStatus;
   login: (input: LoginRequest) => Promise<AuthUser>;
   registerParent: (input: RegisterParentRequest) => Promise<AuthUser>;
+  registerTeacher: (input: RegisterTeacherRequest) => Promise<AuthUser>;
   logout: () => Promise<void>;
 }
 
@@ -87,6 +93,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [login],
   );
 
+  const registerTeacher = useCallback<AuthContextValue['registerTeacher']>(
+    async (input) => {
+      // Same as parent: register, then auto-login into the teacher dashboard.
+      const { user: created } = await authApi.registerTeacher(input);
+      await login({ identifier: input.email, password: input.password });
+      return created;
+    },
+    [login],
+  );
+
   const logout = useCallback<AuthContextValue['logout']>(async () => {
     try {
       await authApi.logout();
@@ -96,8 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [persist]);
 
   const value = useMemo(
-    () => ({ user, status, login, registerParent, logout }),
-    [user, status, login, registerParent, logout],
+    () => ({ user, status, login, registerParent, registerTeacher, logout }),
+    [user, status, login, registerParent, registerTeacher, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

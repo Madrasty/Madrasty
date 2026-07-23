@@ -11,6 +11,7 @@ import {
   liveLessonDetails,
   pdfLessonDetails,
   recordedLessonDetails,
+  translations,
 } from '../../db/schema/index';
 import type {
   ChapterRecord,
@@ -101,9 +102,35 @@ export interface LessonDetailsStore {
   getDetails(type: LessonType, lessonId: string): Promise<Record<string, unknown> | null>;
 }
 
+export interface TranslationRow {
+  entityType: string;
+  entityId: string;
+  locale: string;
+  field: string;
+  value: string;
+}
+
+// Locale-aware content via the `translations` table (doc 03 / doc 12 §6) — one
+// row per (entity, locale, field), never name_ar/name_en columns.
+export interface TranslationsStore {
+  setTranslation(
+    entityType: string,
+    entityId: string,
+    locale: string,
+    field: string,
+    value: string,
+  ): Promise<void>;
+  // All translation rows for the given entities of one type (batch read to avoid
+  // N+1 when resolving a whole program tree).
+  listTranslations(entityType: string, entityIds: string[]): Promise<TranslationRow[]>;
+}
+
 // Data-access boundary for the whole module. The services depend on this
 // interface so tests can inject an in-memory fake instead of live Postgres.
-export interface LearningProgramsRepository extends LessonDetailsStore, EnrollmentStore {
+export interface LearningProgramsRepository
+  extends LessonDetailsStore,
+    EnrollmentStore,
+    TranslationsStore {
   createProgram(input: CreateProgramInput): Promise<ProgramRecord>;
   getProgramById(id: string): Promise<ProgramRecord | null>;
   listPublishedPrograms(filter: ListPublishedFilter): Promise<ProgramRecord[]>;
@@ -513,5 +540,47 @@ export class DrizzleLearningProgramsRepository implements LearningProgramsReposi
       .where(and(eq(lessonInvites.lessonId, lessonId), eq(lessonInvites.studentId, studentId)))
       .limit(1);
     return rows.length > 0;
+  }
+
+  // --- Translations (locale-aware titles/descriptions) ---
+  async setTranslation(
+    entityType: string,
+    entityId: string,
+    locale: string,
+    field: string,
+    value: string,
+  ): Promise<void> {
+    await this.db
+      .insert(translations)
+      .values({ entityType, entityId, locale, field, value })
+      .onConflictDoUpdate({
+        target: [
+          translations.entityType,
+          translations.entityId,
+          translations.locale,
+          translations.field,
+        ],
+        set: { value },
+      });
+  }
+
+  async listTranslations(entityType: string, entityIds: string[]): Promise<TranslationRow[]> {
+    if (entityIds.length === 0) return [];
+    const rows = await this.db
+      .select()
+      .from(translations)
+      .where(
+        and(
+          eq(translations.entityType, entityType),
+          inArray(translations.entityId, entityIds),
+        ),
+      );
+    return rows.map((r) => ({
+      entityType: r.entityType,
+      entityId: r.entityId,
+      locale: r.locale,
+      field: r.field,
+      value: r.value,
+    }));
   }
 }

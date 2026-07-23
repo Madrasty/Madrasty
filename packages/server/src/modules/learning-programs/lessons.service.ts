@@ -1,14 +1,19 @@
+import { config } from '../../config/index';
 import type {
   LearningProgramsRepository,
   UpdateLessonPatch,
 } from './learning-programs.repository';
 import { getHandler, type LessonHandlerRegistry } from './lesson-types/handler';
 import { loadChapterInProgram, loadEditableProgram, loadLessonInChapter } from './guards';
+import { LESSON_ENTITY, resolveLocalizedText, writeLocalizedFields } from './localized';
 import type { Actor, LessonRecord } from './types';
 import type { CreateLessonBody, UpdateLessonBody } from './learning-programs.schemas';
 
 export interface LessonWithDetails {
   lesson: LessonRecord;
+  // Resolved for the request locale from the translations table (doc 12 §6).
+  title: string | null;
+  description: string | null;
   details: Record<string, unknown> | null;
 }
 
@@ -25,6 +30,7 @@ export class LessonsService {
     programId: string,
     chapterId: string,
     body: CreateLessonBody,
+    locale: string = config.DEFAULT_LOCALE,
   ): Promise<LessonWithDetails> {
     await loadEditableProgram(this.repo, actor, programId);
     await loadChapterInProgram(this.repo, programId, chapterId);
@@ -36,9 +42,6 @@ export class LessonsService {
       handler.detailsSchema.parse(body.details);
     }
 
-    const metadata: Record<string, unknown> = { ...(body.metadata ?? {}) };
-    if (body.title) metadata.title = body.title;
-
     const lesson = await this.repo.createLesson({
       chapterId,
       orderIndex: body.orderIndex ?? (await this.nextOrderIndex(chapterId)),
@@ -46,14 +49,18 @@ export class LessonsService {
       status: body.status,
       visibility: body.visibility,
       prerequisiteLessonId: body.prerequisiteLessonId ?? null,
-      metadata,
+      metadata: body.metadata ?? {}, // titles live in translations now (doc 12 §6)
     });
 
     // Handler validates `details` against its own schema and throws on mismatch.
     if (body.details !== undefined) {
       await handler.saveDetails(lesson.id, body.details);
     }
-    return { lesson, details: await handler.getDetails(lesson.id) };
+    await writeLocalizedFields(this.repo, LESSON_ENTITY, lesson.id, {
+      title: body.title,
+      description: body.description,
+    });
+    return this.toView(lesson, locale);
   }
 
   async update(
@@ -62,6 +69,7 @@ export class LessonsService {
     chapterId: string,
     lessonId: string,
     body: UpdateLessonBody,
+    locale: string = config.DEFAULT_LOCALE,
   ): Promise<LessonWithDetails> {
     await loadEditableProgram(this.repo, actor, programId);
     await loadChapterInProgram(this.repo, programId, chapterId);
@@ -75,19 +83,30 @@ export class LessonsService {
     if (body.prerequisiteLessonId !== undefined) {
       patch.prerequisiteLessonId = body.prerequisiteLessonId;
     }
-    if (body.metadata !== undefined || body.title !== undefined) {
-      patch.metadata = {
-        ...existing.metadata,
-        ...(body.metadata ?? {}),
-        ...(body.title !== undefined ? { title: body.title } : {}),
-      };
+    if (body.metadata !== undefined) {
+      patch.metadata = { ...existing.metadata, ...body.metadata };
     }
 
     const lesson = (await this.repo.updateLesson(lessonId, patch)) ?? existing;
     if (body.details !== undefined) {
       await handler.saveDetails(lessonId, body.details);
     }
-    return { lesson, details: await handler.getDetails(lessonId) };
+    await writeLocalizedFields(this.repo, LESSON_ENTITY, lessonId, {
+      title: body.title,
+      description: body.description,
+    });
+    return this.toView(lesson, locale);
+  }
+
+  private async toView(lesson: LessonRecord, locale: string): Promise<LessonWithDetails> {
+    const rows = await this.repo.listTranslations(LESSON_ENTITY, [lesson.id]);
+    const text = resolveLocalizedText(rows, lesson.id, locale, config.DEFAULT_LOCALE);
+    return {
+      lesson,
+      title: text.title,
+      description: text.description,
+      details: await getHandler(this.handlers, lesson.lessonType).getDetails(lesson.id),
+    };
   }
 
   async publish(

@@ -21,10 +21,24 @@ export const registerParentSchema = z.object({
     .default(config.DEFAULT_LOCALE),
 });
 
+// Teacher self-registration — identical fields to a parent; the role is fixed
+// server-side, never taken from the client.
+export const registerTeacherSchema = registerParentSchema;
+
 export const loginSchema = z.object({
   identifier: z.string().trim().min(1, 'Email or phone is required.'),
   password: z.string().min(1, 'Password is required.'),
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required.'),
+  newPassword: z
+    .string()
+    .min(8, 'New password must be at least 8 characters.')
+    .max(128, 'New password is too long.'),
+});
+
 export type RegisterParentInput = z.infer<typeof registerParentSchema>;
+export type RegisterTeacherInput = z.infer<typeof registerTeacherSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

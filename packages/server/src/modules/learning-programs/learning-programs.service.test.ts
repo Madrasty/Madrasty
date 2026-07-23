@@ -32,11 +32,13 @@ describe('learning-programs services', () => {
 
   describe('programs CRUD + RBAC', () => {
     it('creates a draft program owned by the acting teacher', async () => {
-      const p = await programs.create(teacher, { title: { en: 'Algebra' }, price: 500 });
+      const p = await programs.create(teacher, { title: { en: 'Algebra' }, price: 500 }, 'en');
       expect(p.teacherId).toBe(teacher.id);
       expect(p.status).toBe('draft');
       expect(p.priceEgp).toBe('500');
-      expect(p.metadata.title).toEqual({ en: 'Algebra' });
+      // Title now resolves from the translations table, not metadata (doc 12 §6).
+      expect(p.title).toBe('Algebra');
+      expect(p.metadata.title).toBeUndefined();
     });
 
     it('forbids a different teacher from editing the program', async () => {

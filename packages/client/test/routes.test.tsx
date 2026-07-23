@@ -14,6 +14,7 @@ const CASES: Array<{ path: string; heading: RegExp }> = [
   { path: '/', heading: /Empowering Egypt/ },
   { path: '/login', heading: /Welcome back/ },
   { path: '/register', heading: /Create a parent account/ },
+  { path: '/register/teacher', heading: /Create a teacher account/ },
   { path: '/register/student', heading: /Student sign-up/ },
   { path: '/app/student', heading: /Welcome back, Sarah!/ },
   { path: '/app/parent', heading: /Welcome back, Sarah$/ },

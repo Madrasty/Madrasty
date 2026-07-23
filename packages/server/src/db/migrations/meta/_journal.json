@@ -29,6 +29,13 @@
       "when": 1784793933362,
       "tag": "0003_bright_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784804995607,
+      "tag": "0004_backfill_title_translations",
+      "breakpoints": true
     }
   ]
 }

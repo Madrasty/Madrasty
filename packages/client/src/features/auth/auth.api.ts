@@ -2,6 +2,7 @@ import type {
   AddStudentRequest,
   AddStudentResponse,
   AuthUser,
+  ChangePasswordRequest,
   GuardianApprovalActionResponse,
   GuardianApprovalView,
   GuardianApproveRequest,
@@ -11,6 +12,8 @@ import type {
   RefreshResponse,
   RegisterParentRequest,
   RegisterParentResponse,
+  RegisterTeacherRequest,
+  RegisterTeacherResponse,
   StudentSelfRegisterRequest,
   StudentSelfRegisterResponse,
 } from '@madrasty/shared';
@@ -21,6 +24,16 @@ import { apiRequest } from '../../lib/api';
 export const authApi = {
   registerParent(body: RegisterParentRequest) {
     return apiRequest<RegisterParentResponse>('/auth/parent/register', { method: 'POST', body });
+  },
+  registerTeacher(body: RegisterTeacherRequest) {
+    return apiRequest<RegisterTeacherResponse>('/auth/teacher/register', { method: 'POST', body });
+  },
+  changePassword(body: ChangePasswordRequest) {
+    return apiRequest<{ success: boolean }>('/auth/change-password', {
+      method: 'POST',
+      body,
+      auth: true,
+    });
   },
   login(body: LoginRequest) {
     return apiRequest<LoginResponse>('/auth/login', { method: 'POST', body });

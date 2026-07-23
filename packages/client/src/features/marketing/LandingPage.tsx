@@ -67,7 +67,7 @@ export function LandingPage() {
                   <Icon name="arrow_forward" className="text-[1rem]" />
                 </Button>
               </Link>
-              <Link to="/login">
+              <Link to="/register/teacher">
                 <Button variant="secondary" size="large">
                   {t('landing.forEducators')}
                 </Button>

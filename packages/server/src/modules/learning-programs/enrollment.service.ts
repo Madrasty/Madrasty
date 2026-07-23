@@ -1,5 +1,7 @@
+import { config } from '../../config/index';
 import type { LearningProgramsRepository } from './learning-programs.repository';
 import { loadEditableProgram } from './guards';
+import { PROGRAM_ENTITY, resolveLocalizedText } from './localized';
 import { toProgramSummary, type ProgramSummary } from './views';
 import type { Actor, EnrollmentRecord, EnrollmentSource } from './types';
 
@@ -40,11 +42,18 @@ export class EnrollmentService {
   // A student's currently-active enrolled programs (doc 12 §8 "My Programs").
   // Enrollment may point at any program status (e.g. an admin grant before the
   // program is published), so this isn't limited to published programs.
-  async listMyPrograms(studentId: string): Promise<EnrolledProgram[]> {
+  async listMyPrograms(
+    studentId: string,
+    locale: string = config.DEFAULT_LOCALE,
+  ): Promise<EnrolledProgram[]> {
     const now = new Date();
     const active = await this.repo.listActiveEnrollmentsByStudent(studentId, now);
     const programs = await this.repo.getProgramsByIds(active.map((e) => e.programId));
     const byId = new Map(programs.map((p) => [p.id, p]));
+    const rows = await this.repo.listTranslations(
+      PROGRAM_ENTITY,
+      programs.map((p) => p.id),
+    );
 
     const result: EnrolledProgram[] = [];
     const seen = new Set<string>();
@@ -56,7 +65,10 @@ export class EnrollmentService {
       if (!program) continue; // program was soft-deleted
       seen.add(enrollment.programId);
       result.push({
-        ...toProgramSummary(program),
+        ...toProgramSummary(
+          program,
+          resolveLocalizedText(rows, program.id, locale, config.DEFAULT_LOCALE),
+        ),
         enrollment: {
           source: enrollment.source,
           grantedAt: enrollment.grantedAt,

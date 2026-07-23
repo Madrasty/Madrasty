@@ -179,6 +179,10 @@ lesson_invites (                           -- explicit allow-list for visibility
 
 **Access resolution** (per lesson, for a non-owner/non-admin viewer): `free` → open; `paid` → active enrollment; `locked`/`prerequisite` → active enrollment **and** `prerequisite_lesson_id` has a `completed_at` row in `lesson_progress` for that student; `invite_only` → a `lesson_invites` row for that student. A `locked`/`prerequisite` lesson with no `prerequisite_lesson_id` stays locked (a misconfiguration the authoring UI should prevent).
 
+### Localized titles/descriptions (translations table)
+
+Program, chapter, **and** lesson `title`/`description` live in the `translations` table (`entity_type, entity_id, locale, field, value`) — `entity_type` is `learning_program` | `chapter` | `lesson`, `field` is `title` | `description`. They are **not** stored in `metadata.title` JSONB, and the `chapters.title` JSONB column is deprecated (migration `0004_backfill_title_translations` moved existing values into `translations`, stripping `metadata.title`/`metadata.description` and nulling `chapters.title`). On write, each provided `{ar, en}` value upserts one row per locale; on read, the requested locale is resolved with fallback to `DEFAULT_LOCALE`, then null. API responses carry `title`/`description` as the **resolved string for the request locale** (from `?locale=`, then `Accept-Language`, then `DEFAULT_LOCALE`), not the `{ar, en}` object.
+
 ### Migration note for doc 03 and doc 10
 - `03-database-schema.md`: the old flat `courses`/`lessons` tables are replaced by `learning_programs` / `chapters` / `lessons` (with `lesson_type`) as shown above. `quizzes.course_id` and `quizzes.lesson_id` both still work conceptually, just now pointed at the new `lessons.id`.
 - `10-parent-teacher-student-engagement.md`: `exams.course_id` should be read as `exams.program_id REFERENCES learning_programs`, since exams now attach at the program level (or via an `exam`-type lesson when the exam needs to sit at a specific point in the learning path).

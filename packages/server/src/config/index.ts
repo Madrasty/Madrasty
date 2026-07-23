@@ -33,6 +33,11 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
 
+  // Admin bootstrap (db:seed). Defaults are dev-only; override in production and
+  // rotate the password after first login via POST /api/auth/change-password.
+  ADMIN_EMAIL: z.string().min(1).default('admin@madrasty.local'),
+  ADMIN_INITIAL_PASSWORD: z.string().min(1).default('0000'),
+
   // Registration / OTP / guardian approval (doc 11 §3-4, §8).
   OTP_CODE_LENGTH: z.coerce.number().int().min(4).max(8).default(6),
   OTP_EXPIRES_IN_MINUTES: z.coerce.number().int().positive().default(10),

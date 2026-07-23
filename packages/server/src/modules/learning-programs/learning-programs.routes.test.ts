@@ -108,6 +108,42 @@ describe('learning-programs endpoints', () => {
     expect(paid.details).toBeNull();
   });
 
+  it('resolves titles by the request locale (?locale= and Accept-Language)', async () => {
+    const app = buildApp();
+    const created = await request(app)
+      .post('/api/learning-programs')
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ title: { ar: 'الكيمياء', en: 'Chemistry' } });
+    const programId = created.body.id;
+    // The create response already resolves for the request locale (default ar).
+    expect(created.body.title).toBe('الكيمياء');
+
+    const chapter = await request(app)
+      .post(`/api/learning-programs/${programId}/chapters`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ title: { ar: 'الذرات', en: 'Atoms' } });
+    await request(app)
+      .post(`/api/learning-programs/${programId}/chapters/${chapter.body.id}/lessons`)
+      .set('Authorization', `Bearer ${teacherToken}`)
+      .send({ lessonType: 'pdf', visibility: 'free', status: 'published', title: { ar: 'مقدمة', en: 'Intro' } });
+    await request(app)
+      .post(`/api/learning-programs/${programId}/publish`)
+      .set('Authorization', `Bearer ${teacherToken}`);
+
+    // ?locale=en → English throughout the tree.
+    const en = await request(app).get(`/api/learning-programs/${programId}?locale=en`);
+    expect(en.body.title).toBe('Chemistry');
+    expect(en.body.chapters[0].title).toBe('Atoms');
+    expect(en.body.chapters[0].lessons[0].title).toBe('Intro');
+
+    // Accept-Language header → Arabic.
+    const ar = await request(app)
+      .get(`/api/learning-programs/${programId}`)
+      .set('Accept-Language', 'ar-EG,ar;q=0.9');
+    expect(ar.body.title).toBe('الكيمياء');
+    expect(ar.body.chapters[0].lessons[0].title).toBe('مقدمة');
+  });
+
   it('a student cannot create a program (403)', async () => {
     const app = buildApp();
     const res = await request(app)

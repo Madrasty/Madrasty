@@ -36,7 +36,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   ],
   teacher: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/teacher' },
-    { labelKey: 'myPrograms', icon: 'menu_book' },
+    { labelKey: 'myPrograms', icon: 'menu_book', path: '/app/teacher/programs' },
     { labelKey: 'students', icon: 'groups' },
     { labelKey: 'liveClasses', icon: 'videocam' },
     { labelKey: 'earnings', icon: 'account_balance_wallet' },

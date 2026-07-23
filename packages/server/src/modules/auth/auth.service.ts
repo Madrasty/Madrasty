@@ -8,7 +8,12 @@ import {
   signRefreshToken,
   verifyRefreshToken,
 } from './tokens';
-import type { LoginInput, RegisterParentInput } from './auth.schemas';
+import type {
+  ChangePasswordInput,
+  LoginInput,
+  RegisterParentInput,
+  RegisterTeacherInput,
+} from './auth.schemas';
 
 // A freshly issued token pair. The refresh token is handed back to the
 // controller, which puts it in an httpOnly cookie — it must never reach a body.
@@ -57,6 +62,43 @@ export class AuthService {
       localePreference: input.localePreference,
     });
     return toAuthUser(record);
+  }
+
+  // Teacher self-registration. Same shape as a parent, role 'teacher'. The teacher
+  // starts unverified (an admin verifies them before their programs go live).
+  async registerTeacher(input: RegisterTeacherInput): Promise<AuthUser> {
+    const email = input.email.toLowerCase();
+    const alreadyExists = await this.users.existsByEmailOrPhone(email, input.phone);
+    if (alreadyExists) {
+      throw HttpError.conflict(
+        'account_exists',
+        'An account with this email or phone already exists.',
+      );
+    }
+
+    const passwordHash = await hashPassword(input.password);
+    const record = await this.users.createTeacher({
+      fullName: input.fullName,
+      email,
+      phone: input.phone,
+      passwordHash,
+      localePreference: input.localePreference,
+    });
+    return toAuthUser(record);
+  }
+
+  // Authenticated password change — verifies the current password before setting
+  // the new one (used e.g. by the seeded admin to rotate the 0000 default).
+  async changePassword(userId: string, input: ChangePasswordInput): Promise<void> {
+    const record = await this.users.findById(userId);
+    if (!record || !record.passwordHash) {
+      throw HttpError.unauthorized('invalid_credentials', 'Invalid credentials.');
+    }
+    const ok = await verifyPassword(input.currentPassword, record.passwordHash);
+    if (!ok) {
+      throw HttpError.unauthorized('invalid_current_password', 'Current password is incorrect.');
+    }
+    await this.users.updatePassword(userId, await hashPassword(input.newPassword));
   }
 
   // Verifies credentials and issues a fresh access+refresh pair, registering the

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/Button';
 import { StatCard } from '../../components/StatCard';
@@ -29,10 +30,12 @@ export function TeacherDashboardPage() {
           <h1 className="text-headline-lg font-semibold">{t('teacher.greeting')}</h1>
           <p className="mt-2 text-body-lg text-on-surface-variant">{t('teacher.subgreeting')}</p>
         </div>
-        <Button variant="primary" size="large">
-          <Icon name="add" filled />
-          {t('teacher.newProgram')}
-        </Button>
+        <Link to="/app/teacher/programs/new">
+          <Button variant="primary" size="large">
+            <Icon name="add" filled />
+            {t('teacher.newProgram')}
+          </Button>
+        </Link>
       </div>
 
       <section className="grid grid-cols-1 gap-unit-md md:grid-cols-3">
@@ -74,7 +77,9 @@ export function TeacherDashboardPage() {
         <section className="flex flex-col gap-unit-md lg:col-span-2">
           <div className="flex items-center justify-between border-b border-outline-variant pb-2">
             <h2 className="text-headline-md">{t('teacher.myPrograms')}</h2>
-            <button className="text-label-md text-primary hover:underline">{t('actions.viewAll')}</button>
+            <Link to="/app/teacher/programs" className="text-label-md text-primary hover:underline">
+              {t('actions.viewAll')}
+            </Link>
           </div>
           <div className="grid grid-cols-1 gap-unit-md sm:grid-cols-2">
             {PROGRAMS.map((program) => (

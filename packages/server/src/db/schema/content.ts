@@ -66,7 +66,10 @@ export const chapters = pgTable('chapters', {
     .notNull()
     .references(() => learningPrograms.id),
   orderIndex: integer('order_index').notNull().default(0),
-  title: jsonb('title'), // { "ar": "...", "en": "..." }
+  // DEPRECATED: chapter titles now live in the `translations` table like programs
+  // and lessons (doc 12 §6). Column retained (nullable, unused) so the change was
+  // non-destructive; migration 0004 backfilled + nulled existing values.
+  title: jsonb('title'),
   metadata: jsonb('metadata').notNull().default({}),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),

@@ -1,8 +1,11 @@
+import { config } from '../../config/index';
 import type {
   LearningProgramsRepository,
   UpdateProgramPatch,
 } from './learning-programs.repository';
 import { loadEditableProgram } from './guards';
+import { PROGRAM_ENTITY, resolveLocalizedText, writeLocalizedFields } from './localized';
+import { toLocalizedProgram, type LocalizedProgram } from './views';
 import type { Actor, ProgramRecord } from './types';
 import type { CreateProgramBody, UpdateProgramBody } from './learning-programs.schemas';
 
@@ -10,20 +13,29 @@ export class ProgramsService {
   constructor(private readonly repo: LearningProgramsRepository) {}
 
   // Create a program owned by the acting teacher (or admin). Starts as 'draft'.
-  async create(actor: Actor, body: CreateProgramBody): Promise<ProgramRecord> {
-    const metadata: Record<string, unknown> = { ...(body.metadata ?? {}) };
-    if (body.title) metadata.title = body.title;
-    return this.repo.createProgram({
+  // Titles/descriptions go to the translations table, not metadata (doc 12 §6).
+  async create(actor: Actor, body: CreateProgramBody, locale: string = config.DEFAULT_LOCALE): Promise<LocalizedProgram> {
+    const program = await this.repo.createProgram({
       teacherId: actor.id,
       subjectId: body.subjectId ?? null,
       gradeLevel: body.gradeLevel ?? null,
       semester: body.semester ?? null,
       priceEgp: body.price != null ? String(body.price) : null,
-      metadata,
+      metadata: body.metadata ?? {},
     });
+    await writeLocalizedFields(this.repo, PROGRAM_ENTITY, program.id, {
+      title: body.title,
+      description: body.description,
+    });
+    return this.toView(program, locale);
   }
 
-  async update(actor: Actor, programId: string, body: UpdateProgramBody): Promise<ProgramRecord> {
+  async update(
+    actor: Actor,
+    programId: string,
+    body: UpdateProgramBody,
+    locale: string = config.DEFAULT_LOCALE,
+  ): Promise<LocalizedProgram> {
     const program = await loadEditableProgram(this.repo, actor, programId);
 
     const patch: UpdateProgramPatch = {};
@@ -31,23 +43,25 @@ export class ProgramsService {
     if (body.gradeLevel !== undefined) patch.gradeLevel = body.gradeLevel;
     if (body.semester !== undefined) patch.semester = body.semester;
     if (body.price !== undefined) patch.priceEgp = body.price != null ? String(body.price) : null;
-    if (body.metadata !== undefined || body.title !== undefined) {
-      patch.metadata = {
-        ...program.metadata,
-        ...(body.metadata ?? {}),
-        ...(body.title !== undefined ? { title: body.title } : {}),
-      };
-    }
+    if (body.metadata !== undefined) patch.metadata = { ...program.metadata, ...body.metadata };
 
-    const updated = await this.repo.updateProgram(programId, patch);
-    return updated ?? program;
+    const updated = (await this.repo.updateProgram(programId, patch)) ?? program;
+    await writeLocalizedFields(this.repo, PROGRAM_ENTITY, programId, {
+      title: body.title,
+      description: body.description,
+    });
+    return this.toView(updated, locale);
   }
 
   // draft → published. Access to paid content later keys off this status.
-  async publish(actor: Actor, programId: string): Promise<ProgramRecord> {
+  async publish(
+    actor: Actor,
+    programId: string,
+    locale: string = config.DEFAULT_LOCALE,
+  ): Promise<LocalizedProgram> {
     await loadEditableProgram(this.repo, actor, programId);
     const updated = await this.repo.updateProgram(programId, { status: 'published' });
-    return updated!;
+    return this.toView(updated!, locale);
   }
 
   async remove(actor: Actor, programId: string): Promise<void> {
@@ -56,7 +70,22 @@ export class ProgramsService {
   }
 
   // A teacher's own programs across all statuses (drafts included).
-  async listMine(actor: Actor): Promise<ProgramRecord[]> {
-    return this.repo.listProgramsByTeacher(actor.id);
+  async listMine(actor: Actor, locale: string = config.DEFAULT_LOCALE): Promise<LocalizedProgram[]> {
+    const programs = await this.repo.listProgramsByTeacher(actor.id);
+    const rows = await this.repo.listTranslations(
+      PROGRAM_ENTITY,
+      programs.map((p) => p.id),
+    );
+    return programs.map((p) =>
+      toLocalizedProgram(p, resolveLocalizedText(rows, p.id, locale, config.DEFAULT_LOCALE)),
+    );
+  }
+
+  private async toView(program: ProgramRecord, locale: string): Promise<LocalizedProgram> {
+    const rows = await this.repo.listTranslations(PROGRAM_ENTITY, [program.id]);
+    return toLocalizedProgram(
+      program,
+      resolveLocalizedText(rows, program.id, locale, config.DEFAULT_LOCALE),
+    );
   }
 }

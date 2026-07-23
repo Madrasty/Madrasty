@@ -3,7 +3,12 @@ import { config } from '../../config/index';
 import { asyncHandler } from '../../lib/async-handler';
 import { HttpError } from '../../lib/http-error';
 import { AuthService } from './auth.service';
-import { loginSchema, registerParentSchema } from './auth.schemas';
+import {
+  changePasswordSchema,
+  loginSchema,
+  registerParentSchema,
+  registerTeacherSchema,
+} from './auth.schemas';
 
 // The refresh token lives ONLY in this httpOnly cookie — never in a JSON body,
 // so client-side JS can't read it (XSS mitigation). Scoped to /api/auth so it's
@@ -34,6 +39,19 @@ export function createAuthController(service: AuthService) {
     res.status(201).json({ user });
   });
 
+  const registerTeacher = asyncHandler(async (req: Request, res: Response) => {
+    const input = registerTeacherSchema.parse(req.body);
+    const user = await service.registerTeacher(input);
+    res.status(201).json({ user });
+  });
+
+  // Authenticated: req.user is set by requireAuth on the route.
+  const changePassword = asyncHandler(async (req: Request, res: Response) => {
+    const input = changePasswordSchema.parse(req.body);
+    await service.changePassword(req.user!.id, input);
+    res.status(200).json({ success: true });
+  });
+
   const login = asyncHandler(async (req: Request, res: Response) => {
     const input = loginSchema.parse(req.body);
     const { user, accessToken, refreshToken } = await service.login(input);
@@ -58,5 +76,5 @@ export function createAuthController(service: AuthService) {
     res.status(200).json({ success: true });
   });
 
-  return { register, login, refresh, logout };
+  return { register, registerTeacher, changePassword, login, refresh, logout };
 }

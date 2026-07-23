@@ -8,6 +8,7 @@ const KNOWN_CODES = new Set([
   'validation_error',
   'account_exists',
   'invalid_credentials',
+  'invalid_current_password',
   'account_not_active',
   'invalid_refresh_token',
   'approval_request_not_found',

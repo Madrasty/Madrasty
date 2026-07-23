@@ -39,9 +39,11 @@ export function createAuthRouter(): Router {
 
   // Session
   router.post('/parent/register', authController.register);
+  router.post('/teacher/register', authController.registerTeacher);
   router.post('/login', authController.login);
   router.post('/refresh', authController.refresh);
   router.post('/logout', authController.logout);
+  router.post('/change-password', requireAuth, authController.changePassword);
 
   // Registration (features 5-7)
   router.post('/parent/students', requireAuth, requireRole('parent'), registrationController.addStudent);

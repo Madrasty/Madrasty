@@ -313,7 +313,9 @@
       "school": "المدرسة (اختياري)",
       "city": "المدينة (اختياري)",
       "otp": "رمز التحقق",
-      "otpPlaceholder": "رمز من 6 أرقام"
+      "otpPlaceholder": "رمز من 6 أرقام",
+      "currentPassword": "كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة"
     },
     "validation": {
       "fullName": "من فضلك أدخل اسمك الكامل.",
@@ -323,7 +325,8 @@
       "confirm": "كلمتا المرور غير متطابقتين.",
       "name": "من فضلك أدخل اسم الطالب.",
       "grade": "من فضلك أدخل الصف الدراسي.",
-      "dateOfBirth": "من فضلك أدخل تاريخ ميلاد صحيح."
+      "dateOfBirth": "من فضلك أدخل تاريخ ميلاد صحيح.",
+      "currentPassword": "من فضلك أدخل كلمة المرور الحالية."
     },
     "relationships": {
       "father": "الأب",
@@ -344,6 +347,20 @@
       "submit": "إنشاء الحساب",
       "haveAccount": "لديك حساب بالفعل؟",
       "loginLink": "تسجيل الدخول"
+    },
+    "teacherRegister": {
+      "title": "إنشاء حساب معلّم",
+      "subtitle": "سجّل لإنشاء برامجك التعليمية ونشرها.",
+      "submit": "إنشاء حساب معلّم",
+      "hint": "تتم مراجعة حسابك من قِبل المشرف قبل نشر برامجك."
+    },
+    "changePassword": {
+      "title": "تغيير كلمة المرور",
+      "subtitle": "حدّث كلمة مرور حسابك.",
+      "submit": "تحديث كلمة المرور",
+      "doneTitle": "تم تحديث كلمة المرور",
+      "doneBody": "تم تغيير كلمة مرورك.",
+      "backToDashboard": "العودة للوحة التحكم"
     },
     "studentRegister": {
       "title": "تسجيل الطالب",
@@ -383,6 +400,7 @@
       "validation_error": "من فضلك راجع الحقول المميّزة وحاول مجدداً.",
       "account_exists": "يوجد حساب بهذا البريد أو رقم الهاتف بالفعل.",
       "invalid_credentials": "البريد/الهاتف أو كلمة المرور غير صحيحة.",
+      "invalid_current_password": "كلمة المرور الحالية غير صحيحة.",
       "account_not_active": "هذا الحساب غير مفعّل بعد.",
       "invalid_refresh_token": "انتهت جلستك. من فضلك سجّل الدخول مجدداً.",
       "approval_request_not_found": "رابط الموافقة غير صالح أو لم يعد موجوداً.",
@@ -397,6 +415,95 @@
       "missing_token": "من فضلك سجّل الدخول للمتابعة.",
       "invalid_token": "انتهت جلستك. من فضلك سجّل الدخول مجدداً.",
       "generic": "حدث خطأ ما. من فضلك حاول مجدداً."
+    }
+  },
+  "authoring": {
+    "lessonTypes": {
+      "recorded": "فيديو مسجّل",
+      "live": "حصة مباشرة",
+      "pdf": "ملف / ملاحظات",
+      "audio": "ملف صوتي",
+      "quiz": "اختبار",
+      "homework": "واجب",
+      "exam": "امتحان",
+      "private_session": "حصة خاصة"
+    },
+    "visibilities": {
+      "free": "مجاني",
+      "paid": "مدفوع",
+      "locked": "مقفل (متطلّب سابق)",
+      "prerequisite": "متطلّب سابق",
+      "invite_only": "بدعوة فقط"
+    },
+    "statuses": {
+      "draft": "مسودة",
+      "scheduled": "مجدول",
+      "published": "منشور",
+      "archived": "مؤرشف",
+      "pending_review": "قيد المراجعة"
+    },
+    "myPrograms": {
+      "title": "برامجي",
+      "subtitle": "أنشئ برامجك التعليمية وعدّلها وانشرها.",
+      "new": "برنامج جديد",
+      "empty": "لم تنشئ أي برامج بعد.",
+      "emptyHint": "ابدأ بإنشاء أول برنامج تعليمي.",
+      "open": "فتح",
+      "lessonsCount": "{{count}} درس",
+      "colTitle": "البرنامج",
+      "colGrade": "الصف",
+      "colPrice": "السعر",
+      "colStatus": "الحالة",
+      "untitled": "برنامج بلا عنوان"
+    },
+    "newProgram": {
+      "title": "برنامج جديد",
+      "subtitle": "يمكنك إضافة الفصول والدروس بعد الإنشاء.",
+      "titleEn": "العنوان (بالإنجليزية)",
+      "titleAr": "العنوان (بالعربية)",
+      "descriptionEn": "الوصف (بالإنجليزية)",
+      "descriptionAr": "الوصف (بالعربية)",
+      "grade": "المرحلة الدراسية",
+      "gradePlaceholder": "مثال: الصف الثامن",
+      "semester": "الفصل الدراسي",
+      "semesterPlaceholder": "مثال: الفصل الأول",
+      "price": "السعر (ج.م)",
+      "submit": "إنشاء البرنامج",
+      "cancel": "إلغاء",
+      "needTitle": "من فضلك أدخل عنواناً بلغة واحدة على الأقل."
+    },
+    "editor": {
+      "back": "العودة إلى برامجي",
+      "draftBadge": "مسودة — غير ظاهرة للطلاب",
+      "publishProgram": "نشر البرنامج",
+      "publishedBadge": "منشور",
+      "priceLabel": "السعر",
+      "addChapter": "إضافة فصل",
+      "chapterTitleEn": "عنوان الفصل (بالإنجليزية)",
+      "chapterTitleAr": "عنوان الفصل (بالعربية)",
+      "saveChapter": "إضافة الفصل",
+      "noChapters": "لا توجد فصول بعد. أضف أول فصل للبدء.",
+      "chapterLabel": "الفصل {{n}}",
+      "noLessons": "لا توجد دروس في هذا الفصل بعد.",
+      "addLesson": "إضافة درس",
+      "lessonTitleEn": "عنوان الدرس (بالإنجليزية)",
+      "lessonTitleAr": "عنوان الدرس (بالعربية)",
+      "lessonType": "نوع الدرس",
+      "visibility": "الظهور",
+      "status": "الحالة",
+      "prerequisite": "يُفتح بعد",
+      "prerequisitePlaceholder": "اختر درساً",
+      "saveLesson": "إضافة الدرس",
+      "publishLesson": "نشر",
+      "videoUrl": "رابط الفيديو",
+      "audioUrl": "رابط الصوت",
+      "fileUrl": "رابط الملف",
+      "meetingUrl": "رابط الاجتماع",
+      "durationSeconds": "المدة (بالثواني)",
+      "pageCount": "عدد الصفحات",
+      "scheduledStart": "موعد البدء",
+      "detailsNote": "هذا النوع من الدروس يعتمد على وحدة أخرى ولا يحتوي حقولاً إضافية بعد.",
+      "reloadError": "تعذّر تحميل هذا البرنامج."
     }
   },
   "styleGuide": {

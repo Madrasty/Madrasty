@@ -53,6 +53,67 @@ describe('AuthService', () => {
     });
   });
 
+  describe('registerTeacher', () => {
+    it('creates a teacher account with role teacher', async () => {
+      const user = await service.registerTeacher({
+        ...validRegistration,
+        email: 'teacher@example.com',
+        phone: '01000000002',
+      });
+      expect(user.role).toBe('teacher');
+      expect(user).not.toHaveProperty('passwordHash');
+    });
+
+    it('a registered teacher can log in and gets a teacher-role token', async () => {
+      await service.registerTeacher({
+        ...validRegistration,
+        email: 'teacher@example.com',
+        phone: '01000000002',
+      });
+      const result = await service.login({
+        identifier: 'teacher@example.com',
+        password: validRegistration.password,
+      });
+      expect(verifyAccessToken(result.accessToken).role).toBe('teacher');
+    });
+
+    it('rejects a duplicate email or phone', async () => {
+      await service.registerParent(validRegistration);
+      await expect(service.registerTeacher(validRegistration)).rejects.toMatchObject({
+        statusCode: 409,
+        code: 'account_exists',
+      });
+    });
+  });
+
+  describe('changePassword', () => {
+    it('changes the password when the current one is correct, and old password stops working', async () => {
+      const user = await service.registerParent(validRegistration);
+      await service.changePassword(user.id, {
+        currentPassword: validRegistration.password,
+        newPassword: 'brandNewPass1',
+      });
+
+      // Old password no longer works…
+      await expect(
+        service.login({ identifier: validRegistration.email, password: validRegistration.password }),
+      ).rejects.toMatchObject({ code: 'invalid_credentials' });
+      // …the new one does.
+      const ok = await service.login({
+        identifier: validRegistration.email,
+        password: 'brandNewPass1',
+      });
+      expect(ok.user.id).toBe(user.id);
+    });
+
+    it('rejects a wrong current password', async () => {
+      const user = await service.registerParent(validRegistration);
+      await expect(
+        service.changePassword(user.id, { currentPassword: 'wrong', newPassword: 'brandNewPass1' }),
+      ).rejects.toMatchObject({ statusCode: 401, code: 'invalid_current_password' });
+    });
+  });
+
   describe('login', () => {
     beforeEach(async () => {
       await service.registerParent(validRegistration);
