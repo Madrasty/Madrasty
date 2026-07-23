@@ -1,11 +1,13 @@
 import { HttpError } from '../../lib/http-error';
-import { canViewLessonDetails, isOwnerOrAdmin } from './authorization';
+import { isOwnerOrAdmin } from './authorization';
+import { resolveLessonAccess } from './access';
 import { getHandler, type LessonHandlerRegistry } from './lesson-types/handler';
 import type {
   LearningProgramsRepository,
   ListPublishedFilter,
 } from './learning-programs.repository';
-import type { LessonRecord, ProgramRecord, Viewer } from './types';
+import { toProgramSummary, type ProgramSummary } from './views';
+import type { LessonRecord, Viewer } from './types';
 
 export interface LessonView {
   id: string;
@@ -23,31 +25,8 @@ export interface ChapterView {
   title: unknown;
   lessons: LessonView[];
 }
-export interface ProgramSummary {
-  id: string;
-  teacherId: string;
-  subjectId: string | null;
-  gradeLevel: string | null;
-  semester: string | null;
-  priceEgp: string | null;
-  status: string;
-  title: unknown;
-}
 export interface ProgramContentView extends ProgramSummary {
   chapters: ChapterView[];
-}
-
-function toSummary(program: ProgramRecord): ProgramSummary {
-  return {
-    id: program.id,
-    teacherId: program.teacherId,
-    subjectId: program.subjectId,
-    gradeLevel: program.gradeLevel,
-    semester: program.semester,
-    priceEgp: program.priceEgp,
-    status: program.status,
-    title: program.metadata.title ?? null,
-  };
 }
 
 // Public browsing (student/parent side, and anonymous visitors).
@@ -59,12 +38,13 @@ export class BrowseService {
 
   async listPublished(filter: ListPublishedFilter): Promise<ProgramSummary[]> {
     const programs = await this.repo.listPublishedPrograms(filter);
-    return programs.map(toSummary);
+    return programs.map(toProgramSummary);
   }
 
   // Full program tree with per-lesson visibility gating. Free lessons expose
   // their details; paid/locked/invite-only lessons are returned as locked with
-  // details omitted — unless the viewer owns the program or is an admin.
+  // details omitted — unless the viewer owns the program, is an admin, or has an
+  // active enrollment (with prerequisite/invite checks per lesson).
   async getProgramContent(programId: string, viewer: Viewer): Promise<ProgramContentView> {
     const program = await this.repo.getProgramById(programId);
     if (!program) {
@@ -76,6 +56,12 @@ export class BrowseService {
       throw HttpError.notFound('program_not_found', 'Program not found.');
     }
 
+    // One enrollment lookup per request (not per lesson).
+    const enrolled =
+      !ownerOrAdmin && viewer.userId
+        ? (await this.repo.findActiveEnrollment(viewer.userId, programId, new Date())) !== null
+        : false;
+
     const chapters = await this.repo.listChaptersByProgram(programId);
     const chapterViews: ChapterView[] = [];
     for (const chapter of chapters) {
@@ -85,7 +71,7 @@ export class BrowseService {
         ? lessons
         : lessons.filter((l) => l.status === 'published');
       const lessonViews = await Promise.all(
-        visible.map((lesson) => this.toLessonView(lesson, viewer, ownerOrAdmin)),
+        visible.map((lesson) => this.toLessonView(lesson, viewer, { ownerOrAdmin, enrolled })),
       );
       chapterViews.push({
         id: chapter.id,
@@ -95,18 +81,15 @@ export class BrowseService {
       });
     }
 
-    return { ...toSummary(program), chapters: chapterViews };
+    return { ...toProgramSummary(program), chapters: chapterViews };
   }
 
   private async toLessonView(
     lesson: LessonRecord,
     viewer: Viewer,
-    ownerOrAdmin: boolean,
+    ctx: { ownerOrAdmin: boolean; enrolled: boolean },
   ): Promise<LessonView> {
-    const canView = canViewLessonDetails(lesson.visibility, {
-      ownerOrAdmin,
-      hasPurchased: viewer.hasPurchased,
-    });
+    const canView = await resolveLessonAccess(this.repo, lesson, viewer, ctx);
     const details = canView
       ? await getHandler(this.handlers, lesson.lessonType).getDetails(lesson.id)
       : null;

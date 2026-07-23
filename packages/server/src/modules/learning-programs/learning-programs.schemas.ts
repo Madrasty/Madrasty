@@ -59,6 +59,19 @@ export const listProgramsQuerySchema = z.object({
   semester: z.string().trim().min(1).optional(),
 });
 
+// --- Enrollment / invites ---
+// Direct grant by an owner-teacher/admin. 'purchase' is accepted for when the
+// payments module writes enrollments, but the endpoint defaults to admin_grant.
+export const grantEnrollmentSchema = z.object({
+  studentId: z.string().uuid(),
+  source: z.enum(['admin_grant', 'free', 'purchase']).optional(),
+  expiresAt: z.coerce.date().optional(),
+});
+
+export const addInviteSchema = z.object({
+  studentId: z.string().uuid(),
+});
+
 export type CreateProgramBody = z.infer<typeof createProgramSchema>;
 export type UpdateProgramBody = z.infer<typeof updateProgramSchema>;
 export type CreateChapterBody = z.infer<typeof createChapterSchema>;
@@ -66,3 +79,5 @@ export type UpdateChapterBody = z.infer<typeof updateChapterSchema>;
 export type CreateLessonBody = z.infer<typeof createLessonSchema>;
 export type UpdateLessonBody = z.infer<typeof updateLessonSchema>;
 export type ListProgramsQuery = z.infer<typeof listProgramsQuerySchema>;
+export type GrantEnrollmentBody = z.infer<typeof grantEnrollmentSchema>;
+export type AddInviteBody = z.infer<typeof addInviteSchema>;

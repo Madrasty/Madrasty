@@ -142,6 +142,43 @@ audio_lesson_details (
 -- 'private_session' type reuses `tutoring_slots`/`bookings` (doc 03), scoped to lesson_id + program_id
 ```
 
+### Access tables (enrollment + progress + invites)
+
+These back the §5 visibility rules and the §8 "My Programs"/completion flow. They are the source of truth for program access until the payments module (doc 04) starts writing `enrollments` rows with `source='purchase'`.
+
+```sql
+enrollments (
+  id UUID PK,
+  student_id UUID REFERENCES users,
+  program_id UUID REFERENCES learning_programs,
+  source TEXT CHECK (source IN ('purchase','admin_grant','free')),
+  status TEXT DEFAULT 'active',           -- active|expired|cancelled
+  granted_at TIMESTAMPTZ DEFAULT now(),
+  expires_at TIMESTAMPTZ NULL,             -- NULL = never expires
+  metadata JSONB
+  -- "is enrolled" = an `active` row whose expires_at is NULL or in the future.
+  -- Append-only in spirit: re-grants add rows rather than mutating in place.
+)
+
+lesson_progress (
+  student_id UUID REFERENCES users,
+  lesson_id UUID REFERENCES lessons,
+  opened_at TIMESTAMPTZ NULL,
+  completed_at TIMESTAMPTZ NULL,           -- NOT NULL is what unlocks prerequisite/locked lessons
+  metadata JSONB,
+  PRIMARY KEY (student_id, lesson_id)
+)
+
+lesson_invites (                           -- explicit allow-list for visibility='invite_only'
+  lesson_id UUID REFERENCES lessons,
+  student_id UUID REFERENCES users,
+  invited_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (lesson_id, student_id)
+)
+```
+
+**Access resolution** (per lesson, for a non-owner/non-admin viewer): `free` → open; `paid` → active enrollment; `locked`/`prerequisite` → active enrollment **and** `prerequisite_lesson_id` has a `completed_at` row in `lesson_progress` for that student; `invite_only` → a `lesson_invites` row for that student. A `locked`/`prerequisite` lesson with no `prerequisite_lesson_id` stays locked (a misconfiguration the authoring UI should prevent).
+
 ### Migration note for doc 03 and doc 10
 - `03-database-schema.md`: the old flat `courses`/`lessons` tables are replaced by `learning_programs` / `chapters` / `lessons` (with `lesson_type`) as shown above. `quizzes.course_id` and `quizzes.lesson_id` both still work conceptually, just now pointed at the new `lessons.id`.
 - `10-parent-teacher-student-engagement.md`: `exams.course_id` should be read as `exams.program_id REFERENCES learning_programs`, since exams now attach at the program level (or via an `exam`-type lesson when the exam needs to sit at a specific point in the learning path).

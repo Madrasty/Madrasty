@@ -8,6 +8,8 @@ import { ProgramsService } from './programs.service';
 import { ChaptersService } from './chapters.service';
 import { LessonsService } from './lessons.service';
 import { BrowseService } from './browse.service';
+import { EnrollmentService } from './enrollment.service';
+import { ProgressService } from './progress.service';
 import { buildHandlerRegistry } from './lesson-types/registry';
 import { createLearningProgramsController } from './learning-programs.controller';
 import { InMemoryLearningProgramsRepository } from '../../../test/fakes';
@@ -21,15 +23,31 @@ function buildApp() {
     chapters: new ChaptersService(repo),
     lessons: new LessonsService(repo, handlers),
     browse: new BrowseService(repo, handlers),
+    enrollment: new EnrollmentService(repo),
+    progress: new ProgressService(repo, handlers),
   });
   const app = express();
   app.use(express.json());
   const teacher = [requireAuth, requireRole('teacher', 'admin')] as const;
+  const student = [requireAuth, requireRole('student')] as const;
   app.get('/api/learning-programs/mine', ...teacher, c.listMine);
+  app.get('/api/learning-programs/my-programs', ...student, c.listMyPrograms);
   app.post('/api/learning-programs', ...teacher, c.createProgram);
   app.post('/api/learning-programs/:programId/publish', ...teacher, c.publishProgram);
   app.post('/api/learning-programs/:programId/chapters', ...teacher, c.createChapter);
   app.post('/api/learning-programs/:programId/chapters/:chapterId/lessons', ...teacher, c.createLesson);
+  app.post(
+    '/api/learning-programs/:programId/chapters/:chapterId/lessons/:lessonId/invites',
+    ...teacher,
+    c.addLessonInvite,
+  );
+  app.post('/api/learning-programs/:programId/enrollments', ...teacher, c.grantEnrollment);
+  app.post('/api/learning-programs/:programId/lessons/:lessonId/open', ...student, c.markLessonOpened);
+  app.post(
+    '/api/learning-programs/:programId/lessons/:lessonId/complete',
+    ...student,
+    c.markLessonCompleted,
+  );
   app.get('/api/learning-programs', optionalAuth, c.listPublished);
   app.get('/api/learning-programs/:programId', optionalAuth, c.getProgram);
   app.use(errorMiddleware);

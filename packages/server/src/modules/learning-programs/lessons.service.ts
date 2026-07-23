@@ -118,6 +118,21 @@ export class LessonsService {
     await this.repo.softDeleteLesson(lessonId);
   }
 
+  // Adds a student to an invite_only lesson's allow-list (doc 12 §5). Owner/admin
+  // only, and the lesson must belong to the program/chapter in the path.
+  async invite(
+    actor: Actor,
+    programId: string,
+    chapterId: string,
+    lessonId: string,
+    studentId: string,
+  ): Promise<void> {
+    await loadEditableProgram(this.repo, actor, programId);
+    await loadChapterInProgram(this.repo, programId, chapterId);
+    await loadLessonInChapter(this.repo, chapterId, lessonId);
+    await this.repo.addLessonInvite(lessonId, studentId);
+  }
+
   private async nextOrderIndex(chapterId: string): Promise<number> {
     const existing = await this.repo.listLessonsByChapter(chapterId);
     return existing.reduce((max, l) => Math.max(max, l.orderIndex + 1), 0);

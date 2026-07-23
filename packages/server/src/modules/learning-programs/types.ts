@@ -23,8 +23,27 @@ export interface Actor {
 export interface Viewer {
   userId: string | null;
   role: UserRole | null;
-  // Set once enrollment/payments exist; for now public browsing is always false.
-  hasPurchased: boolean;
+}
+
+export type EnrollmentSource = 'purchase' | 'admin_grant' | 'free';
+export type EnrollmentStatus = 'active' | 'expired' | 'cancelled';
+
+export interface EnrollmentRecord {
+  id: string;
+  studentId: string;
+  programId: string;
+  source: EnrollmentSource;
+  status: EnrollmentStatus;
+  grantedAt: Date;
+  expiresAt: Date | null;
+}
+
+export interface LessonProgressRecord {
+  studentId: string;
+  lessonId: string;
+  openedAt: Date | null;
+  completedAt: Date | null;
+  metadata: Record<string, unknown>;
 }
 
 export interface ProgramRecord {

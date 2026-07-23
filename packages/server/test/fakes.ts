@@ -20,12 +20,15 @@ import type { SmsSender } from '../src/modules/auth/sms-sender';
 import { normalizePhone } from '../src/lib/phone';
 import type {
   ChapterRecord,
+  EnrollmentRecord,
+  LessonProgressRecord,
   LessonRecord,
   LessonType,
   ProgramRecord,
 } from '../src/modules/learning-programs/types';
 import type {
   CreateChapterInput,
+  CreateEnrollmentInput,
   CreateLessonInput,
   CreateProgramInput,
   LearningProgramsRepository,
@@ -293,6 +296,9 @@ export class InMemoryLearningProgramsRepository implements LearningProgramsRepos
   private chapters = new Map<string, StoredChapter>();
   private lessons = new Map<string, StoredLesson>();
   private details = new Map<string, Record<string, unknown>>();
+  private enrollments: EnrollmentRecord[] = [];
+  private progress = new Map<string, LessonProgressRecord>();
+  private invites = new Set<string>();
   private seq = 0;
 
   // --- Programs ---
@@ -441,6 +447,112 @@ export class InMemoryLearningProgramsRepository implements LearningProgramsRepos
 
   async getDetails(type: LessonType, lessonId: string): Promise<Record<string, unknown> | null> {
     return this.details.get(`${type}:${lessonId}`) ?? null;
+  }
+
+  // --- Enrollment ---
+  async createEnrollment(input: CreateEnrollmentInput): Promise<EnrollmentRecord> {
+    const record: EnrollmentRecord = {
+      id: randomUUID(),
+      studentId: input.studentId,
+      programId: input.programId,
+      source: input.source,
+      status: 'active',
+      grantedAt: new Date(),
+      expiresAt: input.expiresAt ?? null,
+    };
+    this.enrollments.push(record);
+    return { ...record };
+  }
+
+  private isActive(e: EnrollmentRecord, now: Date): boolean {
+    return e.status === 'active' && (e.expiresAt === null || e.expiresAt.getTime() > now.getTime());
+  }
+
+  async findActiveEnrollment(
+    studentId: string,
+    programId: string,
+    now: Date,
+  ): Promise<EnrollmentRecord | null> {
+    const matches = this.enrollments
+      .filter((e) => e.studentId === studentId && e.programId === programId && this.isActive(e, now))
+      .sort((a, b) => b.grantedAt.getTime() - a.grantedAt.getTime());
+    return matches[0] ? { ...matches[0] } : null;
+  }
+
+  async listActiveEnrollmentsByStudent(
+    studentId: string,
+    now: Date,
+  ): Promise<EnrollmentRecord[]> {
+    return this.enrollments
+      .filter((e) => e.studentId === studentId && this.isActive(e, now))
+      .sort((a, b) => b.grantedAt.getTime() - a.grantedAt.getTime())
+      .map((e) => ({ ...e }));
+  }
+
+  async getProgramsByIds(ids: string[]): Promise<ProgramRecord[]> {
+    const set = new Set(ids);
+    return [...this.programs.values()]
+      .filter((p) => !p.deleted && set.has(p.id))
+      .map((p) => this.program(p));
+  }
+
+  // --- Lesson progress ---
+  async upsertLessonOpened(
+    studentId: string,
+    lessonId: string,
+    now: Date,
+  ): Promise<LessonProgressRecord> {
+    const key = `${studentId}:${lessonId}`;
+    const existing = this.progress.get(key);
+    if (existing) {
+      if (!existing.openedAt) existing.openedAt = now;
+      return { ...existing };
+    }
+    const record: LessonProgressRecord = {
+      studentId,
+      lessonId,
+      openedAt: now,
+      completedAt: null,
+      metadata: {},
+    };
+    this.progress.set(key, record);
+    return { ...record };
+  }
+
+  async markLessonCompleted(
+    studentId: string,
+    lessonId: string,
+    now: Date,
+  ): Promise<LessonProgressRecord> {
+    const key = `${studentId}:${lessonId}`;
+    const existing = this.progress.get(key);
+    if (existing) {
+      existing.completedAt = now;
+      if (!existing.openedAt) existing.openedAt = now;
+      return { ...existing };
+    }
+    const record: LessonProgressRecord = {
+      studentId,
+      lessonId,
+      openedAt: now,
+      completedAt: now,
+      metadata: {},
+    };
+    this.progress.set(key, record);
+    return { ...record };
+  }
+
+  async isLessonCompleted(studentId: string, lessonId: string): Promise<boolean> {
+    return this.progress.get(`${studentId}:${lessonId}`)?.completedAt != null;
+  }
+
+  // --- Lesson invites ---
+  async addLessonInvite(lessonId: string, studentId: string): Promise<void> {
+    this.invites.add(`${lessonId}:${studentId}`);
+  }
+
+  async isLessonInvited(lessonId: string, studentId: string): Promise<boolean> {
+    return this.invites.has(`${lessonId}:${studentId}`);
   }
 
   // Return copies so callers can't mutate internal state.

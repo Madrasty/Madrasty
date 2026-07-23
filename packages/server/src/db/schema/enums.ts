@@ -81,3 +81,20 @@ export const lessonVisibility = pgEnum('lesson_visibility', [
   'prerequisite',
   'invite_only',
 ]);
+
+// --- Enrollment / progress (doc 12 §5, §8) ---
+// How a student came to be enrolled in a program. 'purchase' lands once payments
+// exist (doc 04); 'admin_grant' lets access be tested before then; 'free' is a
+// zero-cost program a student self-enrolls into.
+export const enrollmentSource = pgEnum('enrollment_source', [
+  'purchase',
+  'admin_grant',
+  'free',
+]);
+
+// Access lifecycle. `active` grants access (subject to expires_at); the rest deny.
+export const enrollmentStatus = pgEnum('enrollment_status', [
+  'active',
+  'expired',
+  'cancelled',
+]);

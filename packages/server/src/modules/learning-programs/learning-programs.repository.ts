@@ -1,9 +1,12 @@
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, isNull, or } from 'drizzle-orm';
 import { db as defaultDb, type Database } from '../../db/client';
 import {
   audioLessonDetails,
   chapters,
+  enrollments,
   learningPrograms,
+  lessonInvites,
+  lessonProgress,
   lessons,
   liveLessonDetails,
   pdfLessonDetails,
@@ -11,6 +14,9 @@ import {
 } from '../../db/schema/index';
 import type {
   ChapterRecord,
+  EnrollmentRecord,
+  EnrollmentSource,
+  LessonProgressRecord,
   LessonRecord,
   LessonStatus,
   LessonType,
@@ -57,6 +63,37 @@ export type UpdateLessonPatch = Partial<
   Pick<LessonRecord, 'orderIndex' | 'status' | 'visibility' | 'prerequisiteLessonId' | 'metadata'>
 >;
 
+export interface CreateEnrollmentInput {
+  studentId: string;
+  programId: string;
+  source: EnrollmentSource;
+  expiresAt?: Date | null;
+}
+
+// Enrollment + progress + invites — the data behind access gating (doc 12 §5/§8).
+export interface EnrollmentStore {
+  createEnrollment(input: CreateEnrollmentInput): Promise<EnrollmentRecord>;
+  // The single active, non-expired grant for a (student, program), if any.
+  findActiveEnrollment(
+    studentId: string,
+    programId: string,
+    now: Date,
+  ): Promise<EnrollmentRecord | null>;
+  listActiveEnrollmentsByStudent(studentId: string, now: Date): Promise<EnrollmentRecord[]>;
+  getProgramsByIds(ids: string[]): Promise<ProgramRecord[]>;
+
+  upsertLessonOpened(studentId: string, lessonId: string, now: Date): Promise<LessonProgressRecord>;
+  markLessonCompleted(
+    studentId: string,
+    lessonId: string,
+    now: Date,
+  ): Promise<LessonProgressRecord>;
+  isLessonCompleted(studentId: string, lessonId: string): Promise<boolean>;
+
+  addLessonInvite(lessonId: string, studentId: string): Promise<void>;
+  isLessonInvited(lessonId: string, studentId: string): Promise<boolean>;
+}
+
 // Narrow slice the lesson-type handlers depend on, so they never see the whole
 // repository (they only persist/read their own detail table).
 export interface LessonDetailsStore {
@@ -66,7 +103,7 @@ export interface LessonDetailsStore {
 
 // Data-access boundary for the whole module. The services depend on this
 // interface so tests can inject an in-memory fake instead of live Postgres.
-export interface LearningProgramsRepository extends LessonDetailsStore {
+export interface LearningProgramsRepository extends LessonDetailsStore, EnrollmentStore {
   createProgram(input: CreateProgramInput): Promise<ProgramRecord>;
   getProgramById(id: string): Promise<ProgramRecord | null>;
   listPublishedPrograms(filter: ListPublishedFilter): Promise<ProgramRecord[]>;
@@ -126,6 +163,26 @@ function toLesson(row: typeof lessons.$inferSelect): LessonRecord {
     status: row.status as LessonStatus,
     visibility: row.visibility as LessonVisibility,
     prerequisiteLessonId: row.prerequisiteLessonId,
+    metadata: (row.metadata ?? {}) as Record<string, unknown>,
+  };
+}
+function toEnrollment(row: typeof enrollments.$inferSelect): EnrollmentRecord {
+  return {
+    id: row.id,
+    studentId: row.studentId,
+    programId: row.programId,
+    source: row.source as EnrollmentSource,
+    status: row.status as EnrollmentRecord['status'],
+    grantedAt: row.grantedAt,
+    expiresAt: row.expiresAt,
+  };
+}
+function toProgress(row: typeof lessonProgress.$inferSelect): LessonProgressRecord {
+  return {
+    studentId: row.studentId,
+    lessonId: row.lessonId,
+    openedAt: row.openedAt,
+    completedAt: row.completedAt,
     metadata: (row.metadata ?? {}) as Record<string, unknown>,
   };
 }
@@ -314,5 +371,147 @@ export class DrizzleLearningProgramsRepository implements LearningProgramsReposi
     if (!table) return null;
     const rows = await this.db.select().from(table).where(eq(table.lessonId, lessonId)).limit(1);
     return rows[0] ? (rows[0] as Record<string, unknown>) : null;
+  }
+
+  // --- Enrollment ---
+  async createEnrollment(input: CreateEnrollmentInput): Promise<EnrollmentRecord> {
+    const [row] = await this.db
+      .insert(enrollments)
+      .values({
+        studentId: input.studentId,
+        programId: input.programId,
+        source: input.source,
+        expiresAt: input.expiresAt ?? null,
+      })
+      .returning();
+    return toEnrollment(row);
+  }
+
+  // Active = status 'active' AND (no expiry OR expiry still in the future).
+  private activeEnrollmentCondition(now: Date) {
+    return and(
+      eq(enrollments.status, 'active'),
+      or(isNull(enrollments.expiresAt), gt(enrollments.expiresAt, now)),
+    );
+  }
+
+  async findActiveEnrollment(
+    studentId: string,
+    programId: string,
+    now: Date,
+  ): Promise<EnrollmentRecord | null> {
+    const rows = await this.db
+      .select()
+      .from(enrollments)
+      .where(
+        and(
+          eq(enrollments.studentId, studentId),
+          eq(enrollments.programId, programId),
+          this.activeEnrollmentCondition(now),
+        ),
+      )
+      .orderBy(desc(enrollments.grantedAt))
+      .limit(1);
+    return rows[0] ? toEnrollment(rows[0]) : null;
+  }
+
+  async listActiveEnrollmentsByStudent(studentId: string, now: Date): Promise<EnrollmentRecord[]> {
+    const rows = await this.db
+      .select()
+      .from(enrollments)
+      .where(and(eq(enrollments.studentId, studentId), this.activeEnrollmentCondition(now)))
+      .orderBy(desc(enrollments.grantedAt));
+    return rows.map(toEnrollment);
+  }
+
+  async getProgramsByIds(ids: string[]): Promise<ProgramRecord[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.db
+      .select()
+      .from(learningPrograms)
+      .where(and(inArray(learningPrograms.id, ids), isNull(learningPrograms.deletedAt)));
+    return rows.map(toProgram);
+  }
+
+  // --- Lesson progress ---
+  private async getProgress(
+    studentId: string,
+    lessonId: string,
+  ): Promise<LessonProgressRecord | null> {
+    const rows = await this.db
+      .select()
+      .from(lessonProgress)
+      .where(
+        and(eq(lessonProgress.studentId, studentId), eq(lessonProgress.lessonId, lessonId)),
+      )
+      .limit(1);
+    return rows[0] ? toProgress(rows[0]) : null;
+  }
+
+  async upsertLessonOpened(
+    studentId: string,
+    lessonId: string,
+    now: Date,
+  ): Promise<LessonProgressRecord> {
+    const existing = await this.getProgress(studentId, lessonId);
+    if (existing) {
+      // Keep the earliest open time — only stamp it the first time.
+      if (existing.openedAt) return existing;
+      const [row] = await this.db
+        .update(lessonProgress)
+        .set({ openedAt: now })
+        .where(and(eq(lessonProgress.studentId, studentId), eq(lessonProgress.lessonId, lessonId)))
+        .returning();
+      return toProgress(row);
+    }
+    const [row] = await this.db
+      .insert(lessonProgress)
+      .values({ studentId, lessonId, openedAt: now })
+      .returning();
+    return toProgress(row);
+  }
+
+  async markLessonCompleted(
+    studentId: string,
+    lessonId: string,
+    now: Date,
+  ): Promise<LessonProgressRecord> {
+    const existing = await this.getProgress(studentId, lessonId);
+    if (existing) {
+      const [row] = await this.db
+        .update(lessonProgress)
+        .set({ completedAt: now, openedAt: existing.openedAt ?? now })
+        .where(and(eq(lessonProgress.studentId, studentId), eq(lessonProgress.lessonId, lessonId)))
+        .returning();
+      return toProgress(row);
+    }
+    // Completing implies opening — stamp both.
+    const [row] = await this.db
+      .insert(lessonProgress)
+      .values({ studentId, lessonId, openedAt: now, completedAt: now })
+      .returning();
+    return toProgress(row);
+  }
+
+  async isLessonCompleted(studentId: string, lessonId: string): Promise<boolean> {
+    const progress = await this.getProgress(studentId, lessonId);
+    return progress?.completedAt != null;
+  }
+
+  // --- Lesson invites (invite_only visibility) ---
+  async addLessonInvite(lessonId: string, studentId: string): Promise<void> {
+    await this.db
+      .insert(lessonInvites)
+      .values({ lessonId, studentId })
+      .onConflictDoNothing();
+  }
+
+  async isLessonInvited(lessonId: string, studentId: string): Promise<boolean> {
+    const rows = await this.db
+      .select()
+      .from(lessonInvites)
+      .where(and(eq(lessonInvites.lessonId, lessonId), eq(lessonInvites.studentId, studentId)))
+      .limit(1);
+    return rows.length > 0;
   }
 }

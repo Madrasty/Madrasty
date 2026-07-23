@@ -42,3 +42,23 @@ export async function loadLessonInChapter(
   }
   return lesson;
 }
+
+// Loads a lesson via its chapter and confirms both belong to the given program.
+// Used by student progress endpoints that address a lesson by program + lesson id
+// (no chapter in the path).
+export async function loadLessonInProgram(
+  repo: LearningProgramsRepository,
+  programId: string,
+  lessonId: string,
+): Promise<{ program: ProgramRecord; lesson: LessonRecord }> {
+  const lesson = await repo.getLessonById(lessonId);
+  const chapter = lesson ? await repo.getChapterById(lesson.chapterId) : null;
+  if (!lesson || !chapter || chapter.programId !== programId) {
+    throw HttpError.notFound('lesson_not_found', 'Lesson not found in this program.');
+  }
+  const program = await repo.getProgramById(programId);
+  if (!program) {
+    throw HttpError.notFound('program_not_found', 'Program not found.');
+  }
+  return { program, lesson };
+}

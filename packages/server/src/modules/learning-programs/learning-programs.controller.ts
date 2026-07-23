@@ -5,10 +5,14 @@ import type { ProgramsService } from './programs.service';
 import type { ChaptersService } from './chapters.service';
 import type { LessonsService } from './lessons.service';
 import type { BrowseService } from './browse.service';
+import type { EnrollmentService } from './enrollment.service';
+import type { ProgressService } from './progress.service';
 import {
+  addInviteSchema,
   createChapterSchema,
   createLessonSchema,
   createProgramSchema,
+  grantEnrollmentSchema,
   listProgramsQuerySchema,
   updateChapterSchema,
   updateLessonSchema,
@@ -19,13 +23,12 @@ import {
 function actorOf(req: Request): Actor {
   return { id: req.user!.id, role: req.user!.role };
 }
-// req.user is optional on public read routes (optionalAuth).
+// req.user is optional on public read routes (optionalAuth). Enrollment-based
+// access is resolved per-request against the enrollments table (browse service).
 function viewerOf(req: Request): Viewer {
   return {
     userId: req.user?.id ?? null,
     role: req.user?.role ?? null,
-    // Enrollment/payments not built yet — the public is treated as un-purchased.
-    hasPurchased: false,
   };
 }
 
@@ -34,6 +37,8 @@ export interface LearningProgramsServices {
   chapters: ChaptersService;
   lessons: LessonsService;
   browse: BrowseService;
+  enrollment: EnrollmentService;
+  progress: ProgressService;
 }
 
 export function createLearningProgramsController(s: LearningProgramsServices) {
@@ -117,6 +122,45 @@ export function createLearningProgramsController(s: LearningProgramsServices) {
         req.params.lessonId,
       );
       res.status(200).json({ success: true });
+    }),
+
+    // --- Enrollment + invites (teacher/admin) ---
+    grantEnrollment: asyncHandler(async (req: Request, res: Response) => {
+      const body = grantEnrollmentSchema.parse(req.body);
+      const enrollment = await s.enrollment.grant(actorOf(req), req.params.programId, body);
+      res.status(201).json(enrollment);
+    }),
+    addLessonInvite: asyncHandler(async (req: Request, res: Response) => {
+      const body = addInviteSchema.parse(req.body);
+      await s.lessons.invite(
+        actorOf(req),
+        req.params.programId,
+        req.params.chapterId,
+        req.params.lessonId,
+        body.studentId,
+      );
+      res.status(201).json({ success: true });
+    }),
+
+    // --- Student progress ---
+    markLessonOpened: asyncHandler(async (req: Request, res: Response) => {
+      const result = await s.progress.markOpened(
+        actorOf(req),
+        req.params.programId,
+        req.params.lessonId,
+      );
+      res.status(200).json(result);
+    }),
+    markLessonCompleted: asyncHandler(async (req: Request, res: Response) => {
+      const result = await s.progress.markCompleted(
+        actorOf(req),
+        req.params.programId,
+        req.params.lessonId,
+      );
+      res.status(200).json(result);
+    }),
+    listMyPrograms: asyncHandler(async (req: Request, res: Response) => {
+      res.status(200).json({ programs: await s.enrollment.listMyPrograms(actorOf(req).id) });
     }),
 
     // --- Public browsing ---

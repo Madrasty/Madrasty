@@ -22,6 +22,13 @@
       "when": 1784737089335,
       "tag": "0002_typical_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784793933362,
+      "tag": "0003_bright_miracleman",
+      "breakpoints": true
     }
   ]
 }

@@ -11,8 +11,8 @@ const teacher: Actor = { id: 'teacher-1', role: 'teacher' };
 const otherTeacher: Actor = { id: 'teacher-2', role: 'teacher' };
 const admin: Actor = { id: 'admin-1', role: 'admin' };
 
-const publicViewer: Viewer = { userId: null, role: null, hasPurchased: false };
-const ownerViewer: Viewer = { userId: teacher.id, role: 'teacher', hasPurchased: false };
+const publicViewer: Viewer = { userId: null, role: null };
+const ownerViewer: Viewer = { userId: teacher.id, role: 'teacher' };
 
 describe('learning-programs services', () => {
   let repo: InMemoryLearningProgramsRepository;
