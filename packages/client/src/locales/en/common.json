@@ -1,0 +1,418 @@
+{
+  "app": {
+    "name": "Madrasty",
+    "tagline": "EdTech Platform"
+  },
+  "roles": {
+    "student": "Student",
+    "parent": "Parent",
+    "teacher": "Teacher",
+    "admin": "Admin"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "learningPrograms": "Learning Programs",
+    "marketplace": "Marketplace",
+    "tutoring": "Private Tutoring",
+    "profile": "Profile",
+    "children": "Children",
+    "billing": "Billing & Plans",
+    "analytics": "Analytics",
+    "myPrograms": "My Programs",
+    "students": "Students",
+    "liveClasses": "Live Classes",
+    "earnings": "Earnings",
+    "teacherVerification": "Teacher Verification",
+    "programApprovals": "Program Approvals",
+    "users": "Users",
+    "reports": "Reports",
+    "settings": "Settings",
+    "home": "Home",
+    "learn": "Learn",
+    "tutor": "Tutor"
+  },
+  "topbar": {
+    "search": "Search",
+    "notifications": "Notifications",
+    "roleSwitcher": "Preview role"
+  },
+  "actions": {
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "save": "Save changes",
+    "switchLanguage": "العربية",
+    "viewAll": "View all",
+    "resume": "Resume",
+    "approve": "Approve",
+    "decline": "Decline",
+    "review": "Review",
+    "manage": "Manage subscriptions",
+    "askQuestion": "Ask a question"
+  },
+  "landing": {
+    "navFeatures": "Features",
+    "navTeachers": "Teachers",
+    "navPricing": "Pricing",
+    "login": "Log in",
+    "getStarted": "Get started",
+    "badge": "The new standard in EdTech",
+    "heroTitle": "Empowering Egypt's future education",
+    "heroSubtitle": "A premium learning ecosystem for students, parents, and educators — blending structured curriculum with on-demand tutoring.",
+    "joinAsStudent": "Join as a student",
+    "forEducators": "For educators",
+    "trustedBy": "Trusted by 10,000+ learners",
+    "sectionTitle": "A holistic approach to learning",
+    "sectionSubtitle": "Everything you need to excel, integrated into one seamless platform.",
+    "feature1Title": "Curriculum-aligned paths",
+    "feature1Body": "Structured programs mapped to national educational standards for relevant, effective studying.",
+    "feature2Title": "AI assistants",
+    "feature2Body": "24/7 intelligent tutoring to unblock students instantly.",
+    "feature3Title": "Private tutoring",
+    "feature3Body": "Connect 1-on-1 with top-rated educators for personalized help.",
+    "feature4Title": "Parental analytics dashboard",
+    "feature4Body": "Deep insight into learning patterns, strengths, and areas needing attention.",
+    "statCompletion": "Completion rate",
+    "statImprovement": "Avg. improvement",
+    "openStudent": "Student dashboard",
+    "openParent": "Parent dashboard",
+    "openTeacher": "Teacher dashboard",
+    "openAdmin": "Admin dashboard",
+    "openPlayer": "Learning player",
+    "previewNote": "Preview the dashboards"
+  },
+  "student": {
+    "greeting": "Welcome back, Sarah!",
+    "subgreeting": "You have 2 classes today. Keep up the great work.",
+    "continueLearning": "Continue learning",
+    "chapter": "Chapter 4",
+    "programTitle": "Advanced Mathematics",
+    "progress": "Progress",
+    "weeklyGoal": "Weekly goal",
+    "hours": "hours",
+    "courseCompletion": "Course completion",
+    "courses": "courses",
+    "schedule": "Today's schedule",
+    "scheduleItem": "Physics 101: Mechanics",
+    "liveClass": "Live class",
+    "recommended": "Recommended for you",
+    "recommendedItem": "Intro to Python",
+    "aiAssistant": "Study assistant",
+    "aiAssistantBody": "Stuck on a problem? Ask the AI tutor for a hint or explanation."
+  },
+  "parent": {
+    "greeting": "Welcome back, Sarah",
+    "subgreeting": "Here is what's happening with your children's education today.",
+    "childrenOverview": "Children overview",
+    "weeklyGoalProgress": "Weekly goal progress",
+    "latestActivity": "Latest activity",
+    "onTrack": "On track",
+    "reviewNeeded": "Review needed",
+    "recentReports": "Recent reports",
+    "viewFullReport": "View full report",
+    "readMessage": "Read message",
+    "sessionApprovals": "Session approvals",
+    "pending": "{{count}} pending",
+    "billing": "Billing & plans",
+    "upcomingPayment": "Upcoming payment",
+    "dueDate": "Due Oct 15",
+    "children": {
+      "omarName": "Omar",
+      "omarMeta": "Grade 8 · Mathematics track",
+      "omarActivity": "Completed Algebra Quiz 3 with a 92% score.",
+      "linaName": "Lina",
+      "linaMeta": "Grade 11 · Sciences track",
+      "linaActivity": "Missed the Biology lab assignment deadline."
+    },
+    "reports": {
+      "physicsTitle": "Physics midterm results",
+      "physicsTime": "2h ago",
+      "physicsBody": "Lina scored 88%. Teacher noted excellent understanding of kinematics.",
+      "tutorTitle": "Tutor feedback",
+      "tutorTime": "Yesterday",
+      "tutorBody": "Mr. Ahmed gave feedback on Omar's latest math session. Focus on fractions recommended."
+    },
+    "approval": {
+      "request": "Lina requests a Chemistry tutor",
+      "meta": "Tomorrow, 4:00 PM · EGP 25/hr"
+    },
+    "plan": {
+      "standard": "Standard EdTech plan (x2)",
+      "materials": "Premium study materials"
+    }
+  },
+  "teacher": {
+    "greeting": "Welcome back, Mr. Hassan",
+    "subgreeting": "Here's what's happening with your classes today.",
+    "newProgram": "New program",
+    "totalRevenue": "Total revenue",
+    "revenueDelta": "+14% vs last month",
+    "activeStudents": "Active students",
+    "acrossPrograms": "Across 4 programs",
+    "engagement": "Avg. engagement",
+    "target": "Target: 80%",
+    "myPrograms": "My programs",
+    "students": "Students",
+    "lessons": "Lessons",
+    "todaysClasses": "Today's classes",
+    "needsGrading": "Needs grading",
+    "pending": "{{count}} pending",
+    "submitted": "Submitted {{time}}",
+    "programs": {
+      "calcSubject": "Mathematics",
+      "calcTitle": "Advanced Calculus 101",
+      "physicsSubject": "Physics",
+      "physicsTitle": "Quantum Mechanics Basics"
+    },
+    "classes": {
+      "qa": "Calc 101 — Q&A session",
+      "qaMeta": "Video call",
+      "lab": "Physics lab discussion",
+      "labMeta": "Room 302"
+    },
+    "grading": {
+      "integration": "Integration assignment",
+      "integrationMeta": "Ali Sameh · 2h ago",
+      "lab": "Lab report: Kinematics",
+      "labMeta": "Mona Khalil · 5h ago"
+    }
+  },
+  "admin": {
+    "greeting": "Platform overview",
+    "subgreeting": "Monitor verification, approvals, and platform health.",
+    "totalRevenue": "Monthly revenue",
+    "newSignups": "New signups",
+    "dailyActive": "Daily active students",
+    "liveSessions": "Active live sessions",
+    "live": "LIVE",
+    "vsLastWeek": "vs last week",
+    "verificationQueue": "Teacher verification queue",
+    "columns": {
+      "applicant": "Applicant",
+      "specialty": "Subject specialty",
+      "applied": "Applied",
+      "status": "Status",
+      "action": "Action"
+    },
+    "status": {
+      "pending": "Pending",
+      "reviewing": "Reviewing"
+    },
+    "continue": "Continue",
+    "applicants": {
+      "ahmed": "Ahmed Ali",
+      "ahmedMeta": "Cairo Univ. grad",
+      "ahmedSpecialty": "Advanced Mathematics",
+      "sarah": "Sarah Hassan",
+      "sarahMeta": "10 yrs exp.",
+      "sarahSpecialty": "Physics (high school)",
+      "mahmoud": "Mahmoud Ibrahim",
+      "mahmoudMeta": "Ph.D. candidate",
+      "mahmoudSpecialty": "Arabic literature"
+    },
+    "time": {
+      "twoHours": "2 hours ago",
+      "fiveHours": "5 hours ago",
+      "yesterday": "Yesterday"
+    }
+  },
+  "marketplace": {
+    "title": "Find a private tutor",
+    "subtitle": "Browse verified educators for 1-on-1 home tutoring.",
+    "filters": "Filters",
+    "subject": "Subject",
+    "gradeLevel": "Grade level",
+    "minRating": "Minimum rating",
+    "pricePerHour": "Price per hour",
+    "subjects": {
+      "math": "Mathematics",
+      "science": "Science",
+      "arabic": "Arabic language",
+      "english": "English"
+    },
+    "featured": "Featured educators",
+    "available": "Available tutors",
+    "found": "{{count}} found",
+    "sortBy": "Sort by",
+    "sort": {
+      "recommended": "Recommended",
+      "topRated": "Highest rated",
+      "priceLow": "Price: low to high"
+    },
+    "reviews": "({{count}} reviews)",
+    "perHour": "EGP {{price}}/hr",
+    "bookNow": "Book now",
+    "tutors": {
+      "sarahName": "Dr. Sarah Jenkins",
+      "sarahSubject": "Advanced Mathematics",
+      "sarahTag1": "10+ yrs exp",
+      "sarahTag2": "Bilingual",
+      "ahmedName": "Prof. Ahmed Tariq",
+      "ahmedSubject": "Physics & Chemistry",
+      "ahmedTag1": "15 yrs exp",
+      "ahmedTag2": "Lab specialist",
+      "monaName": "Ms. Mona Adel",
+      "monaSubject": "Arabic Literature",
+      "monaTag1": "8 yrs exp",
+      "monaTag2": "Primary & prep"
+    }
+  },
+  "player": {
+    "lessonTitle": "Calculus Fundamentals",
+    "lessonDescription": "We dive into the core concepts of calculus — limits, continuity, and the foundational principles that lead to understanding derivatives.",
+    "tabs": {
+      "resources": "Resources",
+      "notes": "Notes",
+      "discussion": "Discussion"
+    },
+    "resources": {
+      "slides": "Calculus Fundamentals — Slides",
+      "slidesMeta": "PDF · 2.4 MB",
+      "calculator": "Interactive graphing calculator",
+      "calculatorMeta": "External tool"
+    },
+    "courseContent": "Course content",
+    "overallProgress": "Overall progress",
+    "aiAssistant": "AI study assistant",
+    "aiPrompt": "Need help understanding limits? Ask me anything!",
+    "aiPlaceholder": "Ask AI…",
+    "chapters": {
+      "preCalc": "1. Pre-calculus review",
+      "functions": "2. Functions & graphs",
+      "calculus": "4. Calculus"
+    },
+    "lessons": {
+      "limits": "4.1 Intro to limits",
+      "limitsMeta": "Video · 15:20",
+      "fundamentals": "4.2 Calculus fundamentals",
+      "fundamentalsMeta": "Video · 28:30",
+      "derivatives": "4.3 Derivative rules",
+      "derivativesMeta": "Video · 22:15",
+      "quiz": "4.4 Chapter quiz",
+      "quizMeta": "Assessment · 10 questions"
+    }
+  },
+  "auth": {
+    "actions": {
+      "submitting": "Please wait…",
+      "logout": "Log out"
+    },
+    "fields": {
+      "identifier": "Email or phone",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Mobile number",
+      "phonePlaceholder": "01XXXXXXXXX",
+      "studentName": "Student's name",
+      "grade": "Grade",
+      "gradePlaceholder": "e.g. Grade 8",
+      "parentMobile": "Parent's mobile number",
+      "dateOfBirth": "Date of birth",
+      "relationship": "Relationship to student",
+      "school": "School (optional)",
+      "city": "City (optional)",
+      "otp": "Verification code",
+      "otpPlaceholder": "6-digit code"
+    },
+    "validation": {
+      "fullName": "Please enter your full name.",
+      "email": "Please enter a valid email address.",
+      "phone": "Please enter a valid Egyptian mobile number.",
+      "password": "Password must be at least 8 characters.",
+      "confirm": "Passwords do not match.",
+      "name": "Please enter the student's name.",
+      "grade": "Please enter a grade.",
+      "dateOfBirth": "Please enter a valid date of birth."
+    },
+    "relationships": {
+      "father": "Father",
+      "mother": "Mother",
+      "guardian": "Guardian",
+      "other": "Other"
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Log in to your Madrasty account.",
+      "submit": "Log in",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create one"
+    },
+    "register": {
+      "title": "Create a parent account",
+      "subtitle": "Parents register first, then add their children.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in"
+    },
+    "studentRegister": {
+      "title": "Student sign-up",
+      "subtitle": "Sign up and we'll ask your parent to approve.",
+      "submit": "Request approval",
+      "hint": "We'll send an approval link and a verification code to your parent's phone.",
+      "isParent": "Are you a parent?",
+      "parentLink": "Register here",
+      "doneTitle": "Almost there!",
+      "doneBody": "We've sent an approval request to your parent's phone. Your account activates once they approve it.",
+      "backHome": "Back to home"
+    },
+    "addStudent": {
+      "title": "Add your child",
+      "subtitle": "Create a profile for your child to manage their learning.",
+      "submit": "Add student",
+      "skip": "Skip for now"
+    },
+    "approval": {
+      "title": "Approve student",
+      "forStudent": "Approval request for {{name}}",
+      "requestLabel": "Student requesting to join",
+      "approve": "Approve",
+      "reject": "Reject",
+      "loginPrompt": "Log in as the guardian to review this request.",
+      "loginAsGuardian": "Log in as guardian",
+      "backHome": "Back to home",
+      "unknownStudent": "your child",
+      "status": {
+        "approved": "{{name}} has been approved and can now access Madrasty.",
+        "rejected": "This request for {{name}} was rejected.",
+        "expired": "This approval request has expired. Ask {{name}} to sign up again."
+      }
+    },
+    "errors": {
+      "network_error": "Could not reach the server. Check your connection and try again.",
+      "validation_error": "Please check the highlighted fields and try again.",
+      "account_exists": "An account with this email or phone already exists.",
+      "invalid_credentials": "Incorrect email/phone or password.",
+      "account_not_active": "This account is not active yet.",
+      "invalid_refresh_token": "Your session has expired. Please log in again.",
+      "approval_request_not_found": "This approval link is invalid or no longer exists.",
+      "already_resolved": "This request has already been handled.",
+      "request_expired": "This approval request has expired.",
+      "phone_mismatch": "This request was sent to a different guardian's phone number.",
+      "otp_not_found": "No verification code is pending for this request.",
+      "otp_expired": "The verification code has expired. Request a new one.",
+      "otp_locked": "Too many attempts. Please request a new code.",
+      "invalid_otp": "Incorrect verification code.",
+      "insufficient_role": "You don't have permission to do that.",
+      "missing_token": "Please log in to continue.",
+      "invalid_token": "Your session has expired. Please log in again.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "styleGuide": {
+    "title": "Madrasty Design System",
+    "subtitle": "Foundation components and tokens shared by every dashboard.",
+    "colors": "Colors",
+    "typography": "Typography",
+    "buttons": "Buttons",
+    "inputs": "Inputs",
+    "cards": "Cards",
+    "cardSample": {
+      "title": "Advanced Mathematics",
+      "body": "Chapter 3 · Quadratic Equations",
+      "progress": "60% complete"
+    },
+    "sampleInputLabel": "Full name",
+    "sampleInputPlaceholder": "Enter your full name"
+  }
+}

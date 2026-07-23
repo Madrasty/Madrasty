@@ -62,6 +62,14 @@ export interface AddStudentRequest {
   relationship?: GuardianRelationship;
 }
 
+// Flow A: the student is created active under the already-verified guardian.
+export interface AddStudentResponse {
+  studentId: string;
+  name: string;
+  grade: string;
+  status: 'active';
+}
+
 // Feature 6 — student-first self-registration.
 export interface StudentSelfRegisterRequest {
   name: string;
@@ -69,9 +77,31 @@ export interface StudentSelfRegisterRequest {
   parentMobile: string;
 }
 
+// Flow B: the student profile is created pending until a guardian approves.
+export interface StudentSelfRegisterResponse {
+  studentId: string;
+  status: 'pending_approval';
+}
+
 // Feature 7 — what a parent sees when opening the approval link (no PII/token).
 export interface GuardianApprovalView {
   student: { name: string | null; grade: string | null };
   status: 'awaiting_parent' | 'approved' | 'rejected' | 'expired';
   expiresAt: string | null;
+}
+
+// Feature 7 — the guardian supplies the OTP delivered to their phone to approve.
+export interface GuardianApproveRequest {
+  otp: string;
+}
+
+// Feature 7 — result of approving/rejecting an approval request.
+export interface GuardianApprovalActionResponse {
+  studentId?: string;
+  status: 'approved' | 'rejected';
+}
+
+// Session — logout acknowledgement.
+export interface LogoutResponse {
+  success: boolean;
 }

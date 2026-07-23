@@ -1,0 +1,418 @@
+{
+  "app": {
+    "name": "مدرستي",
+    "tagline": "منصة تعليمية"
+  },
+  "roles": {
+    "student": "طالب",
+    "parent": "ولي أمر",
+    "teacher": "معلّم",
+    "admin": "مشرف"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "learningPrograms": "البرامج التعليمية",
+    "marketplace": "المتجر",
+    "tutoring": "الدروس الخصوصية",
+    "profile": "الملف الشخصي",
+    "children": "الأبناء",
+    "billing": "الفواتير والخطط",
+    "analytics": "التحليلات",
+    "myPrograms": "برامجي",
+    "students": "الطلاب",
+    "liveClasses": "الحصص المباشرة",
+    "earnings": "الأرباح",
+    "teacherVerification": "توثيق المعلّمين",
+    "programApprovals": "اعتماد البرامج",
+    "users": "المستخدمون",
+    "reports": "التقارير",
+    "settings": "الإعدادات",
+    "home": "الرئيسية",
+    "learn": "التعلّم",
+    "tutor": "مدرّس"
+  },
+  "topbar": {
+    "search": "بحث",
+    "notifications": "الإشعارات",
+    "roleSwitcher": "معاينة الدور"
+  },
+  "actions": {
+    "continue": "متابعة",
+    "cancel": "إلغاء",
+    "save": "حفظ التغييرات",
+    "switchLanguage": "English",
+    "viewAll": "عرض الكل",
+    "resume": "استئناف",
+    "approve": "موافقة",
+    "decline": "رفض",
+    "review": "مراجعة",
+    "manage": "إدارة الاشتراكات",
+    "askQuestion": "اطرح سؤالاً"
+  },
+  "landing": {
+    "navFeatures": "المميزات",
+    "navTeachers": "المعلّمون",
+    "navPricing": "الأسعار",
+    "login": "تسجيل الدخول",
+    "getStarted": "ابدأ الآن",
+    "badge": "المعيار الجديد في التعليم الرقمي",
+    "heroTitle": "نُمكّن مستقبل التعليم في مصر",
+    "heroSubtitle": "منظومة تعليمية متميّزة للطلاب وأولياء الأمور والمعلّمين — تجمع بين المناهج المنظّمة والدروس الخصوصية عند الطلب.",
+    "joinAsStudent": "انضم كطالب",
+    "forEducators": "للمعلّمين",
+    "trustedBy": "يثق بنا أكثر من 10,000 متعلّم",
+    "sectionTitle": "منهج متكامل للتعلّم",
+    "sectionSubtitle": "كل ما تحتاجه للتفوّق في منصة واحدة سلسة.",
+    "feature1Title": "مسارات متوافقة مع المنهج",
+    "feature1Body": "برامج منظّمة متوافقة مع المعايير التعليمية الوطنية لدراسة فعّالة وذات صلة.",
+    "feature2Title": "مساعدو الذكاء الاصطناعي",
+    "feature2Body": "دعم تعليمي ذكي على مدار الساعة لمساعدة الطلاب فوراً.",
+    "feature3Title": "الدروس الخصوصية",
+    "feature3Body": "تواصل فردياً مع أفضل المعلّمين لمساعدة مخصّصة.",
+    "feature4Title": "لوحة تحليلات لولي الأمر",
+    "feature4Body": "رؤية عميقة لأنماط التعلّم ونقاط القوة والمجالات التي تحتاج إلى اهتمام.",
+    "statCompletion": "نسبة الإتمام",
+    "statImprovement": "متوسط التحسّن",
+    "openStudent": "لوحة الطالب",
+    "openParent": "لوحة ولي الأمر",
+    "openTeacher": "لوحة المعلّم",
+    "openAdmin": "لوحة المشرف",
+    "openPlayer": "مشغّل الدروس",
+    "previewNote": "معاينة اللوحات"
+  },
+  "student": {
+    "greeting": "مرحباً بعودتك يا سارة!",
+    "subgreeting": "لديك حصتان اليوم. واصلي عملك الرائع.",
+    "continueLearning": "متابعة التعلّم",
+    "chapter": "الفصل 4",
+    "programTitle": "الرياضيات المتقدمة",
+    "progress": "التقدّم",
+    "weeklyGoal": "الهدف الأسبوعي",
+    "hours": "ساعات",
+    "courseCompletion": "إتمام البرامج",
+    "courses": "برامج",
+    "schedule": "جدول اليوم",
+    "scheduleItem": "الفيزياء 101: الميكانيكا",
+    "liveClass": "حصة مباشرة",
+    "recommended": "مقترح لك",
+    "recommendedItem": "مقدمة في بايثون",
+    "aiAssistant": "مساعد المذاكرة",
+    "aiAssistantBody": "واجهتك مشكلة؟ اسأل المساعد الذكي عن تلميح أو شرح."
+  },
+  "parent": {
+    "greeting": "مرحباً بعودتك يا سارة",
+    "subgreeting": "إليك ما يحدث في تعليم أبنائك اليوم.",
+    "childrenOverview": "نظرة عامة على الأبناء",
+    "weeklyGoalProgress": "تقدّم الهدف الأسبوعي",
+    "latestActivity": "آخر نشاط",
+    "onTrack": "على المسار",
+    "reviewNeeded": "يحتاج مراجعة",
+    "recentReports": "أحدث التقارير",
+    "viewFullReport": "عرض التقرير كاملاً",
+    "readMessage": "قراءة الرسالة",
+    "sessionApprovals": "موافقات الجلسات",
+    "pending": "{{count}} قيد الانتظار",
+    "billing": "الفواتير والخطط",
+    "upcomingPayment": "الدفعة القادمة",
+    "dueDate": "تُستحق 15 أكتوبر",
+    "children": {
+      "omarName": "عمر",
+      "omarMeta": "الصف الثامن · مسار الرياضيات",
+      "omarActivity": "أنهى اختبار الجبر 3 بنتيجة 92٪.",
+      "linaName": "لينا",
+      "linaMeta": "الصف الحادي عشر · مسار العلوم",
+      "linaActivity": "فاتها موعد تسليم واجب معمل الأحياء."
+    },
+    "reports": {
+      "physicsTitle": "نتائج منتصف الفصل — الفيزياء",
+      "physicsTime": "منذ ساعتين",
+      "physicsBody": "حصلت لينا على 88٪. أشاد المعلّم بفهمها الممتاز للحركة.",
+      "tutorTitle": "ملاحظات المدرّس",
+      "tutorTime": "أمس",
+      "tutorBody": "قدّم الأستاذ أحمد ملاحظات على آخر حصة رياضيات لعمر. يُنصح بالتركيز على الكسور."
+    },
+    "approval": {
+      "request": "تطلب لينا مدرّس كيمياء",
+      "meta": "غداً، 4:00 مساءً · 25 ج.م/ساعة"
+    },
+    "plan": {
+      "standard": "خطة مدرستي القياسية (×2)",
+      "materials": "مواد دراسية متميّزة"
+    }
+  },
+  "teacher": {
+    "greeting": "مرحباً بعودتك أستاذ حسن",
+    "subgreeting": "إليك ما يحدث في حصصك اليوم.",
+    "newProgram": "برنامج جديد",
+    "totalRevenue": "إجمالي الإيرادات",
+    "revenueDelta": "+14٪ عن الشهر الماضي",
+    "activeStudents": "الطلاب النشطون",
+    "acrossPrograms": "عبر 4 برامج",
+    "engagement": "متوسط التفاعل",
+    "target": "الهدف: 80٪",
+    "myPrograms": "برامجي",
+    "students": "طالب",
+    "lessons": "درس",
+    "todaysClasses": "حصص اليوم",
+    "needsGrading": "بانتظار التصحيح",
+    "pending": "{{count}} قيد الانتظار",
+    "submitted": "سُلّم {{time}}",
+    "programs": {
+      "calcSubject": "الرياضيات",
+      "calcTitle": "التفاضل والتكامل المتقدم 101",
+      "physicsSubject": "الفيزياء",
+      "physicsTitle": "أساسيات ميكانيكا الكم"
+    },
+    "classes": {
+      "qa": "حساب التفاضل 101 — جلسة أسئلة",
+      "qaMeta": "مكالمة فيديو",
+      "lab": "مناقشة معمل الفيزياء",
+      "labMeta": "غرفة 302"
+    },
+    "grading": {
+      "integration": "واجب التكامل",
+      "integrationMeta": "علي سامح · منذ ساعتين",
+      "lab": "تقرير معمل: الحركة",
+      "labMeta": "منى خليل · منذ 5 ساعات"
+    }
+  },
+  "admin": {
+    "greeting": "نظرة عامة على المنصة",
+    "subgreeting": "تابع التوثيق والاعتمادات وصحة المنصة.",
+    "totalRevenue": "الإيرادات الشهرية",
+    "newSignups": "تسجيلات جديدة",
+    "dailyActive": "الطلاب النشطون يومياً",
+    "liveSessions": "الحصص المباشرة النشطة",
+    "live": "مباشر",
+    "vsLastWeek": "عن الأسبوع الماضي",
+    "verificationQueue": "قائمة توثيق المعلّمين",
+    "columns": {
+      "applicant": "المتقدّم",
+      "specialty": "تخصّص المادة",
+      "applied": "تاريخ التقديم",
+      "status": "الحالة",
+      "action": "إجراء"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "reviewing": "قيد المراجعة"
+    },
+    "continue": "متابعة",
+    "applicants": {
+      "ahmed": "أحمد علي",
+      "ahmedMeta": "خريج جامعة القاهرة",
+      "ahmedSpecialty": "الرياضيات المتقدمة",
+      "sarah": "سارة حسن",
+      "sarahMeta": "خبرة 10 سنوات",
+      "sarahSpecialty": "الفيزياء (الثانوي)",
+      "mahmoud": "محمود إبراهيم",
+      "mahmoudMeta": "باحث دكتوراه",
+      "mahmoudSpecialty": "الأدب العربي"
+    },
+    "time": {
+      "twoHours": "منذ ساعتين",
+      "fiveHours": "منذ 5 ساعات",
+      "yesterday": "أمس"
+    }
+  },
+  "marketplace": {
+    "title": "ابحث عن مدرّس خصوصي",
+    "subtitle": "تصفّح المعلّمين الموثّقين للدروس المنزلية الفردية.",
+    "filters": "التصفية",
+    "subject": "المادة",
+    "gradeLevel": "المرحلة الدراسية",
+    "minRating": "الحد الأدنى للتقييم",
+    "pricePerHour": "السعر للساعة",
+    "subjects": {
+      "math": "الرياضيات",
+      "science": "العلوم",
+      "arabic": "اللغة العربية",
+      "english": "اللغة الإنجليزية"
+    },
+    "featured": "معلّمون مميّزون",
+    "available": "المدرّسون المتاحون",
+    "found": "{{count}} نتيجة",
+    "sortBy": "ترتيب حسب",
+    "sort": {
+      "recommended": "المقترح",
+      "topRated": "الأعلى تقييماً",
+      "priceLow": "السعر: من الأقل للأعلى"
+    },
+    "reviews": "({{count}} تقييم)",
+    "perHour": "{{price}} ج.م/ساعة",
+    "bookNow": "احجز الآن",
+    "tutors": {
+      "sarahName": "د. سارة جينكينز",
+      "sarahSubject": "الرياضيات المتقدمة",
+      "sarahTag1": "خبرة +10 سنوات",
+      "sarahTag2": "ثنائية اللغة",
+      "ahmedName": "أ. أحمد طارق",
+      "ahmedSubject": "الفيزياء والكيمياء",
+      "ahmedTag1": "خبرة 15 سنة",
+      "ahmedTag2": "أخصائي معمل",
+      "monaName": "أ. منى عادل",
+      "monaSubject": "الأدب العربي",
+      "monaTag1": "خبرة 8 سنوات",
+      "monaTag2": "ابتدائي وإعدادي"
+    }
+  },
+  "player": {
+    "lessonTitle": "أساسيات التفاضل والتكامل",
+    "lessonDescription": "نتعمّق في المفاهيم الأساسية للتفاضل والتكامل — النهايات والاتصال والمبادئ التأسيسية التي تقود إلى فهم المشتقات.",
+    "tabs": {
+      "resources": "المصادر",
+      "notes": "الملاحظات",
+      "discussion": "النقاش"
+    },
+    "resources": {
+      "slides": "أساسيات التفاضل — الشرائح",
+      "slidesMeta": "PDF · 2.4 ميجابايت",
+      "calculator": "آلة رسم بياني تفاعلية",
+      "calculatorMeta": "أداة خارجية"
+    },
+    "courseContent": "محتوى البرنامج",
+    "overallProgress": "التقدّم الإجمالي",
+    "aiAssistant": "مساعد المذاكرة الذكي",
+    "aiPrompt": "تحتاج مساعدة في فهم النهايات؟ اسألني أي شيء!",
+    "aiPlaceholder": "اسأل المساعد الذكي…",
+    "chapters": {
+      "preCalc": "1. مراجعة ما قبل التفاضل",
+      "functions": "2. الدوال والرسوم البيانية",
+      "calculus": "4. التفاضل والتكامل"
+    },
+    "lessons": {
+      "limits": "4.1 مقدمة في النهايات",
+      "limitsMeta": "فيديو · 15:20",
+      "fundamentals": "4.2 أساسيات التفاضل",
+      "fundamentalsMeta": "فيديو · 28:30",
+      "derivatives": "4.3 قواعد الاشتقاق",
+      "derivativesMeta": "فيديو · 22:15",
+      "quiz": "4.4 اختبار الفصل",
+      "quizMeta": "تقييم · 10 أسئلة"
+    }
+  },
+  "auth": {
+    "actions": {
+      "submitting": "برجاء الانتظار…",
+      "logout": "تسجيل الخروج"
+    },
+    "fields": {
+      "identifier": "البريد الإلكتروني أو رقم الهاتف",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف المحمول",
+      "phonePlaceholder": "01XXXXXXXXX",
+      "studentName": "اسم الطالب",
+      "grade": "الصف الدراسي",
+      "gradePlaceholder": "مثال: الصف الثامن",
+      "parentMobile": "رقم هاتف ولي الأمر",
+      "dateOfBirth": "تاريخ الميلاد",
+      "relationship": "صلة القرابة بالطالب",
+      "school": "المدرسة (اختياري)",
+      "city": "المدينة (اختياري)",
+      "otp": "رمز التحقق",
+      "otpPlaceholder": "رمز من 6 أرقام"
+    },
+    "validation": {
+      "fullName": "من فضلك أدخل اسمك الكامل.",
+      "email": "من فضلك أدخل بريداً إلكترونياً صحيحاً.",
+      "phone": "من فضلك أدخل رقم هاتف مصري صحيح.",
+      "password": "يجب ألا تقل كلمة المرور عن 8 أحرف.",
+      "confirm": "كلمتا المرور غير متطابقتين.",
+      "name": "من فضلك أدخل اسم الطالب.",
+      "grade": "من فضلك أدخل الصف الدراسي.",
+      "dateOfBirth": "من فضلك أدخل تاريخ ميلاد صحيح."
+    },
+    "relationships": {
+      "father": "الأب",
+      "mother": "الأم",
+      "guardian": "ولي الأمر",
+      "other": "أخرى"
+    },
+    "login": {
+      "title": "مرحباً بعودتك",
+      "subtitle": "سجّل الدخول إلى حسابك في مدرستي.",
+      "submit": "تسجيل الدخول",
+      "noAccount": "ليس لديك حساب؟",
+      "registerLink": "أنشئ حساباً"
+    },
+    "register": {
+      "title": "إنشاء حساب ولي أمر",
+      "subtitle": "يسجّل أولياء الأمور أولاً، ثم يضيفون أبناءهم.",
+      "submit": "إنشاء الحساب",
+      "haveAccount": "لديك حساب بالفعل؟",
+      "loginLink": "تسجيل الدخول"
+    },
+    "studentRegister": {
+      "title": "تسجيل الطالب",
+      "subtitle": "سجّل وسنطلب من ولي أمرك الموافقة.",
+      "submit": "طلب الموافقة",
+      "hint": "سنرسل رابط موافقة ورمز تحقق إلى هاتف ولي أمرك.",
+      "isParent": "هل أنت ولي أمر؟",
+      "parentLink": "سجّل من هنا",
+      "doneTitle": "اقتربت من الانتهاء!",
+      "doneBody": "أرسلنا طلب موافقة إلى هاتف ولي أمرك. يُفعّل حسابك بمجرد موافقته.",
+      "backHome": "العودة للرئيسية"
+    },
+    "addStudent": {
+      "title": "أضف ابنك",
+      "subtitle": "أنشئ ملفاً لابنك لإدارة تعلّمه.",
+      "submit": "إضافة الطالب",
+      "skip": "تخطّي الآن"
+    },
+    "approval": {
+      "title": "الموافقة على الطالب",
+      "forStudent": "طلب موافقة على {{name}}",
+      "requestLabel": "طالب يطلب الانضمام",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "loginPrompt": "سجّل الدخول كولي أمر لمراجعة هذا الطلب.",
+      "loginAsGuardian": "تسجيل الدخول كولي أمر",
+      "backHome": "العودة للرئيسية",
+      "unknownStudent": "ابنك",
+      "status": {
+        "approved": "تمت الموافقة على {{name}} ويمكنه الآن استخدام مدرستي.",
+        "rejected": "تم رفض هذا الطلب الخاص بـ {{name}}.",
+        "expired": "انتهت صلاحية طلب الموافقة هذا. اطلب من {{name}} التسجيل مرة أخرى."
+      }
+    },
+    "errors": {
+      "network_error": "تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مجدداً.",
+      "validation_error": "من فضلك راجع الحقول المميّزة وحاول مجدداً.",
+      "account_exists": "يوجد حساب بهذا البريد أو رقم الهاتف بالفعل.",
+      "invalid_credentials": "البريد/الهاتف أو كلمة المرور غير صحيحة.",
+      "account_not_active": "هذا الحساب غير مفعّل بعد.",
+      "invalid_refresh_token": "انتهت جلستك. من فضلك سجّل الدخول مجدداً.",
+      "approval_request_not_found": "رابط الموافقة غير صالح أو لم يعد موجوداً.",
+      "already_resolved": "تمت معالجة هذا الطلب بالفعل.",
+      "request_expired": "انتهت صلاحية طلب الموافقة هذا.",
+      "phone_mismatch": "أُرسل هذا الطلب إلى رقم هاتف ولي أمر مختلف.",
+      "otp_not_found": "لا يوجد رمز تحقق معلّق لهذا الطلب.",
+      "otp_expired": "انتهت صلاحية رمز التحقق. اطلب رمزاً جديداً.",
+      "otp_locked": "محاولات كثيرة جداً. من فضلك اطلب رمزاً جديداً.",
+      "invalid_otp": "رمز التحقق غير صحيح.",
+      "insufficient_role": "ليس لديك صلاحية للقيام بذلك.",
+      "missing_token": "من فضلك سجّل الدخول للمتابعة.",
+      "invalid_token": "انتهت جلستك. من فضلك سجّل الدخول مجدداً.",
+      "generic": "حدث خطأ ما. من فضلك حاول مجدداً."
+    }
+  },
+  "styleGuide": {
+    "title": "نظام التصميم في مدرستي",
+    "subtitle": "المكوّنات والأسس المشتركة بين جميع لوحات التحكم.",
+    "colors": "الألوان",
+    "typography": "الطباعة",
+    "buttons": "الأزرار",
+    "inputs": "حقول الإدخال",
+    "cards": "البطاقات",
+    "cardSample": {
+      "title": "الرياضيات المتقدمة",
+      "body": "الفصل 3 · المعادلات التربيعية",
+      "progress": "اكتمل 60٪"
+    },
+    "sampleInputLabel": "الاسم الكامل",
+    "sampleInputPlaceholder": "أدخل اسمك الكامل"
+  }
+}

@@ -77,9 +77,22 @@ docker compose down       # stop (keeps the pgdata volume)
 docker compose down -v    # stop and wipe the database
 ```
 
-Env: copy `.env.example` → `.env` and fill in values as each integration is built. `POSTGRES_*` in `.env` feed both docker-compose and `DATABASE_URL` — keep them in sync.
+Env: copy `.env.example` → `.env` and fill in values as each integration is built. `POSTGRES_*` in `.env` feed both docker-compose and `DATABASE_URL` — keep them in sync. Client-side code only sees `VITE_`-prefixed vars (Vite convention) — keep `VITE_API_BASE_URL`/`VITE_DEFAULT_LOCALE`/`VITE_SUPPORTED_LOCALES` in sync with their non-prefixed server-side counterparts.
 
-**App-level commands (build/lint/test/dev, running a single test) do not exist yet** — there is no `package.json`. When scaffolding the monorepo, add npm/pnpm workspace scripts and document the real commands here (replacing this note). Planned stack: Node + Express + TypeScript (server), React + Vite + TypeScript + Tailwind + react-i18next (client), a migration tool (Drizzle/Prisma/Knex), and BullMQ for background jobs.
+App-level commands (npm workspaces, root `package.json`):
+
+```bash
+npm install               # install all workspaces (root, shared, server, client)
+npm run dev:server        # server on API_BASE_URL's port (tsx watch)
+npm run dev:client        # client on http://localhost:5173 (Vite)
+npm run build             # build every workspace that has a build script
+npm run test              # run every workspace's test suite (vitest)
+npm run typecheck         # typecheck every workspace (tsc -b --noEmit)
+```
+
+Per-workspace, run from that package's directory or via `--workspace @madrasty/<name>`. `@madrasty/server` also has `db:generate` / `db:migrate` / `db:push` / `db:studio` (Drizzle). Both `server` and `client` support `npm run test:watch` and running a single test file via `vitest run <path>` / `vitest <path>`.
+
+Stack in place: Node + Express + TypeScript (server, Drizzle migrations), React + Vite + TypeScript + Tailwind v4 + react-i18next (client). BullMQ for background jobs is planned but not wired in yet.
 
 ## Conventions
 
