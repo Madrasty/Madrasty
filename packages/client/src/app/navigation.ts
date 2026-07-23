@@ -44,8 +44,8 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   ],
   admin: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/admin' },
-    { labelKey: 'teacherVerification', icon: 'how_to_reg' },
-    { labelKey: 'programApprovals', icon: 'fact_check' },
+    { labelKey: 'teacherVerification', icon: 'how_to_reg', path: '/app/admin/teachers' },
+    { labelKey: 'programApprovals', icon: 'fact_check', path: '/app/admin/programs' },
     { labelKey: 'users', icon: 'manage_accounts' },
     { labelKey: 'reports', icon: 'monitoring' },
   ],

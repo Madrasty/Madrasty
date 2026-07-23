@@ -74,6 +74,13 @@ export function createLearningProgramsController(s: LearningProgramsServices) {
         .status(200)
         .json(await s.programs.update(actorOf(req), req.params.programId, body, localeOf(req)));
     }),
+    submitProgram: asyncHandler(async (req: Request, res: Response) => {
+      res
+        .status(200)
+        .json(await s.programs.submitForReview(actorOf(req), req.params.programId, localeOf(req)));
+    }),
+    // draft → published directly. Not exposed on the real teacher router (that's
+    // an admin approval action); retained for internal/admin use and test setup.
     publishProgram: asyncHandler(async (req: Request, res: Response) => {
       res.status(200).json(await s.programs.publish(actorOf(req), req.params.programId, localeOf(req)));
     }),

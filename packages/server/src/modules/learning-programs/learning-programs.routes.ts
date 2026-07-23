@@ -18,7 +18,7 @@ import { createLearningProgramsController } from './learning-programs.controller
 //     GET    /mine                             own programs (all statuses)
 //     POST   /                                 create program
 //     PATCH  /:programId                       update program
-//     POST   /:programId/publish               publish program
+//     POST   /:programId/submit                submit draft for admin review
 //     DELETE /:programId                       soft-delete program
 //     POST   /:programId/chapters              create chapter
 //     PATCH  /:programId/chapters/:chapterId   update chapter
@@ -54,7 +54,7 @@ export function createLearningProgramsRouter(): Router {
   router.get('/my-programs', ...student, c.listMyPrograms);
   router.post('/', ...teacher, c.createProgram);
   router.patch('/:programId', ...teacher, c.updateProgram);
-  router.post('/:programId/publish', ...teacher, c.publishProgram);
+  router.post('/:programId/submit', ...teacher, c.submitProgram);
   router.delete('/:programId', ...teacher, c.deleteProgram);
 
   router.post('/:programId/chapters', ...teacher, c.createChapter);

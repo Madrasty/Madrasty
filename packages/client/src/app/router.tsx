@@ -6,6 +6,8 @@ import { StudentDashboardPage } from '../features/student-dashboard/StudentDashb
 import { ParentDashboardPage } from '../features/parent-dashboard/ParentDashboardPage';
 import { TeacherDashboardPage } from '../features/teacher-dashboard/TeacherDashboardPage';
 import { AdminDashboardPage } from '../features/admin-dashboard/AdminDashboardPage';
+import { TeacherVerificationPage } from '../features/admin-dashboard/TeacherVerificationPage';
+import { ProgramApprovalsPage } from '../features/admin-dashboard/ProgramApprovalsPage';
 import { TeacherMarketplacePage } from '../features/home-tutoring/TeacherMarketplacePage';
 import { CatalogBrowsePage } from '../features/catalog/CatalogBrowsePage';
 import { ProgramDetailPage } from '../features/catalog/ProgramDetailPage';
@@ -30,6 +32,15 @@ function teacherArea(node: ReactNode): ReactNode {
   return (
     <RequireRole roles={['teacher', 'admin']}>
       <DashboardLayout role="teacher">{node}</DashboardLayout>
+    </RequireRole>
+  );
+}
+
+// Wraps an admin-only governance screen in the admin shell (doc 09).
+function adminArea(node: ReactNode): ReactNode {
+  return (
+    <RequireRole roles={['admin']}>
+      <DashboardLayout role="admin">{node}</DashboardLayout>
     </RequireRole>
   );
 }
@@ -100,6 +111,9 @@ export const routes: RouteObject[] = [
       </DashboardLayout>
     ),
   },
+  // Admin governance (doc 09) — real, wired to the admin API, admin-only.
+  { path: '/app/admin/teachers', element: adminArea(<TeacherVerificationPage />) },
+  { path: '/app/admin/programs', element: adminArea(<ProgramApprovalsPage />) },
   {
     path: '/app/marketplace',
     element: (

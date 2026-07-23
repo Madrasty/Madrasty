@@ -201,6 +201,26 @@ refunds (
 
 ---
 
+## Admin governance — audit trail for admin/ops actions:
+
+```sql
+admin_audit_log (
+  id UUID PK,
+  actor_id UUID REFERENCES users,   -- the admin who acted
+  action TEXT,                       -- 'teacher.verify' | 'teacher.reject' | 'program.approve' | 'program.reject' (free-text slug, stable in code)
+  target_type TEXT,                  -- 'teacher' | 'program'
+  target_id UUID,
+  metadata JSONB,                    -- { reason, before, after }
+  created_at TIMESTAMPTZ
+)
+-- Append-only (ledger pattern). Governance is least-privilege + fully audited:
+-- an admin acts on accounts via logged actions, never silent in-place edits
+-- (doc 01 §7). Teacher verification uses teacher_profiles.verification_status;
+-- program approval moves learning_programs.status pending_review → published.
+```
+
+---
+
 ## Loyalty / Points / Coupons — see doc 05 for full detail, core tables here:
 
 ```sql

@@ -23,8 +23,10 @@ export const programsApi = {
   getProgram(programId: string) {
     return apiRequest<ProgramContentView>(`/learning-programs/${programId}`, { auth: true });
   },
-  publishProgram(programId: string) {
-    return apiRequest<AuthoredProgram>(`/learning-programs/${programId}/publish`, {
+  // Teacher submits a draft for admin review (draft → pending_review). Publishing
+  // to the catalog is now an admin approval action (doc 09).
+  submitProgram(programId: string) {
+    return apiRequest<AuthoredProgram>(`/learning-programs/${programId}/submit`, {
       method: 'POST',
       auth: true,
     });

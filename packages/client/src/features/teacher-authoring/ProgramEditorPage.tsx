@@ -40,10 +40,10 @@ export function ProgramEditorPage() {
       })),
     ) ?? [];
 
-  async function onPublishProgram() {
+  async function onSubmitProgram() {
     setPublishing(true);
     try {
-      await programsApi.publishProgram(programId);
+      await programsApi.submitProgram(programId);
       await reload();
     } finally {
       setPublishing(false);
@@ -69,7 +69,8 @@ export function ProgramEditorPage() {
     );
   }
 
-  const isPublished = program.status === 'published';
+  const isDraft = program.status === 'draft';
+  const isPending = program.status === 'pending_review';
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-unit-lg">
@@ -106,12 +107,19 @@ export function ProgramEditorPage() {
             )}
           </div>
         </div>
-        {!isPublished ? (
-          <Button variant="primary" onClick={onPublishProgram} disabled={publishing}>
-            <Icon name="publish" />
-            {publishing ? t('auth.actions.submitting') : t('authoring.editor.publishProgram')}
+        {isDraft && (
+          <Button variant="primary" onClick={onSubmitProgram} disabled={publishing}>
+            <Icon name="send" className="rtl:-scale-x-100" />
+            {publishing ? t('auth.actions.submitting') : t('authoring.editor.submitProgram')}
           </Button>
-        ) : (
+        )}
+        {isPending && (
+          <span className="flex items-center gap-1 rounded-lg bg-tertiary-container/50 px-3 py-2 text-label-md font-semibold text-on-tertiary-container">
+            <Icon name="hourglass_top" filled className="text-[1.1rem]" />
+            {t('authoring.editor.pendingBadge')}
+          </span>
+        )}
+        {program.status === 'published' && (
           <span className="flex items-center gap-1 rounded-lg bg-secondary-container px-3 py-2 text-label-md font-semibold text-on-secondary-container">
             <Icon name="check_circle" filled className="text-[1.1rem]" />
             {t('authoring.editor.publishedBadge')}

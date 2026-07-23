@@ -43,6 +43,13 @@
       "when": 1784834632207,
       "tag": "0005_clever_ironclad",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784839879317,
+      "tag": "0006_cooing_patriot",
+      "breakpoints": true
     }
   ]
 }

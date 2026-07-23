@@ -325,3 +325,45 @@ export interface TransactionView {
   status: TransactionStatus;
   createdAt: string;
 }
+
+// ---------------------------------------------------------------------------
+// Admin governance (doc 09 — verify teachers, approve/reject programs). Every
+// action is logged to admin_audit_log; admins govern, they don't silently edit.
+// ---------------------------------------------------------------------------
+export const TEACHER_VERIFICATION_STATUSES = ['pending', 'verified', 'rejected'] as const;
+export type TeacherVerificationStatus = (typeof TEACHER_VERIFICATION_STATUSES)[number];
+
+// A teacher in the verification queue (admin view).
+export interface PendingTeacher {
+  userId: string;
+  fullName: string | null;
+  email: string | null;
+  phone: string | null;
+  verificationStatus: TeacherVerificationStatus;
+  createdAt: string;
+}
+
+// A program in the approval queue (admin view), title resolved for the locale.
+export interface PendingProgram {
+  id: string;
+  teacherId: string;
+  teacherName: string | null;
+  gradeLevel: string | null;
+  priceEgp: string | null;
+  status: ProgramStatus;
+  title: string | null;
+  description: string | null;
+  submittedAt: string | null;
+}
+
+// A rejection carries a reason (persisted to the audit log + shown to the owner).
+export interface RejectRequest {
+  reason?: string;
+}
+
+export interface ListPendingTeachersResponse {
+  teachers: PendingTeacher[];
+}
+export interface ListPendingProgramsResponse {
+  programs: PendingProgram[];
+}

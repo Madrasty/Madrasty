@@ -1,4 +1,5 @@
 import { config } from '../../config/index';
+import { HttpError } from '../../lib/http-error';
 import type {
   LearningProgramsRepository,
   UpdateProgramPatch,
@@ -53,7 +54,27 @@ export class ProgramsService {
     return this.toView(updated, locale);
   }
 
-  // draft → published. Access to paid content later keys off this status.
+  // Teacher submits a draft for admin review (draft → pending_review, doc 09).
+  // Publishing to the catalog is an ADMIN action (the governance seam) — a
+  // teacher cannot self-publish. Only a draft is submittable.
+  async submitForReview(
+    actor: Actor,
+    programId: string,
+    locale: string = config.DEFAULT_LOCALE,
+  ): Promise<LocalizedProgram> {
+    const program = await loadEditableProgram(this.repo, actor, programId);
+    if (program.status !== 'draft') {
+      throw HttpError.conflict(
+        'not_submittable',
+        `A ${program.status} program can't be submitted for review.`,
+      );
+    }
+    const updated = await this.repo.updateProgram(programId, { status: 'pending_review' });
+    return this.toView(updated!, locale);
+  }
+
+  // draft → published, bypassing review. Kept for admin/internal use (the admin
+  // approve action and test setup); NOT exposed on a teacher route.
   async publish(
     actor: Actor,
     programId: string,

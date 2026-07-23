@@ -213,6 +213,33 @@
       "twoHours": "2 hours ago",
       "fiveHours": "5 hours ago",
       "yesterday": "Yesterday"
+    },
+    "verification": {
+      "title": "Teacher verification",
+      "subtitle": "Review and verify teachers before they can publish.",
+      "empty": "No teachers awaiting verification",
+      "emptyHint": "New teacher applications will appear here.",
+      "colApplicant": "Applicant",
+      "colContact": "Contact",
+      "colApplied": "Applied"
+    },
+    "approvals": {
+      "title": "Program approvals",
+      "subtitle": "Approve submitted programs to publish them to the catalog.",
+      "empty": "No programs awaiting review",
+      "emptyHint": "Programs teachers submit for review will appear here.",
+      "price": "EGP {{price}}",
+      "free": "Free",
+      "submitted": "Submitted {{date}}"
+    },
+    "review": {
+      "actions": "Actions",
+      "verify": "Verify",
+      "approve": "Approve",
+      "reject": "Reject",
+      "unnamed": "Unnamed",
+      "untitled": "Untitled program",
+      "error": "Something went wrong. Please refresh."
     }
   },
   "marketplace": {
@@ -503,7 +530,9 @@
       "pageCount": "Page count",
       "scheduledStart": "Scheduled start",
       "detailsNote": "This lesson type reuses another module and has no extra fields yet.",
-      "reloadError": "Could not load this program."
+      "reloadError": "Could not load this program.",
+      "submitProgram": "Submit for review",
+      "pendingBadge": "Awaiting review"
     }
   },
   "catalog": {
