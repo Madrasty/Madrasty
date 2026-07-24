@@ -1,6 +1,7 @@
 import { and, desc, eq, gt, isNull, lte, or, sql } from 'drizzle-orm';
 import { db as defaultDb, type Database } from '../../db/client';
 import {
+  adminAuditLog,
   coupons,
   couponRedemptions,
   earnRules,
@@ -62,6 +63,19 @@ export interface CreateCouponInput {
   applicableTo: Record<string, unknown>;
 }
 
+export interface ProgramPurchaseInfo {
+  status: string;
+  priceEgp: string | null;
+}
+
+export interface AuditEntry {
+  actorId: string;
+  action: string;
+  targetType: string;
+  targetId: string;
+  metadata?: Record<string, unknown>;
+}
+
 // Config-with-sane-defaults if the singleton row is somehow missing (fresh DB
 // before seed). Keeps reads total so the pricing engine never throws.
 const DEFAULT_POINTS_CONFIG: PointsConfigRecord = {
@@ -92,6 +106,8 @@ export interface LoyaltyRepository {
   createCoupon(input: CreateCouponInput): Promise<CouponRecord>;
   listCouponsWithCounts(): Promise<CouponWithCount[]>;
   softDeleteCoupon(id: string): Promise<boolean>;
+  getProgramPurchaseInfo(programId: string): Promise<ProgramPurchaseInfo | null>;
+  writeAudit(entry: AuditEntry): Promise<void>;
 }
 
 export class DrizzleLoyaltyRepository implements LoyaltyRepository {
@@ -260,6 +276,25 @@ export class DrizzleLoyaltyRepository implements LoyaltyRepository {
       .where(and(eq(coupons.id, id), isNull(coupons.deletedAt)))
       .returning({ id: coupons.id });
     return rows.length > 0;
+  }
+
+  async getProgramPurchaseInfo(programId: string): Promise<ProgramPurchaseInfo | null> {
+    const rows = await this.db
+      .select({ status: learningPrograms.status, priceEgp: learningPrograms.priceEgp })
+      .from(learningPrograms)
+      .where(and(eq(learningPrograms.id, programId), isNull(learningPrograms.deletedAt)))
+      .limit(1);
+    return rows[0] ?? null;
+  }
+
+  async writeAudit(entry: AuditEntry): Promise<void> {
+    await this.db.insert(adminAuditLog).values({
+      actorId: entry.actorId,
+      action: entry.action,
+      targetType: entry.targetType,
+      targetId: entry.targetId,
+      metadata: entry.metadata ?? {},
+    });
   }
 }
 

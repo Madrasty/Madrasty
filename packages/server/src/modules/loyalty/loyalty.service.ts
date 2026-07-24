@@ -1,10 +1,41 @@
-import type { CheckoutQuoteResult, CouponDiscountType, LoyaltySummary } from '@madrasty/shared';
+import type {
+  AdjustPointsRequest,
+  CheckoutQuoteRequest,
+  CheckoutQuoteResult,
+  CouponDiscountType,
+  CouponView,
+  CreateCouponRequest,
+  LoyaltySummary,
+} from '@madrasty/shared';
+import { COUPON_DISCOUNT_TYPES } from '@madrasty/shared';
 import type { Database } from '../../db/client';
+import { HttpError } from '../../lib/http-error';
 import { CouponService } from './coupon.service';
-import type { LoyaltyRepository } from './loyalty.repository';
+import type { CouponWithCount, LoyaltyRepository } from './loyalty.repository';
 import { PointsService } from './points.service';
 import { computeBreakdown, type AppliedCoupon } from './pricing';
 import { evaluateEarn } from './rules-engine/index';
+
+interface QuoteActor {
+  id: string;
+}
+
+function toCouponView(c: CouponWithCount): CouponView {
+  return {
+    id: c.id,
+    code: c.code,
+    discountType: c.discountType as CouponDiscountType,
+    discountValue: c.discountValue,
+    usageLimit: c.usageLimit,
+    usageLimitPerUser: c.usageLimitPerUser,
+    validFrom: c.validFrom.toISOString(),
+    validUntil: c.validUntil ? c.validUntil.toISOString() : null,
+    applicableTo: c.applicableTo,
+    timesRedeemed: c.timesRedeemed,
+    active: c.deletedAt == null,
+    createdAt: c.createdAt.toISOString(),
+  };
+}
 
 export interface QuoteInput {
   userId: string;
@@ -100,6 +131,120 @@ export class LoyaltyService {
     });
 
     return { ...breakdown, couponValid, couponError, couponId };
+  }
+
+  // Quote endpoint: resolve the program's list price server-side (never trusted
+  // from the client), then price the order. Only 'learning_program' is purchasable.
+  async quoteForProgram(actor: QuoteActor, req: CheckoutQuoteRequest): Promise<CheckoutQuoteResult> {
+    if (req.purchasableType !== 'learning_program') {
+      throw HttpError.badRequest('unsupported_purchasable', 'Only learning programs can be quoted.');
+    }
+    const program = await this.repo.getProgramPurchaseInfo(req.purchasableId);
+    if (!program) throw HttpError.notFound('program_not_found', 'Program not found.');
+    if (program.status !== 'published') {
+      throw HttpError.badRequest('program_not_purchasable', 'This program is not for sale.');
+    }
+    const listPrice = Number(program.priceEgp ?? 0);
+    if (!listPrice || listPrice <= 0) {
+      throw HttpError.badRequest('program_is_free', 'This program is free — no payment is required.');
+    }
+    const quote = await this.quote({
+      userId: actor.id,
+      programId: req.purchasableId,
+      amountEgp: listPrice,
+      couponCode: req.couponCode,
+      redeemPoints: req.redeemPoints,
+    });
+    const { couponId: _internal, ...result } = quote;
+    return result;
+  }
+
+  // --- Admin: coupon management + manual points adjustment (doc 05 §4) ---
+
+  async createCoupon(actorId: string, req: CreateCouponRequest): Promise<CouponView> {
+    const code = CouponService.normalizeCode(req.code);
+    if (!code) throw HttpError.badRequest('coupon_code_required', 'A coupon code is required.');
+    if (!COUPON_DISCOUNT_TYPES.includes(req.discountType)) {
+      throw HttpError.badRequest('invalid_discount_type', 'Unknown discount type.');
+    }
+    // Value bounds depend on type: a percentage is 0–100; others are positive.
+    if (req.discountType === 'percentage') {
+      if (req.discountValue <= 0 || req.discountValue > 100) {
+        throw HttpError.badRequest('invalid_discount_value', 'Percentage must be between 0 and 100.');
+      }
+    } else if (req.discountValue <= 0) {
+      throw HttpError.badRequest('invalid_discount_value', 'Discount value must be positive.');
+    }
+    if (await this.repo.findCouponByCode(code)) {
+      throw HttpError.conflict('coupon_code_taken', 'A coupon with this code already exists.');
+    }
+
+    const applicableTo: Record<string, unknown> = {};
+    if (req.applicableTo?.programs?.length) applicableTo.programs = req.applicableTo.programs;
+    if (req.applicableTo?.subjects?.length) applicableTo.subjects = req.applicableTo.subjects;
+    if (typeof req.applicableTo?.minAmount === 'number') {
+      applicableTo.min_amount = req.applicableTo.minAmount;
+    }
+
+    const created = await this.repo.createCoupon({
+      code,
+      discountType: req.discountType,
+      discountValue: String(req.discountValue),
+      usageLimit: req.usageLimit ?? null,
+      usageLimitPerUser: req.usageLimitPerUser ?? 1,
+      validFrom: req.validFrom ? new Date(req.validFrom) : new Date(),
+      validUntil: req.validUntil ? new Date(req.validUntil) : null,
+      applicableTo,
+    });
+    await this.repo.writeAudit({
+      actorId,
+      action: 'coupon.create',
+      targetType: 'coupon',
+      targetId: created.id,
+      metadata: { code: created.code, discountType: created.discountType },
+    });
+    return toCouponView({ ...created, timesRedeemed: 0 });
+  }
+
+  async listCoupons(): Promise<CouponView[]> {
+    const rows = await this.repo.listCouponsWithCounts();
+    return rows.map(toCouponView);
+  }
+
+  async deleteCoupon(actorId: string, id: string): Promise<void> {
+    const ok = await this.repo.softDeleteCoupon(id);
+    if (!ok) throw HttpError.notFound('coupon_not_found', 'Coupon not found.');
+    await this.repo.writeAudit({
+      actorId,
+      action: 'coupon.delete',
+      targetType: 'coupon',
+      targetId: id,
+    });
+  }
+
+  // Manual points correction: append a ledger row + an audit entry (reason is
+  // mandatory). Returns the resulting balance for the admin UI.
+  async adjustPoints(actorId: string, req: AdjustPointsRequest): Promise<{ balance: number }> {
+    if (!req.reason || !req.reason.trim()) {
+      throw HttpError.badRequest('reason_required', 'A reason is required for a points adjustment.');
+    }
+    if (!Number.isInteger(req.delta) || req.delta === 0) {
+      throw HttpError.badRequest('invalid_delta', 'Adjustment must be a non-zero whole number.');
+    }
+    const balance = await this.points.adjustPoints({
+      userId: req.userId,
+      delta: req.delta,
+      note: req.reason.trim(),
+      actorId,
+    });
+    await this.repo.writeAudit({
+      actorId,
+      action: 'points.adjust',
+      targetType: 'user',
+      targetId: req.userId,
+      metadata: { delta: req.delta, reason: req.reason.trim() },
+    });
+    return { balance };
   }
 
   // Build the intent blob checkout persists on the transaction from a quote.
