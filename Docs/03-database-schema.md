@@ -228,12 +228,15 @@ points_ledger (
   id UUID PK,
   user_id UUID REFERENCES users,
   delta INT,                 -- positive = earn, negative = redeem/expire
-  reason TEXT,                -- 'purchase' | 'referral' | 'redeem_reward' | 'expiry' | 'admin_adjustment'
+  reason TEXT,                -- 'purchase' | 'referral' | 'redeem_reward' | 'redeem_reversal' | 'coupon_bonus' | 'expiry' | 'admin_adjustment'
   related_transaction_id UUID NULL REFERENCES transactions,
   metadata JSONB,
   created_at TIMESTAMPTZ
 )
 -- current balance = SUM(delta) WHERE user_id = X  (materialized view refreshed periodically, or just summed on read)
+-- lifetime (for tier) = SUM(delta) WHERE user_id = X AND delta > 0  (spending points never demotes a tier)
+-- 'redeem_reward' = points spent at checkout (negative); 'redeem_reversal' = those points returned when that payment fails (positive); 'coupon_bonus' = a free_points coupon award.
+-- points_config (singleton) holds the point↔EGP redemption ratio + min redemption threshold (doc 05 §1) — not hardcoded.
 
 coupons (
   id UUID PK,

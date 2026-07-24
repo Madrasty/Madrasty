@@ -10,4 +10,7 @@ export const checkoutRequestSchema = z.object({
   studentId: z.string().uuid().optional(),
   provider: z.enum(PAYMENT_PROVIDERS),
   couponCode: z.string().min(1).max(64).optional(),
+  // How many points to redeem (doc 05 §1). The DISCOUNT is computed server-side;
+  // the client never sends an amount. Clamped to balance/threshold during pricing.
+  redeemPoints: z.number().int().positive().optional(),
 });

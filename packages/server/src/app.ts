@@ -4,6 +4,7 @@ import { errorMiddleware } from './lib/error-middleware';
 import { createAuthRouter } from './modules/auth/index';
 import { createLearningProgramsRouter } from './modules/learning-programs/index';
 import { createPaymentsRouter } from './modules/payments/index';
+import { createLoyaltyRouter } from './modules/loyalty/loyalty.routes';
 import { createAdminRouter } from './modules/admin/index';
 
 // Builds the Express app (no network listen), so tests can import it and the
@@ -21,6 +22,7 @@ export function buildApp() {
   app.use('/api/auth', createAuthRouter());
   app.use('/api/learning-programs', createLearningProgramsRouter());
   app.use('/api/payments', createPaymentsRouter());
+  app.use('/api/loyalty', createLoyaltyRouter());
   app.use('/api/admin', createAdminRouter());
 
   // Central error handler must be registered last.

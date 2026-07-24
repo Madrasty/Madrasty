@@ -1,5 +1,6 @@
 import type { PaymentProviderName } from '@madrasty/shared';
 import { HttpError } from '../../lib/http-error';
+import type { LoyaltyService } from '../loyalty/loyalty.service';
 import type { PaymentProvider } from './payment.provider';
 import { getProvider } from './providers/registry';
 import type { PaymentsRepository } from './payments.repository';
@@ -13,6 +14,8 @@ export class WebhookService {
   constructor(
     private readonly repo: PaymentsRepository,
     private readonly registry: Map<PaymentProviderName, PaymentProvider>,
+    // Optional so payment tests can run without the loyalty module.
+    private readonly loyalty?: LoyaltyService,
   ) {}
 
   async handle(
@@ -45,11 +48,14 @@ export class WebhookService {
     // a self-purchase). Only 'learning_program' is wired today.
     if (txn.purchasableType !== 'learning_program') return 'unmatched';
     const studentId = txn.beneficiaryId ?? txn.userId;
+    const loyalty = this.loyalty;
     const settled = await this.repo.settlePaidAndGrant(
       txn.id,
       txn.purchasableId,
       studentId,
       payload,
+      // Award/redeem loyalty in the same transaction as the grant (doc 05 §1).
+      loyalty ? (db, settledTxn) => loyalty.finalizeForTransaction(db, settledTxn) : undefined,
     );
     return settled ? 'settled' : 'already_settled';
   }

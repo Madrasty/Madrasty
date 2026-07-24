@@ -590,7 +590,39 @@
       "program_is_free": "هذا البرنامج مجاني — لا حاجة للدفع.",
       "not_your_purchase": "يمكنك الاشتراك لنفسك فقط.",
       "rate_limited": "محاولات كثيرة — انتظر لحظة ثم أعد المحاولة.",
-      "unknown_error": "حدث خطأ أثناء بدء الدفع. من فضلك حاول مرة أخرى."
+      "unknown_error": "حدث خطأ أثناء بدء الدفع. من فضلك حاول مرة أخرى.",
+      "coupon_invalid": "تعذّر تطبيق كود الخصم.",
+      "coupon_not_found": "كود الخصم غير صحيح.",
+      "coupon_expired": "انتهت صلاحية هذا الكوبون.",
+      "coupon_not_active": "هذا الكوبون غير مُفعّل بعد.",
+      "coupon_usage_exceeded": "تم استخدام هذا الكوبون بالكامل.",
+      "coupon_user_limit": "لقد استخدمت هذا الكوبون من قبل.",
+      "coupon_not_applicable": "لا ينطبق هذا الكوبون على هذا البرنامج.",
+      "coupon_min_amount": "قيمة الطلب أقل من الحد المطلوب لهذا الكوبون."
+    },
+    "couponLabel": "كود الخصم",
+    "couponPlaceholder": "أدخل الكود",
+    "applyCoupon": "تطبيق",
+    "removeCoupon": "إزالة",
+    "usePoints": "استخدم نقاطي",
+    "pointsAvailable": "{{points}} نقطة متاحة",
+    "pointsMin": "الحد الأدنى {{min}} نقطة",
+    "summary": {
+      "original": "السعر الأصلي",
+      "coupon": "خصم الكوبون",
+      "points": "النقاط ({{points}})",
+      "total": "الإجمالي",
+      "earn": "ستحصل على {{points}} نقطة"
+    },
+    "couponErrors": {
+      "coupon_not_found": "كود الخصم غير صحيح.",
+      "coupon_not_active": "هذا الكوبون غير مُفعّل بعد.",
+      "coupon_expired": "انتهت صلاحية هذا الكوبون.",
+      "coupon_usage_exceeded": "تم استخدام هذا الكوبون بالكامل.",
+      "coupon_user_limit": "لقد استخدمت هذا الكوبون من قبل.",
+      "coupon_not_applicable": "لا ينطبق هذا الكوبون على هذا البرنامج.",
+      "coupon_min_amount": "قيمة الطلب أقل من الحد المطلوب لهذا الكوبون.",
+      "default": "تعذّر تطبيق كود الخصم."
     }
   },
   "styleGuide": {
@@ -608,5 +640,12 @@
     },
     "sampleInputLabel": "الاسم الكامل",
     "sampleInputPlaceholder": "أدخل اسمك الكامل"
+  },
+  "loyalty": {
+    "title": "المكافآت",
+    "pointsBalance": "رصيد النقاط",
+    "toNextTier": "{{points}} نقطة للمستوى التالي",
+    "topTier": "لقد وصلت لأعلى مستوى!",
+    "egp": "ج.م"
   }
 }

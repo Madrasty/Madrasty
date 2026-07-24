@@ -590,7 +590,39 @@
       "program_is_free": "This program is free — no payment is needed.",
       "not_your_purchase": "You can only enroll yourself.",
       "rate_limited": "Too many attempts — please wait a moment and try again.",
-      "unknown_error": "Something went wrong starting checkout. Please try again."
+      "unknown_error": "Something went wrong starting checkout. Please try again.",
+      "coupon_invalid": "This coupon can't be applied.",
+      "coupon_not_found": "That coupon code isn't valid.",
+      "coupon_expired": "This coupon has expired.",
+      "coupon_not_active": "This coupon isn't active yet.",
+      "coupon_usage_exceeded": "This coupon has been fully used.",
+      "coupon_user_limit": "You've already used this coupon.",
+      "coupon_not_applicable": "This coupon doesn't apply to this program.",
+      "coupon_min_amount": "Your order is below this coupon's minimum."
+    },
+    "couponLabel": "Coupon code",
+    "couponPlaceholder": "Enter code",
+    "applyCoupon": "Apply",
+    "removeCoupon": "Remove",
+    "usePoints": "Use my points",
+    "pointsAvailable": "{{points}} points available",
+    "pointsMin": "min {{min}} to redeem",
+    "summary": {
+      "original": "Original price",
+      "coupon": "Coupon discount",
+      "points": "Points ({{points}})",
+      "total": "Total",
+      "earn": "You'll earn {{points}} points"
+    },
+    "couponErrors": {
+      "coupon_not_found": "That coupon code isn't valid.",
+      "coupon_not_active": "This coupon isn't active yet.",
+      "coupon_expired": "This coupon has expired.",
+      "coupon_usage_exceeded": "This coupon has been fully used.",
+      "coupon_user_limit": "You've already used this coupon.",
+      "coupon_not_applicable": "This coupon doesn't apply to this program.",
+      "coupon_min_amount": "Your order is below this coupon's minimum.",
+      "default": "This coupon can't be applied."
     }
   },
   "styleGuide": {
@@ -608,5 +640,12 @@
     },
     "sampleInputLabel": "Full name",
     "sampleInputPlaceholder": "Enter your full name"
+  },
+  "loyalty": {
+    "title": "Rewards",
+    "pointsBalance": "Points balance",
+    "toNextTier": "{{points}} points to next tier",
+    "topTier": "You've reached the top tier!",
+    "egp": "EGP"
   }
 }
