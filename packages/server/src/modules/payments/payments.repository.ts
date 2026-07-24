@@ -31,6 +31,10 @@ export interface ProgramForPurchase {
   priceEgp: string | null;
 }
 
+// A hook run inside the settlement DB transaction, after access is granted, so
+// downstream effects (loyalty) commit atomically with the payment (doc 04 §7).
+export type OnSettled = (db: Database, txn: TransactionRecord) => Promise<void>;
+
 export interface CreateTransactionInput {
   userId: string;
   beneficiaryId: string | null;
@@ -78,11 +82,14 @@ export interface PaymentsRepository {
   // Idempotently settle a paid webhook: flips status → paid and grants the
   // enrollment, but only if the transaction isn't already paid. Returns true if
   // this call performed the settlement (false = it was already settled).
+  // `onSettled` runs INSIDE the same DB transaction after access is granted, so
+  // side effects (loyalty points/coupons) commit atomically and exactly once.
   settlePaidAndGrant(
     id: string,
     programId: string,
     studentId: string,
     webhookRaw: unknown,
+    onSettled?: OnSettled,
   ): Promise<boolean>;
   markFailed(id: string, webhookRaw: unknown): Promise<void>;
 }
@@ -208,6 +215,7 @@ export class DrizzlePaymentsRepository implements PaymentsRepository {
     programId: string,
     studentId: string,
     webhookRaw: unknown,
+    onSettled?: OnSettled,
   ): Promise<boolean> {
     return this.db.transaction(async (tx) => {
       // Lock the transaction row so two concurrent webhook deliveries can't both
@@ -254,6 +262,12 @@ export class DrizzlePaymentsRepository implements PaymentsRepository {
           source: 'purchase',
           metadata: { transactionId: id },
         });
+      }
+
+      // Run downstream effects (loyalty) in-transaction. `tx` is a transaction
+      // handle with the same query API as Database — cast at this one boundary.
+      if (onSettled) {
+        await onSettled(tx as unknown as Database, toRecord({ ...current, status: 'paid' }));
       }
       return true;
     });

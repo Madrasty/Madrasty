@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth, requireRole } from '../auth/auth.middleware';
 import { rateLimit } from '../../lib/rate-limit';
+import { buildLoyaltyService } from '../loyalty/index';
 import { DrizzlePaymentsRepository } from './payments.repository';
 import { buildProviderRegistry } from './providers/registry';
 import { CheckoutService } from './checkout.service';
@@ -14,9 +15,10 @@ import { createPaymentsController } from './payments.controller';
 export function createPaymentsRouter(): Router {
   const repo = new DrizzlePaymentsRepository();
   const registry = buildProviderRegistry();
+  const loyalty = buildLoyaltyService();
   const c = createPaymentsController({
-    checkout: new CheckoutService(repo, registry),
-    webhook: new WebhookService(repo, registry),
+    checkout: new CheckoutService(repo, registry, loyalty),
+    webhook: new WebhookService(repo, registry, loyalty),
     repo,
   });
 
