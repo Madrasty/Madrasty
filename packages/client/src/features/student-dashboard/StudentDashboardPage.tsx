@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
+import { LoyaltyWidget } from '../loyalty/LoyaltyWidget';
 
 export function StudentDashboardPage() {
   const { t } = useTranslation();
@@ -77,6 +78,8 @@ export function StudentDashboardPage() {
 
       {/* Right column */}
       <div className="flex flex-col gap-unit-xl lg:col-span-4">
+        <LoyaltyWidget />
+
         <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
           <h2 className="mb-unit-md text-headline-md">{t('student.schedule')}</h2>
           <div className="flex flex-col gap-unit-md">
