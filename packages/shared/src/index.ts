@@ -299,6 +299,9 @@ export interface CheckoutRequest {
   studentId?: string;
   provider: PaymentProviderName;
   couponCode?: string;
+  // Points to redeem for a discount (doc 05 §1). Validated + priced server-side;
+  // the client never sends the discount amount, only how many points to spend.
+  redeemPoints?: number;
 }
 
 // What the client needs to complete payment on the provider's hosted page. The
@@ -366,4 +369,121 @@ export interface ListPendingTeachersResponse {
 }
 export interface ListPendingProgramsResponse {
   programs: PendingProgram[];
+}
+
+// ---------------------------------------------------------------------------
+// Loyalty: points, coupons, tiers (doc 05). Points live in an append-only ledger
+// (balance = SUM(delta)); earn rules are data-driven; coupons + points discounts
+// are ALWAYS applied server-side — a client-computed total is never trusted.
+// ---------------------------------------------------------------------------
+
+// points_ledger.reason values (doc 03). TEXT in the DB so campaigns/adjustments
+// don't need a migration; zod validates writes against this set.
+export const POINTS_REASONS = [
+  'purchase', // earned on a completed purchase (positive)
+  'redeem_reward', // spent at checkout (negative)
+  'redeem_reversal', // spent points returned when a payment fails (positive)
+  'coupon_bonus', // a free_points coupon award (positive)
+  'referral', // referral reward (positive)
+  'expiry', // scheduled expiry of old points (negative)
+  'admin_adjustment', // manual admin correction (either sign)
+] as const;
+export type PointsReason = (typeof POINTS_REASONS)[number];
+
+// earn_rules.trigger values (doc 05 §1).
+export const EARN_TRIGGERS = [
+  'purchase',
+  'referral_signup',
+  'program_completion',
+  'quiz_streak',
+] as const;
+export type EarnTrigger = (typeof EARN_TRIGGERS)[number];
+
+export const COUPON_DISCOUNT_TYPES = ['percentage', 'fixed_amount', 'free_points'] as const;
+export type CouponDiscountType = (typeof COUPON_DISCOUNT_TYPES)[number];
+
+// A tier, its name resolved for the request locale (doc 05 §3).
+export interface LoyaltyTierView {
+  name: string | null;
+  minPoints: number;
+  perks: Record<string, unknown>;
+}
+
+// The student/parent loyalty snapshot (dashboard widget).
+export interface LoyaltySummary {
+  balance: number;
+  lifetimePoints: number;
+  currentTier: LoyaltyTierView | null;
+  nextTier: LoyaltyTierView | null;
+  pointsToNextTier: number | null;
+  // Redemption config surfaced so the UI can show "100 pts = 10 EGP" transparently.
+  redeemPointsPerEgp: number;
+  minRedeemPoints: number;
+}
+
+// A transparent order summary: original → coupon → points → final (doc 05 §4).
+// All monetary values are EGP strings (server is the source of truth).
+export interface PriceBreakdown {
+  originalEgp: string;
+  couponDiscountEgp: string;
+  pointsDiscountEgp: string;
+  finalEgp: string;
+  pointsRedeemed: number; // points actually applied to this order
+  pointsToEarn: number; // points that WILL be credited once payment succeeds
+  couponBonusPoints: number; // free_points coupon award, if any
+  coupon: { code: string; discountType: CouponDiscountType } | null;
+}
+
+// Preview discounts without charging (checkout coupon field + "use my points").
+export interface CheckoutQuoteRequest {
+  purchasableType: PurchasableType;
+  purchasableId: string;
+  studentId?: string;
+  couponCode?: string;
+  redeemPoints?: number;
+}
+
+export interface CheckoutQuoteResult extends PriceBreakdown {
+  couponValid: boolean;
+  // i18n code when a coupon was supplied but rejected (e.g. 'coupon_expired').
+  couponError: string | null;
+}
+
+// --- Admin coupon management (doc 05 §4) ---
+export interface CreateCouponRequest {
+  code: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  usageLimit?: number | null;
+  usageLimitPerUser?: number;
+  validFrom?: string;
+  validUntil?: string | null;
+  applicableTo?: { programs?: string[]; subjects?: string[]; minAmount?: number };
+}
+
+export interface CouponView {
+  id: string;
+  code: string;
+  discountType: CouponDiscountType;
+  discountValue: string;
+  usageLimit: number | null;
+  usageLimitPerUser: number;
+  validFrom: string;
+  validUntil: string | null;
+  applicableTo: Record<string, unknown>;
+  timesRedeemed: number;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface ListCouponsResponse {
+  coupons: CouponView[];
+}
+
+// Manual points correction — writes points_ledger reason='admin_adjustment' plus
+// an admin_audit_log entry (doc 05 §4 — reason is mandatory).
+export interface AdjustPointsRequest {
+  userId: string;
+  delta: number;
+  reason: string;
 }

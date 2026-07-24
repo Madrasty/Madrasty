@@ -4,4 +4,5 @@ export * from './registration';
 export * from './content';
 export * from './progress';
 export * from './payments';
+export * from './loyalty';
 export * from './admin';
