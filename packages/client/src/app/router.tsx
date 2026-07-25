@@ -21,6 +21,7 @@ import { AddStudentPage } from '../features/auth/AddStudentPage';
 import { ChangePasswordPage } from '../features/auth/ChangePasswordPage';
 import { GuardianApprovalPage } from '../features/auth/GuardianApprovalPage';
 import { RequireRole } from '../features/auth/RequireRole';
+import { MessagingPage } from '../features/messaging/MessagingPage';
 import { MyProgramsPage } from '../features/teacher-authoring/MyProgramsPage';
 import { NewProgramPage } from '../features/teacher-authoring/NewProgramPage';
 import { ProgramEditorPage } from '../features/teacher-authoring/ProgramEditorPage';
@@ -99,6 +100,18 @@ export const routes: RouteObject[] = [
       </DashboardLayout>
     ),
   },
+  // Parent–teacher messaging (doc 10) — real, wired to the messaging API.
+  {
+    path: '/app/parent/messages',
+    element: (
+      <RequireRole roles={['parent']}>
+        <DashboardLayout role="parent">
+          <MessagingPage />
+        </DashboardLayout>
+      </RequireRole>
+    ),
+  },
+  { path: '/app/teacher/messages', element: teacherArea(<MessagingPage />) },
   // Teacher authoring (doc 12) — real, wired to the learning-programs API.
   { path: '/app/teacher/programs', element: teacherArea(<MyProgramsPage />) },
   { path: '/app/teacher/programs/new', element: teacherArea(<NewProgramPage />) },

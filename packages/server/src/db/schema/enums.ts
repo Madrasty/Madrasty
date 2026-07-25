@@ -99,6 +99,14 @@ export const enrollmentStatus = pgEnum('enrollment_status', [
   'cancelled',
 ]);
 
+// --- Engagement / messaging (doc 10 §3.3) ---
+// A parent↔teacher conversation about one child. Stable two-value lifecycle, so
+// an enum (not free text) — archiving hides it from the active inbox.
+export const conversationStatus = pgEnum('conversation_status', [
+  'open',
+  'archived',
+]);
+
 // --- Payments (doc 03, doc 04) ---
 // Adding a gateway = a new value here + a new provider class — zero other schema
 // change (doc 04 §1). `mock` is a dev/test-only provider (never enabled in prod).

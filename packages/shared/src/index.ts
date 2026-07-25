@@ -487,3 +487,71 @@ export interface AdjustPointsRequest {
   delta: number;
   reason: string;
 }
+
+// --- Parent–Teacher messaging (doc 10 §3.3) ------------------------------------
+// A conversation is scoped to a (parent, teacher, student) triple — always about
+// a specific child. Message bodies cap at this length (enforced by zod + UI).
+export const MESSAGE_MAX_LENGTH = 4000;
+
+export const CONVERSATION_STATUSES = ['open', 'archived'] as const;
+export type ConversationStatus = (typeof CONVERSATION_STATUSES)[number];
+
+// A named participant (or the child) in a conversation, for rendering headers.
+export interface ConversationParticipant {
+  id: string;
+  fullName: string | null;
+}
+
+// One conversation as shown in an inbox/list. `lastMessage` + `unreadCount` are
+// relative to the requesting user (what THEY haven't read yet).
+export interface ConversationView {
+  id: string;
+  parent: ConversationParticipant;
+  teacher: ConversationParticipant;
+  student: ConversationParticipant;
+  status: ConversationStatus;
+  lastMessage: MessageView | null;
+  unreadCount: number;
+  createdAt: string;
+  lastMessageAt: string | null;
+}
+
+export interface MessageView {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+// Parent opens (or re-opens) a thread with a teacher about one of their children.
+// Find-or-create: the same triple always resolves to the same conversation.
+export interface StartConversationRequest {
+  teacherId: string;
+  studentId: string;
+}
+
+export interface SendMessageRequest {
+  body: string;
+}
+
+export interface ListConversationsResponse {
+  conversations: ConversationView[];
+}
+
+export interface ConversationThreadResponse {
+  conversation: ConversationView;
+  messages: MessageView[];
+}
+
+// A (teacher, child) pair a parent may open a conversation about — derived from
+// the child's enrollments. Powers the "new message" picker (no raw UUIDs).
+export interface MessageableContact {
+  teacher: ConversationParticipant;
+  student: ConversationParticipant;
+}
+
+export interface ListContactsResponse {
+  contacts: MessageableContact[];
+}

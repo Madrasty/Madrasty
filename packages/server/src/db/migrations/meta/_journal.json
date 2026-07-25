@@ -57,6 +57,13 @@
       "when": 1784894436953,
       "tag": "0007_fine_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784998535819,
+      "tag": "0008_bent_mole_man",
+      "breakpoints": true
     }
   ]
 }

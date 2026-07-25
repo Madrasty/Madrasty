@@ -29,7 +29,8 @@
     "settings": "Settings",
     "home": "Home",
     "learn": "Learn",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "messages": "Messages"
   },
   "topbar": {
     "search": "Search",
@@ -647,5 +648,27 @@
     "toNextTier": "{{points}} points to next tier",
     "topTier": "You've reached the top tier!",
     "egp": "EGP"
+  },
+  "messaging": {
+    "parentTitle": "Messages",
+    "teacherTitle": "Parent Messages",
+    "subtitle": "Direct messages between parents and teachers.",
+    "newMessage": "New message",
+    "selectPrompt": "Select a conversation to read and reply.",
+    "empty": "No conversations yet.",
+    "emptyHintParent": "Start a conversation with your child's teacher.",
+    "emptyHintTeacher": "Messages from parents will appear here.",
+    "loadError": "Couldn't load your messages.",
+    "about": "About {{name}}",
+    "composerPlaceholder": "Write a message…",
+    "send": "Send",
+    "sending": "Sending…",
+    "threadEmpty": "No messages yet — say hello!",
+    "startTitle": "New conversation",
+    "noContacts": "No teachers to message yet.",
+    "noContactsHint": "Once your child is enrolled in a program, their teacher will appear here.",
+    "back": "Back",
+    "readOnly": "You have read-only access to this conversation.",
+    "unknownUser": "Unknown"
   }
 }

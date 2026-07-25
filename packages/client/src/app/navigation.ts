@@ -29,6 +29,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   parent: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/parent' },
     { labelKey: 'children', icon: 'family_restroom' },
+    { labelKey: 'messages', icon: 'forum', path: '/app/parent/messages' },
     { labelKey: 'learningPrograms', icon: 'school', path: '/app/catalog' },
     { labelKey: 'marketplace', icon: 'storefront', path: '/app/marketplace' },
     { labelKey: 'tutoring', icon: 'record_voice_over' },
@@ -38,6 +39,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   teacher: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/teacher' },
     { labelKey: 'myPrograms', icon: 'menu_book', path: '/app/teacher/programs' },
+    { labelKey: 'messages', icon: 'forum', path: '/app/teacher/messages' },
     { labelKey: 'students', icon: 'groups' },
     { labelKey: 'liveClasses', icon: 'videocam' },
     { labelKey: 'earnings', icon: 'account_balance_wallet' },
