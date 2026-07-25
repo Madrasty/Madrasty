@@ -8,6 +8,7 @@ import { createLearningProgramsRouter } from './modules/learning-programs/index'
 import { createPaymentsRouter } from './modules/payments/index';
 import { createLoyaltyRouter } from './modules/loyalty/loyalty.routes';
 import { createMessagingRouter } from './modules/messaging/messaging.routes';
+import { createAcademicRecordsRouter } from './modules/academic-records/academic-records.routes';
 import { createAdminRouter } from './modules/admin/index';
 
 // Builds the Express app (no network listen), so tests can import it and the
@@ -27,6 +28,7 @@ export function buildApp() {
   app.use('/api/payments', createPaymentsRouter());
   app.use('/api/loyalty', createLoyaltyRouter());
   app.use('/api/messaging', createMessagingRouter());
+  app.use('/api/academic-records', createAcademicRecordsRouter());
   app.use('/api/admin', createAdminRouter());
 
   // Single-origin deploy: also serve the built client SPA (see CLIENT_DIST_PATH).

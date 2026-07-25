@@ -64,6 +64,13 @@
       "when": 1784998535819,
       "tag": "0008_bent_mole_man",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785002169825,
+      "tag": "0009_stormy_tattoo",
+      "breakpoints": true
     }
   ]
 }

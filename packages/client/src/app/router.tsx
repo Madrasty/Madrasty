@@ -22,6 +22,8 @@ import { ChangePasswordPage } from '../features/auth/ChangePasswordPage';
 import { GuardianApprovalPage } from '../features/auth/GuardianApprovalPage';
 import { RequireRole } from '../features/auth/RequireRole';
 import { MessagingPage } from '../features/messaging/MessagingPage';
+import { TeacherGradebookPage } from '../features/academic-records/TeacherGradebookPage';
+import { ReportCardPage } from '../features/academic-records/ReportCardPage';
 import { MyProgramsPage } from '../features/teacher-authoring/MyProgramsPage';
 import { NewProgramPage } from '../features/teacher-authoring/NewProgramPage';
 import { ProgramEditorPage } from '../features/teacher-authoring/ProgramEditorPage';
@@ -112,6 +114,28 @@ export const routes: RouteObject[] = [
     ),
   },
   { path: '/app/teacher/messages', element: teacherArea(<MessagingPage />) },
+  // Exams & report cards (doc 10) — real, wired to the academic-records API.
+  { path: '/app/teacher/gradebook', element: teacherArea(<TeacherGradebookPage />) },
+  {
+    path: '/app/student/report-card',
+    element: (
+      <RequireRole roles={['student']}>
+        <DashboardLayout role="student">
+          <ReportCardPage />
+        </DashboardLayout>
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/app/parent/report-card',
+    element: (
+      <RequireRole roles={['parent']}>
+        <DashboardLayout role="parent">
+          <ReportCardPage />
+        </DashboardLayout>
+      </RequireRole>
+    ),
+  },
   // Teacher authoring (doc 12) — real, wired to the learning-programs API.
   { path: '/app/teacher/programs', element: teacherArea(<MyProgramsPage />) },
   { path: '/app/teacher/programs/new', element: teacherArea(<NewProgramPage />) },

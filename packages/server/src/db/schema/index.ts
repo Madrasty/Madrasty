@@ -6,4 +6,5 @@ export * from './progress';
 export * from './payments';
 export * from './loyalty';
 export * from './messaging';
+export * from './academic-records';
 export * from './admin';

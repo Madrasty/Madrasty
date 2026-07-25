@@ -21,6 +21,7 @@ export function dashboardPath(role: DashboardRole): string {
 export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   student: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/student' },
+    { labelKey: 'reportCard', icon: 'assignment', path: '/app/student/report-card' },
     { labelKey: 'learningPrograms', icon: 'school', path: '/app/catalog' },
     { labelKey: 'marketplace', icon: 'storefront', path: '/app/marketplace' },
     { labelKey: 'tutoring', icon: 'record_voice_over' },
@@ -30,6 +31,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/parent' },
     { labelKey: 'children', icon: 'family_restroom' },
     { labelKey: 'messages', icon: 'forum', path: '/app/parent/messages' },
+    { labelKey: 'reportCard', icon: 'assignment', path: '/app/parent/report-card' },
     { labelKey: 'learningPrograms', icon: 'school', path: '/app/catalog' },
     { labelKey: 'marketplace', icon: 'storefront', path: '/app/marketplace' },
     { labelKey: 'tutoring', icon: 'record_voice_over' },
@@ -40,6 +42,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/teacher' },
     { labelKey: 'myPrograms', icon: 'menu_book', path: '/app/teacher/programs' },
     { labelKey: 'messages', icon: 'forum', path: '/app/teacher/messages' },
+    { labelKey: 'gradebook', icon: 'grading', path: '/app/teacher/gradebook' },
     { labelKey: 'students', icon: 'groups' },
     { labelKey: 'liveClasses', icon: 'videocam' },
     { labelKey: 'earnings', icon: 'account_balance_wallet' },

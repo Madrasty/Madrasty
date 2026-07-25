@@ -555,3 +555,89 @@ export interface MessageableContact {
 export interface ListContactsResponse {
   contacts: MessageableContact[];
 }
+
+// --- Exams & report cards (doc 10 §3.1, §4) ------------------------------------
+// (exam titles reuse the LocalizedInput { ar?, en? } shape defined above.)
+
+// Teacher creates an exam. `title` is a localized map; `programId` optional (when
+// set, the gradebook roster = that program's enrollees).
+export interface CreateExamRequest {
+  subjectId: string;
+  programId?: string | null;
+  title: LocalizedInput;
+  maxScore: number;
+  weight?: number;
+  term?: string | null;
+}
+
+// An exam with its title resolved for the request locale.
+export interface ExamView {
+  id: string;
+  subjectId: string;
+  programId: string | null;
+  title: string | null;
+  maxScore: number;
+  weight: number;
+  term: string | null;
+  createdAt: string;
+}
+
+export interface ListExamsResponse {
+  exams: ExamView[];
+}
+
+// Teacher records (or updates) a student's grade on an exam.
+export interface RecordResultRequest {
+  studentId: string;
+  score: number;
+  comment?: string | null;
+}
+
+// One row in a teacher's gradebook for an exam: the student + their result (or
+// null if not yet graded).
+export interface GradebookStudentRow {
+  student: ConversationParticipant;
+  result: {
+    score: number;
+    percentage: number;
+    teacherComment: string | null;
+    gradedAt: string;
+  } | null;
+}
+
+export interface GradebookResponse {
+  exam: ExamView;
+  rows: GradebookStudentRow[];
+}
+
+// --- Report card (aggregated view for a parent/student) ---
+// NOTE (doc 10 §3.1): the full report card also rolls in quiz averages, homework
+// completion and attendance — those tables land in later roadmap steps (7–9), so
+// this is an EXAMS-ONLY report card for now; the shape leaves room to extend.
+export interface ReportCardExam {
+  examId: string;
+  title: string | null;
+  score: number;
+  maxScore: number;
+  percentage: number;
+  weight: number;
+  term: string | null;
+  gradedAt: string;
+  teacherComment: string | null;
+}
+
+export interface ReportCardSubject {
+  subjectId: string;
+  subjectName: string | null;
+  // Weighted average percentage across this subject's graded exams.
+  average: number;
+  exams: ReportCardExam[];
+}
+
+export interface ReportCardResponse {
+  studentId: string;
+  term: string | null;
+  subjects: ReportCardSubject[];
+  // Weighted average percentage across all graded exams (null if none yet).
+  overallAverage: number | null;
+}
