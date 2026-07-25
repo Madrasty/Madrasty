@@ -3,21 +3,12 @@ import { Link } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/Button';
 import { LanguageToggle } from '../../components/LanguageToggle';
-import { dashboardPath } from '../../app/navigation';
 
 const FEATURES = [
   { key: 'feature1', icon: 'menu_book', span: true },
   { key: 'feature2', icon: 'psychology', span: false },
   { key: 'feature3', icon: 'record_voice_over', span: false },
   { key: 'feature4', icon: 'monitoring', span: true },
-] as const;
-
-const PREVIEW_LINKS = [
-  { key: 'openStudent', to: dashboardPath('student'), icon: 'dashboard' },
-  { key: 'openParent', to: dashboardPath('parent'), icon: 'family_restroom' },
-  { key: 'openTeacher', to: dashboardPath('teacher'), icon: 'co_present' },
-  { key: 'openAdmin', to: dashboardPath('admin'), icon: 'shield_person' },
-  { key: 'openPlayer', to: '/learn', icon: 'play_circle' },
 ] as const;
 
 export function LandingPage() {
@@ -31,9 +22,6 @@ export function LandingPage() {
           <nav className="hidden gap-unit-lg md:flex">
             <a href="#features" className="text-label-md text-on-surface-variant hover:text-primary">
               {t('landing.navFeatures')}
-            </a>
-            <a href="#preview" className="text-label-md text-on-surface-variant hover:text-primary">
-              {t('landing.previewNote')}
             </a>
           </nav>
           <div className="flex items-center gap-unit-md">
@@ -115,24 +103,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Dashboard preview links — dev/demo entry points into each role shell */}
-        <section id="preview" className="app-container pb-unit-xl">
-          <div className="rounded-xl border border-outline-variant bg-surface-container-low p-unit-lg">
-            <h2 className="mb-unit-md text-headline-md">{t('landing.previewNote')}</h2>
-            <div className="grid grid-cols-2 gap-unit-md md:grid-cols-5">
-              {PREVIEW_LINKS.map((link, index) => (
-                <Link
-                  key={`${link.key}-${index}`}
-                  to={link.to}
-                  className="flex flex-col items-center gap-unit-sm rounded-lg border border-outline-variant bg-surface-container-lowest p-unit-md text-center transition-transform hover:-translate-y-0.5"
-                >
-                  <Icon name={link.icon} className="text-[1.75rem] text-primary" />
-                  <span className="text-label-md">{t(`landing.${link.key}`)}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
     </div>
   );

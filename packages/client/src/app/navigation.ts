@@ -95,3 +95,11 @@ export function roleHome(role: string): string {
   if (role === 'center_admin') return dashboardPath('admin');
   return isDashboardRole(role) ? dashboardPath(role) : dashboardPath('student');
 }
+
+// Which dashboard shell (sidebar/bottom-nav) to render for a signed-in user.
+// `center_admin` reuses the admin shell; anything unexpected falls back to the
+// student shell. The real per-route access check is RequireRole in the router.
+export function dashboardRoleForUser(role: string): DashboardRole {
+  if (role === 'center_admin') return 'admin';
+  return isDashboardRole(role) ? role : 'student';
+}

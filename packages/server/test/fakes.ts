@@ -14,6 +14,7 @@ import type {
   LinkParentChildInput,
   OtpChannel,
   OtpRecord,
+  ParentChildRecord,
   RegistrationRepository,
 } from '../src/modules/auth/registration.repository';
 import type { SmsSender } from '../src/modules/auth/sms-sender';
@@ -188,6 +189,24 @@ export class InMemoryRegistrationRepository implements RegistrationRepository {
 
   async linkParentChild(input: LinkParentChildInput): Promise<void> {
     this.links.push({ ...input });
+  }
+
+  async listChildrenForParent(parentId: string): Promise<ParentChildRecord[]> {
+    return this.links
+      .filter((l) => l.parentId === parentId)
+      .map((l) => {
+        const user = this.users.all().find((u) => u.id === l.studentId);
+        const profile = this.profiles.get(l.studentId);
+        return {
+          id: l.studentId,
+          fullName: user?.fullName ?? null,
+          gradeLevel: profile?.gradeLevel ?? null,
+          schoolName: profile?.schoolName ?? null,
+          status: profile?.status ?? 'pending_approval',
+          relationship: l.relationship,
+          approvedAt: l.approvedAt,
+        };
+      });
   }
 
   async findParentByPhone(phone: string): Promise<{ id: string; phone: string | null } | null> {

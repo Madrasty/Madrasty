@@ -1,129 +1,136 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import type { EnrolledProgramView, ReportCardResponse } from '@madrasty/shared';
 import { Icon } from '../../components/Icon';
-import { ProgressBar } from '../../components/ProgressBar';
+import { StatCard } from '../../components/StatCard';
+import { useAuth } from '../auth/AuthProvider';
+import { enrollmentApi } from '../enrollment/enrollment.api';
+import { academicRecordsApi } from '../academic-records/academic-records.api';
 import { LoyaltyWidget } from '../loyalty/LoyaltyWidget';
+import { DashboardHeader, DashboardError } from '../dashboard/DashboardChrome';
 
+// Student dashboard — the student's real enrolled programs, report-card summary,
+// and loyalty. No fabricated figures (doc 10 principle).
 export function StudentDashboardPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const [programs, setPrograms] = useState<EnrolledProgramView[] | null>(null);
+  const [card, setCard] = useState<ReportCardResponse | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    setError(false);
+    Promise.all([
+      enrollmentApi.listMyPrograms(i18n.language),
+      academicRecordsApi.getReportCard(user.id, { locale: i18n.language }),
+    ])
+      .then(([p, c]) => {
+        if (!active) return;
+        setPrograms(p.programs);
+        setCard(c);
+      })
+      .catch(() => active && setError(true));
+    return () => {
+      active = false;
+    };
+  }, [user, i18n.language]);
 
   return (
-    <div className="grid grid-cols-1 gap-unit-xl lg:grid-cols-12">
-      {/* Main column */}
-      <div className="flex flex-col gap-unit-xl lg:col-span-8">
-        <div>
-          <h1 className="text-display-lg-mobile font-bold md:text-display-lg">{t('student.greeting')}</h1>
-          <p className="text-body-lg text-on-surface-variant">{t('student.subgreeting')}</p>
-        </div>
+    <div className="flex flex-col gap-unit-lg">
+      <DashboardHeader
+        title={user?.fullName ? t('dashboard.welcome', { name: user.fullName }) : t('dashboard.welcomeAnon')}
+        subtitle={t('dashboard.studentSubtitle')}
+      />
 
-        {/* Continue learning hero */}
-        <section>
-          <h2 className="mb-unit-md text-headline-md">{t('student.continueLearning')}</h2>
-          <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
-            <div className="relative flex h-48 items-end bg-gradient-to-br from-primary-container to-surface-tint p-unit-lg">
-              <div className="text-on-primary">
-                <span className="mb-2 inline-block rounded-full bg-black/20 px-3 py-1 text-label-sm uppercase">
-                  {t('student.chapter')}
-                </span>
-                <h3 className="text-headline-lg text-on-primary">{t('student.programTitle')}</h3>
-              </div>
-            </div>
-            <div className="flex items-center gap-unit-lg p-unit-lg">
-              <div className="flex-1">
-                <div className="mb-2 flex justify-between text-label-md">
-                  <span className="text-on-surface-variant">{t('student.progress')}</span>
-                  <span className="font-bold text-secondary">68%</span>
-                </div>
-                <ProgressBar value={68} />
-              </div>
-              <Link
-                to="/learn"
-                className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-label-md text-on-primary"
-              >
-                {t('actions.resume')}
-                <Icon name="arrow_forward" className="text-[1rem]" />
-              </Link>
-            </div>
+      {error && <DashboardError />}
+
+      <section className="grid grid-cols-1 gap-unit-md sm:grid-cols-3">
+        <StatCard
+          label={t('dashboard.enrolledPrograms')}
+          value={programs?.length ?? '—'}
+          icon="school"
+        />
+        <StatCard
+          label={t('dashboard.reportAverage')}
+          value={card?.overallAverage !== null && card?.overallAverage !== undefined ? `${card.overallAverage}%` : '—'}
+          icon="workspace_premium"
+          iconClassName="text-secondary"
+        />
+        <StatCard
+          label={t('dashboard.subjectsGraded')}
+          value={card?.subjects.length ?? '—'}
+          icon="menu_book"
+          iconClassName="text-tertiary"
+        />
+      </section>
+
+      <div className="grid grid-cols-1 gap-unit-lg lg:grid-cols-3">
+        <section className="lg:col-span-2">
+          <div className="mb-unit-md flex items-center justify-between">
+            <h2 className="text-headline-md">{t('dashboard.myPrograms')}</h2>
+            <Link
+              to="/app/catalog"
+              className="inline-flex items-center gap-1 text-label-md text-primary hover:underline"
+            >
+              {t('dashboard.browseCatalog')}
+              <Icon name="arrow_forward" className="text-[1rem] rtl:-scale-x-100" />
+            </Link>
           </div>
+          {programs && programs.length > 0 ? (
+            <ul className="flex flex-col gap-2">
+              {programs.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    to={`/app/catalog/${p.id}`}
+                    className="flex items-center gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md transition-colors hover:bg-surface-container-low"
+                  >
+                    <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon name="menu_book" filled />
+                    </span>
+                    <span className="flex-1">
+                      <span className="block text-body-md font-semibold text-on-surface">
+                        {p.title || t('dashboard.untitledProgram')}
+                      </span>
+                      {p.gradeLevel && (
+                        <span className="block text-label-sm text-on-surface-variant">{p.gradeLevel}</span>
+                      )}
+                    </span>
+                    <Icon name="chevron_right" className="text-on-surface-variant rtl:-scale-x-100" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState icon="school" text={t('dashboard.noPrograms')} />
+          )}
         </section>
 
-        {/* Stats */}
-        <section className="grid grid-cols-1 gap-unit-md md:grid-cols-2">
-          <div className="flex h-48 flex-col justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
-            <div className="flex items-start justify-between">
-              <h3 className="text-label-md uppercase tracking-wide text-on-surface-variant">
-                {t('student.weeklyGoal')}
-              </h3>
-              <Icon name="flag" className="text-secondary" />
-            </div>
-            <div className="text-display-lg-mobile font-bold">
-              4<span className="text-2xl text-outline">/5</span>{' '}
-              <span className="text-lg font-normal text-on-surface-variant">{t('student.hours')}</span>
-            </div>
-            <ProgressBar value={80} />
-          </div>
-          <div className="flex h-48 flex-col justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
-            <div className="flex items-start justify-between">
-              <h3 className="text-label-md uppercase tracking-wide text-on-surface-variant">
-                {t('student.courseCompletion')}
-              </h3>
-              <Icon name="donut_large" className="text-primary" />
-            </div>
-            <div className="text-display-lg-mobile font-bold">
-              12 <span className="text-lg font-normal text-on-surface-variant">{t('student.courses')}</span>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* Right column */}
-      <div className="flex flex-col gap-unit-xl lg:col-span-4">
-        <LoyaltyWidget />
-
-        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
-          <h2 className="mb-unit-md text-headline-md">{t('student.schedule')}</h2>
-          <div className="flex flex-col gap-unit-md">
-            <div className="flex gap-4 rounded-lg p-3">
-              <div className="flex h-14 w-14 flex-col items-center justify-center rounded-lg bg-primary-container font-bold text-on-primary-container">
-                <span>10</span>
-                <span className="text-xs font-normal">AM</span>
-              </div>
-              <div className="flex-1">
-                <h4 className="text-label-md font-bold">{t('student.scheduleItem')}</h4>
-                <p className="mt-1 flex items-center gap-1 text-sm text-on-surface-variant">
-                  <Icon name="video_camera_front" className="text-[1rem]" /> {t('student.liveClass')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
-          <h2 className="mb-unit-md text-headline-md">{t('student.recommended')}</h2>
-          <div className="flex flex-col gap-unit-sm">
-            <div className="flex items-center gap-3 rounded-lg p-2">
-              <span className="flex h-12 w-12 items-center justify-center rounded bg-surface-variant text-primary">
-                <Icon name="code" />
-              </span>
-              <div>
-                <h4 className="text-label-md font-bold">{t('student.recommendedItem')}</h4>
-                <p className="text-xs text-on-surface-variant">{t('nav.marketplace')} · 4.8★</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className="mt-auto rounded-xl bg-gradient-to-br from-primary-container to-surface-tint p-unit-lg text-on-primary">
-          <div className="mb-2 flex items-center gap-2">
-            <Icon name="smart_toy" className="text-3xl" />
-            <h3 className="text-headline-md font-bold">{t('student.aiAssistant')}</h3>
-          </div>
-          <p className="text-body-md opacity-90">{t('student.aiAssistantBody')}</p>
-          <button className="mt-unit-md rounded-lg bg-surface-container-lowest px-4 py-2 text-label-md text-primary">
-            {t('actions.askQuestion')}
-          </button>
+        <div className="flex flex-col gap-unit-lg">
+          <LoyaltyWidget />
+          <Link
+            to="/app/student/report-card"
+            className="flex items-center justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg transition-colors hover:bg-surface-container-low"
+          >
+            <span className="flex items-center gap-unit-sm">
+              <Icon name="assignment" className="text-primary" />
+              <span className="text-body-md font-semibold">{t('dashboard.viewReportCard')}</span>
+            </span>
+            <Icon name="arrow_forward" className="text-on-surface-variant rtl:-scale-x-100" />
+          </Link>
         </div>
       </div>
+    </div>
+  );
+}
+
+function EmptyState({ icon, text }: { icon: string; text: string }) {
+  return (
+    <div className="flex flex-col items-center gap-unit-sm rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest p-unit-xl text-center">
+      <Icon name={icon} className="text-[2.5rem] text-on-surface-variant" />
+      <p className="text-body-md text-on-surface-variant">{text}</p>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { LandingPage } from '../features/marketing/LandingPage';
 import { StudentDashboardPage } from '../features/student-dashboard/StudentDashboardPage';
@@ -21,37 +21,41 @@ import { AddStudentPage } from '../features/auth/AddStudentPage';
 import { ChangePasswordPage } from '../features/auth/ChangePasswordPage';
 import { GuardianApprovalPage } from '../features/auth/GuardianApprovalPage';
 import { RequireRole } from '../features/auth/RequireRole';
+import { useAuth } from '../features/auth/AuthProvider';
 import { MessagingPage } from '../features/messaging/MessagingPage';
 import { TeacherGradebookPage } from '../features/academic-records/TeacherGradebookPage';
 import { ReportCardPage } from '../features/academic-records/ReportCardPage';
 import { MyProgramsPage } from '../features/teacher-authoring/MyProgramsPage';
 import { NewProgramPage } from '../features/teacher-authoring/NewProgramPage';
 import { ProgramEditorPage } from '../features/teacher-authoring/ProgramEditorPage';
-import { USER_ROLES } from '@madrasty/shared';
-import { StyleGuidePage } from './StyleGuidePage';
+import { USER_ROLES, type UserRole } from '@madrasty/shared';
+import { roleHome } from './navigation';
 
-// Wraps an authenticated teacher/admin authoring screen in the teacher shell.
-function teacherArea(node: ReactNode): ReactNode {
+// Every `/app/*` screen is gated: RequireRole redirects anonymous users to
+// /login and wrong-role users to their own home (roleHome). The DashboardLayout
+// shell derives its role from the authenticated user, so the sidebar always
+// matches who is logged in — no one can preview another role's pages.
+function gated(roles: UserRole[], node: ReactNode): ReactNode {
   return (
-    <RequireRole roles={['teacher', 'admin']}>
-      <DashboardLayout role="teacher">{node}</DashboardLayout>
+    <RequireRole roles={roles}>
+      <DashboardLayout>{node}</DashboardLayout>
     </RequireRole>
   );
 }
 
-// Wraps an admin-only governance screen in the admin shell (doc 09).
-function adminArea(node: ReactNode): ReactNode {
-  return (
-    <RequireRole roles={['admin']}>
-      <DashboardLayout role="admin">{node}</DashboardLayout>
-    </RequireRole>
-  );
+const teacherArea = (node: ReactNode) => gated(['teacher'], node);
+const adminArea = (node: ReactNode) => gated(['admin', 'center_admin'], node);
+
+// Bare `/app` → send the user to their own dashboard (or login if anonymous).
+function AppIndexRedirect() {
+  const { status, user } = useAuth();
+  if (status === 'loading') return null;
+  if (!user) return <Navigate to="/login" replace />;
+  return <Navigate to={roleHome(user.role)} replace />;
 }
 
-// Auth-based role gating replaces these public routes once the auth module is
-// wired into the client (doc 01 §7); for now every screen is directly reachable
-// so each design can be previewed. Exported as a plain array so tests can mount
-// individual routes via a memory router.
+// Exported as a plain array so tests can mount individual routes via a memory
+// router.
 export const routes: RouteObject[] = [
   { path: '/', element: <LandingPage /> },
 
@@ -78,110 +82,55 @@ export const routes: RouteObject[] = [
     ),
   },
   { path: '/guardian-approval/:token', element: <GuardianApprovalPage /> },
-  {
-    path: '/app/student',
-    element: (
-      <DashboardLayout role="student">
-        <StudentDashboardPage />
-      </DashboardLayout>
-    ),
-  },
-  {
-    path: '/app/parent',
-    element: (
-      <DashboardLayout role="parent">
-        <ParentDashboardPage />
-      </DashboardLayout>
-    ),
-  },
-  {
-    path: '/app/teacher',
-    element: (
-      <DashboardLayout role="teacher">
-        <TeacherDashboardPage />
-      </DashboardLayout>
-    ),
-  },
-  // Parent–teacher messaging (doc 10) — real, wired to the messaging API.
-  {
-    path: '/app/parent/messages',
-    element: (
-      <RequireRole roles={['parent']}>
-        <DashboardLayout role="parent">
-          <MessagingPage />
-        </DashboardLayout>
-      </RequireRole>
-    ),
-  },
+
+  { path: '/app', element: <AppIndexRedirect /> },
+
+  // Role dashboards — each gated to its own role.
+  { path: '/app/student', element: gated(['student'], <StudentDashboardPage />) },
+  { path: '/app/parent', element: gated(['parent'], <ParentDashboardPage />) },
+  { path: '/app/teacher', element: gated(['teacher'], <TeacherDashboardPage />) },
+  { path: '/app/admin', element: adminArea(<AdminDashboardPage />) },
+
+  // Parent–teacher messaging (doc 10).
+  { path: '/app/parent/messages', element: gated(['parent'], <MessagingPage />) },
   { path: '/app/teacher/messages', element: teacherArea(<MessagingPage />) },
-  // Exams & report cards (doc 10) — real, wired to the academic-records API.
+
+  // Exams & report cards (doc 10).
   { path: '/app/teacher/gradebook', element: teacherArea(<TeacherGradebookPage />) },
-  {
-    path: '/app/student/report-card',
-    element: (
-      <RequireRole roles={['student']}>
-        <DashboardLayout role="student">
-          <ReportCardPage />
-        </DashboardLayout>
-      </RequireRole>
-    ),
-  },
-  {
-    path: '/app/parent/report-card',
-    element: (
-      <RequireRole roles={['parent']}>
-        <DashboardLayout role="parent">
-          <ReportCardPage />
-        </DashboardLayout>
-      </RequireRole>
-    ),
-  },
-  // Teacher authoring (doc 12) — real, wired to the learning-programs API.
+  { path: '/app/student/report-card', element: gated(['student'], <ReportCardPage />) },
+  { path: '/app/parent/report-card', element: gated(['parent'], <ReportCardPage />) },
+
+  // Teacher authoring (doc 12).
   { path: '/app/teacher/programs', element: teacherArea(<MyProgramsPage />) },
   { path: '/app/teacher/programs/new', element: teacherArea(<NewProgramPage />) },
   { path: '/app/teacher/programs/:programId', element: teacherArea(<ProgramEditorPage />) },
-  {
-    path: '/app/admin',
-    element: (
-      <DashboardLayout role="admin">
-        <AdminDashboardPage />
-      </DashboardLayout>
-    ),
-  },
-  // Admin governance (doc 09) — real, wired to the admin API, admin-only.
+
+  // Admin governance (doc 09) — admin-only.
   { path: '/app/admin/teachers', element: adminArea(<TeacherVerificationPage />) },
   { path: '/app/admin/programs', element: adminArea(<ProgramApprovalsPage />) },
+
+  // Shared browse screens — student + parent, shell matches the actual viewer.
+  { path: '/app/marketplace', element: gated(['student', 'parent'], <TeacherMarketplacePage />) },
+  { path: '/app/catalog', element: gated(['student', 'parent'], <CatalogBrowsePage />) },
+  { path: '/app/catalog/:programId', element: gated(['student', 'parent'], <ProgramDetailPage />) },
+
   {
-    path: '/app/marketplace',
+    path: '/learn',
     element: (
-      <DashboardLayout role="student">
-        <TeacherMarketplacePage />
-      </DashboardLayout>
+      <RequireRole roles={['student']}>
+        <LearningPlayerPage />
+      </RequireRole>
     ),
   },
-  // Learning Program catalog (doc 12) — real, wired to the browse API. Free
-  // preview only; enrollment/checkout is roadmap step 4. Reachable directly
-  // until auth-based role gating lands; the shell uses the student sidebar.
+  // Post-checkout status screen (doc 04 §3) — the buyer (student/parent).
   {
-    path: '/app/catalog',
+    path: '/checkout/return',
     element: (
-      <DashboardLayout role="student">
-        <CatalogBrowsePage />
-      </DashboardLayout>
+      <RequireRole roles={['student', 'parent']}>
+        <CheckoutReturnPage />
+      </RequireRole>
     ),
   },
-  {
-    path: '/app/catalog/:programId',
-    element: (
-      <DashboardLayout role="student">
-        <ProgramDetailPage />
-      </DashboardLayout>
-    ),
-  },
-  { path: '/learn', element: <LearningPlayerPage /> },
-  // Post-checkout status screen (doc 04 §3 — polls the webhook-confirmed status).
-  { path: '/checkout/return', element: <CheckoutReturnPage /> },
-  { path: '/style-guide', element: <StyleGuidePage /> },
 ];
 
 export const router = createBrowserRouter(routes);

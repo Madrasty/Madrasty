@@ -1,176 +1,155 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import type { AuthoredProgram } from '@madrasty/shared';
 import { Icon } from '../../components/Icon';
-import { Button } from '../../components/Button';
 import { StatCard } from '../../components/StatCard';
-import { ProgressBar } from '../../components/ProgressBar';
+import { useAuth } from '../auth/AuthProvider';
+import { programsApi } from '../teacher-authoring/programs.api';
+import { academicRecordsApi } from '../academic-records/academic-records.api';
+import { messagingApi } from '../messaging/messaging.api';
+import { DashboardHeader, DashboardError } from '../dashboard/DashboardChrome';
 
-const PROGRAMS = [
-  { id: 'calc', rating: '4.9', students: 124, lessons: 24, subjectClass: 'text-primary' },
-  { id: 'physics', rating: '4.7', students: 89, lessons: 18, subjectClass: 'text-tertiary' },
-] as const;
+const STATUS_TONE: Record<string, string> = {
+  published: 'bg-green-500/15 text-green-700 dark:text-green-400',
+  pending_review: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
+  draft: 'bg-surface-container-high text-on-surface-variant',
+  archived: 'bg-surface-container-high text-on-surface-variant',
+};
 
-const CLASSES = [
-  { id: 'qa', time: '09:00', meridiem: 'AM', barClass: 'bg-primary', icon: 'videocam' },
-  { id: 'lab', time: '11:30', meridiem: 'AM', barClass: 'bg-tertiary', icon: 'location_on' },
-] as const;
-
-const GRADING = [
-  { id: 'integration', initials: 'AS', avatarClass: 'bg-primary-container text-primary' },
-  { id: 'lab', initials: 'MK', avatarClass: 'bg-tertiary-container text-tertiary' },
-] as const;
-
+// Teacher dashboard — real programs (with status), exam count and unread parent
+// messages. No fabricated revenue/engagement figures.
 export function TeacherDashboardPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const [programs, setPrograms] = useState<AuthoredProgram[] | null>(null);
+  const [examCount, setExamCount] = useState<number | null>(null);
+  const [unread, setUnread] = useState<number | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setError(false);
+    Promise.all([
+      programsApi.listMine(),
+      academicRecordsApi.listMyExams(i18n.language),
+      messagingApi.listConversations(),
+    ])
+      .then(([p, e, m]) => {
+        if (!active) return;
+        setPrograms(p.programs);
+        setExamCount(e.exams.length);
+        setUnread(m.conversations.reduce((sum, c) => sum + c.unreadCount, 0));
+      })
+      .catch(() => active && setError(true));
+    return () => {
+      active = false;
+    };
+  }, [i18n.language]);
+
+  const publishedCount = programs?.filter((p) => p.status === 'published').length ?? null;
 
   return (
     <div className="flex flex-col gap-unit-lg">
       <div className="flex flex-wrap items-end justify-between gap-unit-md">
-        <div>
-          <h1 className="text-headline-lg font-semibold">{t('teacher.greeting')}</h1>
-          <p className="mt-2 text-body-lg text-on-surface-variant">{t('teacher.subgreeting')}</p>
-        </div>
-        <Link to="/app/teacher/programs/new">
-          <Button variant="primary" size="large">
-            <Icon name="add" filled />
-            {t('teacher.newProgram')}
-          </Button>
+        <DashboardHeader
+          title={user?.fullName ? t('dashboard.welcome', { name: user.fullName }) : t('dashboard.welcomeAnon')}
+          subtitle={t('dashboard.teacherSubtitle')}
+        />
+        <Link
+          to="/app/teacher/programs/new"
+          className="inline-flex items-center gap-2 rounded-full bg-primary px-unit-md py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90"
+        >
+          <Icon name="add" className="text-[1.1rem]" />
+          {t('dashboard.newProgram')}
         </Link>
       </div>
 
-      <section className="grid grid-cols-1 gap-unit-md md:grid-cols-3">
+      {error && <DashboardError />}
+
+      <section className="grid grid-cols-1 gap-unit-md sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label={t('dashboard.totalPrograms')} value={programs?.length ?? '—'} icon="menu_book" />
         <StatCard
-          label={t('teacher.totalRevenue')}
-          value="EGP 12,450"
-          icon="trending_up"
+          label={t('dashboard.published')}
+          value={publishedCount ?? '—'}
+          icon="verified"
           iconClassName="text-secondary"
+        />
+        <StatCard
+          label={t('dashboard.exams')}
+          value={examCount ?? '—'}
+          icon="grading"
+          iconClassName="text-tertiary"
           footer={
-            <span className="w-fit rounded bg-secondary-container px-2 py-1 text-label-sm text-on-secondary-container">
-              {t('teacher.revenueDelta')}
-            </span>
+            <Link to="/app/teacher/gradebook" className="text-label-md text-primary hover:underline">
+              {t('dashboard.openGradebook')}
+            </Link>
           }
         />
         <StatCard
-          label={t('teacher.activeStudents')}
-          value="342"
-          icon="groups"
-          footer={<span className="text-label-sm text-on-surface-variant">{t('teacher.acrossPrograms')}</span>}
-        />
-        <StatCard
-          label={t('teacher.engagement')}
-          value="87%"
-          icon="local_fire_department"
-          iconClassName="text-tertiary"
+          label={t('dashboard.unreadMessages')}
+          value={unread ?? '—'}
+          icon="forum"
           footer={
-            <>
-              <ProgressBar value={87} barClassName="bg-tertiary" />
-              <span className="mt-2 block text-end text-label-sm text-on-surface-variant">
-                {t('teacher.target')}
-              </span>
-            </>
+            <Link to="/app/teacher/messages" className="text-label-md text-primary hover:underline">
+              {t('dashboard.openMessages')}
+            </Link>
           }
         />
       </section>
 
-      <div className="grid grid-cols-1 gap-unit-xl lg:grid-cols-3">
-        {/* Programs */}
-        <section className="flex flex-col gap-unit-md lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-outline-variant pb-2">
-            <h2 className="text-headline-md">{t('teacher.myPrograms')}</h2>
-            <Link to="/app/teacher/programs" className="text-label-md text-primary hover:underline">
-              {t('actions.viewAll')}
+      <section>
+        <div className="mb-unit-md flex items-center justify-between">
+          <h2 className="text-headline-md">{t('dashboard.myPrograms')}</h2>
+          <Link
+            to="/app/teacher/programs"
+            className="inline-flex items-center gap-1 text-label-md text-primary hover:underline"
+          >
+            {t('dashboard.viewAll')}
+            <Icon name="arrow_forward" className="text-[1rem] rtl:-scale-x-100" />
+          </Link>
+        </div>
+        {programs && programs.length > 0 ? (
+          <ul className="flex flex-col gap-2">
+            {programs.slice(0, 6).map((p) => (
+              <li key={p.id}>
+                <Link
+                  to={`/app/teacher/programs/${p.id}`}
+                  className="flex items-center gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md transition-colors hover:bg-surface-container-low"
+                >
+                  <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon name="menu_book" filled />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-body-md font-semibold text-on-surface">
+                      {p.title || t('dashboard.untitledProgram')}
+                    </span>
+                    {p.gradeLevel && (
+                      <span className="block text-label-sm text-on-surface-variant">{p.gradeLevel}</span>
+                    )}
+                  </span>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-label-sm font-semibold ${STATUS_TONE[p.status] ?? STATUS_TONE.draft}`}
+                  >
+                    {t(`dashboard.status_${p.status}`, { defaultValue: p.status })}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="flex flex-col items-center gap-unit-sm rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest p-unit-xl text-center">
+            <Icon name="menu_book" className="text-[2.5rem] text-on-surface-variant" />
+            <p className="text-body-md font-semibold">{t('dashboard.noProgramsTeacher')}</p>
+            <Link
+              to="/app/teacher/programs/new"
+              className="text-label-md font-semibold text-primary hover:underline"
+            >
+              {t('dashboard.newProgram')}
             </Link>
           </div>
-          <div className="grid grid-cols-1 gap-unit-md sm:grid-cols-2">
-            {PROGRAMS.map((program) => (
-              <div
-                key={program.id}
-                className="flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest"
-              >
-                <div className="relative flex h-40 items-start justify-end bg-gradient-to-br from-surface-container to-surface-variant p-2">
-                  <span className="flex items-center gap-1 rounded bg-surface-container-lowest/90 px-2 py-1 text-label-sm font-bold backdrop-blur">
-                    <Icon name="star" filled className="text-[1rem] text-secondary" /> {program.rating}
-                  </span>
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-unit-md">
-                  <div>
-                    <span className={`text-label-sm uppercase tracking-wide ${program.subjectClass}`}>
-                      {t(`teacher.programs.${program.id}Subject`)}
-                    </span>
-                    <h3 className="mt-1 text-headline-md">{t(`teacher.programs.${program.id}Title`)}</h3>
-                  </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-4 text-on-surface-variant">
-                    <span className="flex items-center gap-1 text-label-sm">
-                      <Icon name="group" className="text-[1rem]" /> {program.students} {t('teacher.students')}
-                    </span>
-                    <span className="flex items-center gap-1 text-label-sm">
-                      <Icon name="play_circle" className="text-[1rem]" /> {program.lessons} {t('teacher.lessons')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Agenda + grading */}
-        <section className="flex flex-col gap-unit-xl">
-          <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md">
-            <h2 className="mb-unit-md text-headline-md">{t('teacher.todaysClasses')}</h2>
-            <div className="flex flex-col gap-unit-sm">
-              {CLASSES.map((cls) => (
-                <div key={cls.id} className="flex items-start gap-4 rounded-lg p-3">
-                  <div className="flex min-w-[50px] flex-col items-center">
-                    <span className="text-label-sm text-on-surface-variant">{cls.time}</span>
-                    <span className="text-label-sm text-on-surface-variant">{cls.meridiem}</span>
-                  </div>
-                  <div className={`min-h-[40px] w-1 self-stretch rounded-full ${cls.barClass}`} />
-                  <div className="flex-1">
-                    <h4 className="text-label-md font-bold">{t(`teacher.classes.${cls.id}`)}</h4>
-                    <span className="mt-1 flex items-center gap-1 text-label-sm text-on-surface-variant">
-                      <Icon name={cls.icon} className="text-[0.9rem]" /> {t(`teacher.classes.${cls.id}Meta`)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md">
-            <div className="mb-unit-md flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-headline-md">{t('teacher.needsGrading')}</h2>
-              <span className="whitespace-nowrap rounded-full bg-error-container px-2 py-1 text-label-sm text-on-error-container">
-                {t('teacher.pending', { count: 12 })}
-              </span>
-            </div>
-            <div className="flex flex-col gap-3">
-              {GRADING.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-outline-variant bg-surface p-3"
-                >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <span
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold ${task.avatarClass}`}
-                    >
-                      {task.initials}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="truncate text-label-md">{t(`teacher.grading.${task.id}`)}</div>
-                      <div className="truncate text-label-sm text-on-surface-variant">
-                        {t(`teacher.grading.${task.id}Meta`)}
-                      </div>
-                    </div>
-                  </div>
-                  <button className="shrink-0 text-primary" aria-label={t('actions.review')}>
-                    <Icon name="edit_document" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
+        )}
+      </section>
     </div>
   );
 }

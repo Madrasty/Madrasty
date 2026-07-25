@@ -18,6 +18,13 @@ export function createRegistrationController(service: RegistrationService) {
     res.status(201).json(result);
   });
 
+  // A parent lists their linked children (parent dashboard). The parent id comes
+  // from the authenticated session, never the body.
+  const listStudents = asyncHandler(async (req: Request, res: Response) => {
+    const children = await service.listChildren(req.user!.id);
+    res.status(200).json({ children });
+  });
+
   // Feature 6 — public student self-registration. Response never leaks the token.
   const selfRegister = asyncHandler(async (req: Request, res: Response) => {
     const input = studentSelfRegisterSchema.parse(req.body);
@@ -42,5 +49,5 @@ export function createRegistrationController(service: RegistrationService) {
     res.status(200).json({ status: 'rejected' });
   });
 
-  return { addStudent, selfRegister, getApproval, approve, reject };
+  return { addStudent, listStudents, selfRegister, getApproval, approve, reject };
 }

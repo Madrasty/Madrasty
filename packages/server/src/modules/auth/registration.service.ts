@@ -1,3 +1,4 @@
+import type { ParentChildView } from '@madrasty/shared';
 import { config } from '../../config/index';
 import { HttpError } from '../../lib/http-error';
 import { normalizePhone } from '../../lib/phone';
@@ -57,6 +58,21 @@ export class RegistrationService {
     });
 
     return { studentId: userId, name: input.name, grade: input.grade, status: 'active' };
+  }
+
+  // Lists the children linked to a guardian (parent dashboard, doc 10). Includes
+  // pending-approval children so the parent can see and chase them.
+  async listChildren(parentId: string): Promise<ParentChildView[]> {
+    const rows = await this.repo.listChildrenForParent(parentId);
+    return rows.map((r) => ({
+      id: r.id,
+      fullName: r.fullName,
+      gradeLevel: r.gradeLevel,
+      schoolName: r.schoolName,
+      status: r.status,
+      relationship: r.relationship,
+      approvedAt: r.approvedAt ? r.approvedAt.toISOString() : null,
+    }));
   }
 
   // Feature 6 (Flow B): a student self-registers. We persist a PENDING profile

@@ -58,8 +58,8 @@ describe('login flow', () => {
     await user.type(screen.getByLabelText('Password'), 'sup3rsecret');
     await user.click(screen.getByRole('button', { name: 'Log in' }));
 
-    // Redirected to the parent dashboard.
-    expect(await screen.findByText(/Welcome back, Sarah$/)).toBeInTheDocument();
+    // Redirected to the parent dashboard, greeted by the real signed-in name.
+    expect(await screen.findByText(/Welcome back, Sarah Ahmed/)).toBeInTheDocument();
 
     // The API was called with the credentials and cookie mode.
     const loginCall = fetchMock.mock.calls.find((call) => String(call[0]).endsWith('/api/auth/login'));

@@ -62,6 +62,32 @@ describe('RegistrationService', () => {
     });
   });
 
+  describe('parent lists their children', () => {
+    it("returns the parent's linked children with approval state", async () => {
+      const added = await service.addStudent(parent.id, studentInput);
+      const children = await service.listChildren(parent.id);
+
+      expect(children).toHaveLength(1);
+      expect(children[0].id).toBe(added.studentId);
+      expect(children[0].fullName).toBe(studentInput.name);
+      expect(children[0].status).toBe('active');
+      expect(children[0].approvedAt).not.toBeNull();
+    });
+
+    it("does not return another parent's children", async () => {
+      await service.addStudent(parent.id, studentInput);
+      const other = await users.createParent({
+        fullName: 'Other Parent',
+        email: 'other@example.com',
+        phone: '01000000066',
+        passwordHash: 'x',
+        localePreference: 'ar',
+      });
+
+      expect(await service.listChildren(other.id)).toHaveLength(0);
+    });
+  });
+
   describe('feature 6 — student self-registration (Flow B)', () => {
     it('creates a PENDING student with no approved link (no content access)', async () => {
       const result = await service.selfRegister(selfRegInput);

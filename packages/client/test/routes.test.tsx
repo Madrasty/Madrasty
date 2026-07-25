@@ -5,28 +5,42 @@ import i18n from '../src/lib/i18n';
 import { routes } from '../src/app/router';
 import { AuthProvider } from '../src/features/auth/AuthProvider';
 
-// Smoke-tests every route in English: each must mount without throwing and show
-// its heading. Guards against missing i18n keys, bad interpolations, and hook
-// misuse across the ported screens. A fresh memory router per case avoids the
-// browser-router singleton retaining location between renders. Wrapped in
-// AuthProvider because the dashboards/top bar read the auth context.
-const CASES: Array<{ path: string; heading: RegExp }> = [
+// Two guarantees, in English:
+// 1. Public routes mount and show their heading (no missing i18n keys / hook misuse).
+// 2. Every gated `/app/*` (and /learn, /checkout/return) redirects an anonymous
+//    visitor to /login — the production access rule, with no way to preview a
+//    role's page without logging in.
+// A fresh memory router per case avoids the browser-router singleton retaining
+// location. Wrapped in AuthProvider because RequireRole/TopBar read auth context.
+const PUBLIC_CASES: Array<{ path: string; heading: RegExp }> = [
   { path: '/', heading: /Empowering Egypt/ },
   { path: '/login', heading: /Welcome back/ },
   { path: '/register', heading: /Create a parent account/ },
   { path: '/register/teacher', heading: /Create a teacher account/ },
   { path: '/register/student', heading: /Student sign-up/ },
-  { path: '/app/student', heading: /Welcome back, Sarah!/ },
-  { path: '/app/parent', heading: /Welcome back, Sarah$/ },
-  { path: '/app/teacher', heading: /Welcome back, Mr\. Hassan/ },
-  { path: '/app/admin', heading: /Platform overview/ },
-  { path: '/app/marketplace', heading: /Find a private tutor/ },
-  { path: '/app/catalog', heading: /Learning programs/ },
-  { path: '/app/catalog/some-program-id', heading: /Back to catalog/ },
-  { path: '/checkout/return', heading: /Nothing to confirm/ },
-  { path: '/learn', heading: /core concepts of calculus/ },
-  { path: '/style-guide', heading: /Madrasty Design System/ },
 ];
+
+// Anonymous → RequireRole sends these to /login (heading: "Welcome back").
+const GATED_PATHS = [
+  '/app/student',
+  '/app/parent',
+  '/app/teacher',
+  '/app/admin',
+  '/app/marketplace',
+  '/app/catalog',
+  '/app/catalog/some-program-id',
+  '/checkout/return',
+  '/learn',
+];
+
+function renderAt(path: string) {
+  const router = createMemoryRouter(routes, { initialEntries: [path] });
+  return render(
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>,
+  );
+}
 
 describe('route smoke tests', () => {
   beforeEach(async () => {
@@ -38,13 +52,13 @@ describe('route smoke tests', () => {
     cleanup();
   });
 
-  it.each(CASES)('renders $path', async ({ path, heading }) => {
-    const router = createMemoryRouter(routes, { initialEntries: [path] });
-    render(
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>,
-    );
+  it.each(PUBLIC_CASES)('renders public $path', async ({ path, heading }) => {
+    renderAt(path);
     expect(await screen.findByText(heading)).toBeInTheDocument();
+  });
+
+  it.each(GATED_PATHS)('redirects anonymous %s to login', async (path) => {
+    renderAt(path);
+    expect(await screen.findByText(/Welcome back/)).toBeInTheDocument();
   });
 });

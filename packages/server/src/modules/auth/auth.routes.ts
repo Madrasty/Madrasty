@@ -19,6 +19,7 @@ import { requireAuth, requireRole } from './auth.middleware';
 //     POST /api/auth/logout                       — revoke refresh token + clear cookie
 //   Registration (doc 11 features 5-7)
 //     POST /api/auth/parent/students              — parent adds a student (auth: parent)
+//     GET  /api/auth/parent/students              — parent lists their children (auth: parent)
 //     POST /api/auth/student/self-register        — Flow B step 1 (public)
 //     GET  /api/auth/guardian-approval/:token     — parent opens the SMS link (public)
 //     POST /api/auth/guardian-approval/:token/approve — approve (auth: parent)
@@ -47,6 +48,7 @@ export function createAuthRouter(): Router {
 
   // Registration (features 5-7)
   router.post('/parent/students', requireAuth, requireRole('parent'), registrationController.addStudent);
+  router.get('/parent/students', requireAuth, requireRole('parent'), registrationController.listStudents);
   router.post('/student/self-register', registrationController.selfRegister);
   router.get('/guardian-approval/:token', registrationController.getApproval);
   router.post(

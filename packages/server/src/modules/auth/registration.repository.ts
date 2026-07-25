@@ -73,11 +73,24 @@ export type ApprovalRequestPatch = Partial<
   Pick<ApprovalRequestRecord, 'status' | 'matchedParentId' | 'resolvedAt'>
 >;
 
+// A child linked to a guardian, for the parent dashboard (doc 10). Combines the
+// parent_children link, the student user, and their profile.
+export interface ParentChildRecord {
+  id: string;
+  fullName: string | null;
+  gradeLevel: string | null;
+  schoolName: string | null;
+  status: string;
+  relationship: string;
+  approvedAt: Date | null;
+}
+
 // Data-access boundary for the registration flows. The service depends on this
 // interface so tests can inject an in-memory fake instead of live Postgres.
 export interface RegistrationRepository {
   createStudent(input: CreateStudentInput): Promise<{ userId: string }>;
   linkParentChild(input: LinkParentChildInput): Promise<void>;
+  listChildrenForParent(parentId: string): Promise<ParentChildRecord[]>;
   findParentByPhone(phone: string): Promise<{ id: string; phone: string | null } | null>;
   createApprovalRequest(input: CreateApprovalRequestInput): Promise<{ id: string }>;
   findApprovalRequestByToken(token: string): Promise<ApprovalRequestRecord | null>;
@@ -137,6 +150,33 @@ export class DrizzleRegistrationRepository implements RegistrationRepository {
       isPrimary: true,
       approvedAt: input.approvedAt,
     });
+  }
+
+  async listChildrenForParent(parentId: string): Promise<ParentChildRecord[]> {
+    const rows = await this.db
+      .select({
+        id: users.id,
+        metadata: users.metadata,
+        gradeLevel: studentProfiles.gradeLevel,
+        schoolName: studentProfiles.schoolName,
+        profileStatus: studentProfiles.status,
+        relationship: parentChildren.relationship,
+        approvedAt: parentChildren.approvedAt,
+      })
+      .from(parentChildren)
+      .innerJoin(users, eq(parentChildren.studentId, users.id))
+      .leftJoin(studentProfiles, eq(studentProfiles.userId, users.id))
+      .where(and(eq(parentChildren.parentId, parentId), isNull(users.deletedAt)))
+      .orderBy(desc(parentChildren.approvedAt));
+    return rows.map((r) => ({
+      id: r.id,
+      fullName: (r.metadata as { fullName?: string } | null)?.fullName ?? null,
+      gradeLevel: r.gradeLevel ?? null,
+      schoolName: r.schoolName ?? null,
+      status: r.profileStatus ?? 'pending_approval',
+      relationship: r.relationship,
+      approvedAt: r.approvedAt,
+    }));
   }
 
   async findParentByPhone(phone: string): Promise<{ id: string; phone: string | null } | null> {

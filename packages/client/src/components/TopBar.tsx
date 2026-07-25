@@ -2,17 +2,11 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from './Icon';
 import { LanguageToggle } from './LanguageToggle';
-import { RoleSwitcher } from './RoleSwitcher';
 import { useAuth } from '../features/auth/AuthProvider';
-import type { DashboardRole } from '../app/navigation';
-
-interface TopBarProps {
-  role: DashboardRole;
-}
 
 // Docked header, offset by the 280px sidebar on desktop. `md:ms-[280px]` uses
 // margin-inline-start so it sits correctly on either side in RTL/LTR.
-export function TopBar({ role }: TopBarProps) {
+export function TopBar() {
   const { t } = useTranslation();
   const { status, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -27,8 +21,6 @@ export function TopBar({ role }: TopBarProps) {
       <div className="text-headline-md font-black text-primary md:hidden">{t('app.name')}</div>
 
       <div className="ms-auto flex items-center gap-unit-md">
-        {/* RoleSwitcher is a preview affordance until every role's login exists. */}
-        <RoleSwitcher current={role} />
         <LanguageToggle />
         <button
           type="button"

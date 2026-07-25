@@ -89,6 +89,23 @@ export interface AddStudentResponse {
   status: 'active';
 }
 
+// A child under a guardian, for the parent dashboard / pickers. `status` is the
+// student-profile status (pending_approval | active | suspended); `approvedAt`
+// null means the guardian link is not yet approved (doc 11).
+export interface ParentChildView {
+  id: string;
+  fullName: string | null;
+  gradeLevel: string | null;
+  schoolName: string | null;
+  status: string;
+  relationship: string;
+  approvedAt: string | null;
+}
+
+export interface ListParentChildrenResponse {
+  children: ParentChildView[];
+}
+
 // Feature 6 — student-first self-registration.
 export interface StudentSelfRegisterRequest {
   name: string;
@@ -179,6 +196,20 @@ export interface AuthoredProgram extends ProgramSummary {
 
 export interface ListMyProgramsResponse {
   programs: AuthoredProgram[];
+}
+
+// A student's enrolled program (GET /learning-programs/my-programs): summary plus
+// the active enrollment grant. `source` is 'purchase' | 'admin_grant' | 'free'.
+export interface EnrolledProgramView extends ProgramSummary {
+  enrollment: {
+    source: string;
+    grantedAt: string;
+    expiresAt: string | null;
+  };
+}
+
+export interface ListMyEnrolledProgramsResponse {
+  programs: EnrolledProgramView[];
 }
 
 export interface CreateProgramRequest {
