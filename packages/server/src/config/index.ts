@@ -47,6 +47,12 @@ const envSchema = z.object({
   API_BASE_URL: z.string().optional(),
   CLIENT_BASE_URL: z.string().optional(),
 
+  // When set (containerized / single-origin deploy), the server also serves the
+  // built client SPA from this directory so the whole app runs on one port and
+  // one origin — keeping the httpOnly refresh cookie same-origin with /api.
+  // Left unset for host dev, where Vite serves the client on its own port.
+  CLIENT_DIST_PATH: z.string().optional(),
+
   // Payments (doc 04).
   PAYMOB_API_KEY: z.string().optional(),
   PAYMOB_HMAC_SECRET: z.string().optional(),

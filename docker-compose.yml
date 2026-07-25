@@ -1,14 +1,55 @@
-# Local development infrastructure for Madrasty (doc 01 §5, doc 14 §9).
-# Brings up PostgreSQL + Redis for the app to run against locally.
-# The application itself (packages/server, packages/client) runs on the host
-# via Node/Vite — only the stateful backing services are containerized here.
+# Local infrastructure + app for Madrasty (doc 01 §5, doc 14 §9).
+# Brings up PostgreSQL + Redis and the Madrasty app itself in one stack, so
+# Docker Desktop shows a "madrasty-app" container you can start and everything
+# works (API + client served on one port).
 #
-#   docker compose up -d      # start postgres + redis
-#   docker compose ps         # check status
-#   docker compose down       # stop (keeps data in the pgdata volume)
-#   docker compose down -v    # stop and wipe the database volume
+#   docker compose up -d --build   # build + start the whole stack
+#   docker compose ps              # check status
+#   docker compose logs -f app     # follow the app logs
+#   docker compose down            # stop (keeps the pgdata volume)
+#   docker compose down -v         # stop and wipe the database volume
+#
+# App runs at http://localhost:${APP_PORT:-4000} (client + API, same origin).
+# For host-based dev with hot reload, use `npm run dev` instead (don't run the
+# `app` service) — Postgres/Redis here still back it.
+
+name: madrasty-app
 
 services:
+  app:
+    build:
+      context: .
+      args:
+        # Baked into the client bundle at build time — keep in sync with .env.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_DEFAULT_LOCALE: ${VITE_DEFAULT_LOCALE:-ar}
+        VITE_SUPPORTED_LOCALES: ${VITE_SUPPORTED_LOCALES:-ar,en}
+    container_name: madrasty-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Load all optional integration keys (payments, AI, etc.) from .env, then
+    # override the host-specific bits below so services resolve inside Compose.
+    env_file:
+      - .env
+    environment:
+      # development keeps the refresh cookie non-Secure so login works over
+      # http://localhost (see auth.controller.ts).
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-madrasty}:${POSTGRES_PASSWORD:-madrasty_dev_password}@postgres:5432/${POSTGRES_DB:-madrasty_dev}
+      REDIS_URL: redis://redis:6379
+      # The server also serves the built client from here (single origin).
+      CLIENT_DIST_PATH: /app/packages/client/dist
+      API_BASE_URL: http://localhost:${APP_PORT:-4000}
+      CLIENT_BASE_URL: http://localhost:${APP_PORT:-4000}
+    ports:
+      - "${APP_PORT:-4000}:4000"
+
+
   postgres:
     image: postgres:16
     container_name: madrasty-postgres

@@ -58,3 +58,5 @@ tmp/
 Thumbs.db
 # --- Design ------------------------------------------------------------------
 FrontEnd Design/
+#-----------------------not sure if this is needed---------------
+RUN.md
