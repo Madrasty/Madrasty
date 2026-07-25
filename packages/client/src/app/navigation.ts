@@ -43,6 +43,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
     { labelKey: 'myPrograms', icon: 'menu_book', path: '/app/teacher/programs' },
     { labelKey: 'messages', icon: 'forum', path: '/app/teacher/messages' },
     { labelKey: 'gradebook', icon: 'grading', path: '/app/teacher/gradebook' },
+    { labelKey: 'quizzes', icon: 'quiz', path: '/app/teacher/quizzes' },
     { labelKey: 'students', icon: 'groups' },
     { labelKey: 'liveClasses', icon: 'videocam' },
     { labelKey: 'earnings', icon: 'account_balance_wallet' },

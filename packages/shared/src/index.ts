@@ -672,3 +672,91 @@ export interface ReportCardResponse {
   // Weighted average percentage across all graded exams (null if none yet).
   overallAverage: number | null;
 }
+
+// --- Quizzes (doc 03, doc 12 §6) -----------------------------------------------
+// MVP is single-correct multiple choice. Prompt/option text are localized maps
+// but authored one language at a time; reads resolve for the request locale.
+export const QUIZ_QUESTION_TYPES = ['single_choice'] as const;
+export type QuizQuestionType = (typeof QUIZ_QUESTION_TYPES)[number];
+
+// Teacher creates a quiz on a quiz-type lesson.
+export interface CreateQuizRequest {
+  lessonId: string;
+  passingScore?: number; // percentage; defaults server-side
+  timeLimitMinutes?: number | null;
+}
+
+export interface QuizOptionInput {
+  id?: string; // generated server-side when omitted
+  text: LocalizedInput;
+}
+
+export interface CreateQuestionRequest {
+  prompt: LocalizedInput;
+  options: QuizOptionInput[];
+  correctOptionId: string;
+  points?: number;
+}
+
+// An option as shown to a taker (no correctness leaked).
+export interface QuizOptionView {
+  id: string;
+  text: string | null;
+}
+
+// A question in the quiz. `correctOptionId` is present ONLY in the teacher/owner
+// view — never sent to a student before they submit.
+export interface QuizQuestionView {
+  id: string;
+  orderIndex: number;
+  type: QuizQuestionType;
+  prompt: string | null;
+  options: QuizOptionView[];
+  points: number;
+  correctOptionId?: string;
+}
+
+export interface QuizView {
+  id: string;
+  lessonId: string;
+  programId: string;
+  passingScore: number;
+  timeLimitMinutes: number | null;
+  totalPoints: number;
+  questionCount: number;
+  questions: QuizQuestionView[];
+  // The requester's best attempt so far (null if none). Students see this to know
+  // whether they've already passed.
+  bestAttempt: AttemptSummary | null;
+}
+
+export interface AttemptSummary {
+  score: number;
+  maxScore: number;
+  percentage: number;
+  passed: boolean;
+  submittedAt: string;
+}
+
+// Student submits answers: { [questionId]: optionId }.
+export interface SubmitAttemptRequest {
+  answers: Record<string, string>;
+}
+
+// The graded result. `perQuestion` reveals the correct option AFTER submission so
+// the student can learn from mistakes (doc 12 §5).
+export interface AttemptResultView extends AttemptSummary {
+  attemptId: string;
+  perQuestion: Array<{
+    questionId: string;
+    chosenOptionId: string | null;
+    correctOptionId: string;
+    correct: boolean;
+    points: number;
+  }>;
+}
+
+// Resolve a quiz id for a given lesson (used by the player/builder).
+export interface QuizByLessonResponse {
+  quizId: string | null;
+}

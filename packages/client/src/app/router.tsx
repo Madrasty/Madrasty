@@ -25,6 +25,8 @@ import { useAuth } from '../features/auth/AuthProvider';
 import { MessagingPage } from '../features/messaging/MessagingPage';
 import { TeacherGradebookPage } from '../features/academic-records/TeacherGradebookPage';
 import { ReportCardPage } from '../features/academic-records/ReportCardPage';
+import { QuizBuilderPage } from '../features/quizzes/QuizBuilderPage';
+import { QuizPlayerPage } from '../features/quizzes/QuizPlayerPage';
 import { MyProgramsPage } from '../features/teacher-authoring/MyProgramsPage';
 import { NewProgramPage } from '../features/teacher-authoring/NewProgramPage';
 import { ProgramEditorPage } from '../features/teacher-authoring/ProgramEditorPage';
@@ -99,6 +101,13 @@ export const routes: RouteObject[] = [
   { path: '/app/teacher/gradebook', element: teacherArea(<TeacherGradebookPage />) },
   { path: '/app/student/report-card', element: gated(['student'], <ReportCardPage />) },
   { path: '/app/parent/report-card', element: gated(['parent'], <ReportCardPage />) },
+
+  // Quizzes (doc 12 §6) — teacher builder + student player, wired to /api/quizzes.
+  { path: '/app/teacher/quizzes', element: teacherArea(<QuizBuilderPage />) },
+  {
+    path: '/app/quiz/:quizId',
+    element: gated(['student', 'teacher', 'admin', 'center_admin'], <QuizPlayerPage />),
+  },
 
   // Teacher authoring (doc 12).
   { path: '/app/teacher/programs', element: teacherArea(<MyProgramsPage />) },

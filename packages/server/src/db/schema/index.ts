@@ -7,4 +7,5 @@ export * from './payments';
 export * from './loyalty';
 export * from './messaging';
 export * from './academic-records';
+export * from './quizzes';
 export * from './admin';
