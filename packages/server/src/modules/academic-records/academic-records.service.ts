@@ -5,6 +5,8 @@ import type {
   GradebookStudentRow,
   RecordResultRequest,
   ReportCardExam,
+  ReportCardHomeworkSummary,
+  ReportCardQuizSummary,
   ReportCardResponse,
   ReportCardSubject,
   UserRole,
@@ -14,6 +16,8 @@ import { HttpError } from '../../lib/http-error';
 import type {
   AcademicRecordsRepository,
   ExamRow,
+  HomeworkSubmissionStatRow,
+  QuizStatRow,
   StudentResultRow,
   SubjectTranslationRow,
   UserBrief,
@@ -71,6 +75,46 @@ function weightedAverage(items: Array<{ percentage: number; weight: number }>): 
   if (totalWeight <= 0) return null;
   const sum = items.reduce((s, i) => s + i.weight * i.percentage, 0);
   return round1(sum / totalWeight);
+}
+
+// Quiz roll-up for one subject. Each row is already the student's BEST attempt on
+// one quiz (the repository reduces retakes), so this is a plain mean — quizzes
+// carry no weight column, unlike exams.
+function summarizeQuizzes(rows: QuizStatRow[]): ReportCardQuizSummary {
+  if (rows.length === 0) return { count: 0, average: null };
+  const sum = rows.reduce((s, r) => s + Number(r.bestPercentage), 0);
+  return { count: rows.length, average: round1(sum / rows.length) };
+}
+
+// Homework roll-up for one subject. `assigned` is what was SET for the student
+// (assignments in programs they're enrolled in), so completion measures them
+// against the whole workload, not just what they chose to hand in.
+function summarizeHomework(
+  assigned: number,
+  rows: HomeworkSubmissionStatRow[],
+): ReportCardHomeworkSummary {
+  const submitted = rows.length;
+  const late = rows.filter((r) => r.status === 'late').length;
+  const gradedRows = rows.filter((r) => r.status === 'graded' && r.grade !== null);
+  const average = gradedRows.length
+    ? round1(
+        gradedRows.reduce((s, r) => s + pct(Number(r.grade), Number(r.maxGrade)), 0) /
+          gradedRows.length,
+      )
+    : null;
+
+  return {
+    assigned,
+    submitted,
+    late,
+    graded: gradedRows.length,
+    // Guard against >100%: a submission can outlive the assignment count if a
+    // student is unenrolled from the program after handing work in.
+    completionRate: assigned > 0 ? round1(Math.min(submitted / assigned, 1) * 100) : null,
+    onTimeRate:
+      assigned > 0 ? round1(Math.min(Math.max(submitted - late, 0) / assigned, 1) * 100) : null,
+    average,
+  };
 }
 
 // Exams & report cards (doc 10 §3.1, §6). Policy:
@@ -197,8 +241,27 @@ export class AcademicRecordsService {
       throw HttpError.forbidden('not_authorized', 'You cannot view this report card.');
     }
 
-    const results = await this.repo.listResultsForStudent(studentId, term);
-    const subjectIds = [...new Set(results.map((r) => r.subjectId))];
+    // Three independent sources, one per assessment type (doc 10 §3.1). `term`
+    // filters exams only — quizzes/homework carry no term column.
+    const [results, quizStats, homeworkAssigned, homeworkSubmissions] = await Promise.all([
+      this.repo.listResultsForStudent(studentId, term),
+      this.repo.listQuizStatsForStudent(studentId),
+      this.repo.listHomeworkAssignedForStudent(studentId),
+      this.repo.listHomeworkSubmissionsForStudent(studentId),
+    ]);
+
+    // A subject belongs on the card if it has ANY activity — a program whose
+    // homework the student has ignored still needs to show up, precisely because
+    // the completion rate is the interesting number there.
+    const subjectIds = [
+      ...new Set([
+        ...results.map((r) => r.subjectId),
+        ...quizStats.map((q) => q.subjectId),
+        ...homeworkAssigned.map((h) => h.subjectId),
+        ...homeworkSubmissions.map((h) => h.subjectId),
+      ]),
+    ];
+
     const [slugs, translationRows] = await Promise.all([
       this.repo.getSubjectSlugs(subjectIds),
       this.repo.getSubjectTranslations(subjectIds),
@@ -206,26 +269,34 @@ export class AcademicRecordsService {
     const slugById = new Map(slugs.map((s) => [s.id, s.slug]));
 
     // Group graded exams by subject.
-    const bySubject = new Map<string, ReportCardExam[]>();
+    const examsBySubject = new Map<string, ReportCardExam[]>();
     for (const r of results) {
       const exam = this.toReportCardExam(r, locale);
-      const list = bySubject.get(r.subjectId);
+      const list = examsBySubject.get(r.subjectId);
       if (list) list.push(exam);
-      else bySubject.set(r.subjectId, [exam]);
+      else examsBySubject.set(r.subjectId, [exam]);
     }
 
-    const subjects: ReportCardSubject[] = [...bySubject.entries()].map(([subjectId, exams]) => ({
-      subjectId,
-      subjectName: resolveSubjectName(
-        translationRows,
+    const subjects: ReportCardSubject[] = subjectIds.map((subjectId) => {
+      const exams = examsBySubject.get(subjectId) ?? [];
+      return {
         subjectId,
-        locale,
-        this.defaultLocale,
-        slugById.get(subjectId) ?? null,
-      ),
-      average: weightedAverage(exams) ?? 0,
-      exams,
-    }));
+        subjectName: resolveSubjectName(
+          translationRows,
+          subjectId,
+          locale,
+          this.defaultLocale,
+          slugById.get(subjectId) ?? null,
+        ),
+        average: exams.length ? weightedAverage(exams) : null,
+        exams,
+        quizzes: summarizeQuizzes(quizStats.filter((q) => q.subjectId === subjectId)),
+        homework: summarizeHomework(
+          homeworkAssigned.find((h) => h.subjectId === subjectId)?.assigned ?? 0,
+          homeworkSubmissions.filter((h) => h.subjectId === subjectId),
+        ),
+      };
+    });
 
     const overallAverage = results.length
       ? weightedAverage(
@@ -236,7 +307,13 @@ export class AcademicRecordsService {
         )
       : null;
 
-    return { studentId, term: term ?? null, subjects, overallAverage };
+    return {
+      studentId,
+      term: term ?? null,
+      subjects,
+      overallAverage,
+      quizzesAndHomeworkAreAllTime: true,
+    };
   }
 
   // --- internals ---

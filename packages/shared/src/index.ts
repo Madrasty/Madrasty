@@ -642,9 +642,9 @@ export interface GradebookResponse {
 }
 
 // --- Report card (aggregated view for a parent/student) ---
-// NOTE (doc 10 §3.1): the full report card also rolls in quiz averages, homework
-// completion and attendance — those tables land in later roadmap steps (7–9), so
-// this is an EXAMS-ONLY report card for now; the shape leaves room to extend.
+// Doc 10 §3.1 defines this as exams + quiz averages + homework completion +
+// attendance. Exams, quizzes and homework are wired; ATTENDANCE is still missing
+// — it needs live classes (step 8) and tutoring bookings (step 9) to exist.
 export interface ReportCardExam {
   examId: string;
   title: string | null;
@@ -657,12 +657,40 @@ export interface ReportCardExam {
   teacherComment: string | null;
 }
 
+// Quiz standing for one subject: the mean of the student's BEST attempt on each
+// quiz they've taken (retakes shouldn't punish them — doc 12 §5 allows retakes).
+export interface ReportCardQuizSummary {
+  // How many distinct quizzes the student has attempted in this subject.
+  count: number;
+  // Mean best-attempt percentage, null when they haven't attempted any.
+  average: number | null;
+}
+
+// Homework standing for one subject. `assigned` counts assignments across the
+// programs the student is actively enrolled in — so a completion rate means
+// "of what was set for me", not "of what I chose to hand in".
+export interface ReportCardHomeworkSummary {
+  assigned: number;
+  submitted: number;
+  late: number;
+  graded: number;
+  // submitted / assigned, as a percentage. Null when nothing was assigned.
+  completionRate: number | null;
+  // (submitted - late) / assigned — doc 10 §4's `homework_ontime_rate`.
+  onTimeRate: number | null;
+  // Mean percentage across graded submissions only, null when none are graded.
+  average: number | null;
+}
+
 export interface ReportCardSubject {
   subjectId: string;
   subjectName: string | null;
-  // Weighted average percentage across this subject's graded exams.
-  average: number;
+  // Weighted average percentage across this subject's graded exams. Null when
+  // the subject shows up only through quiz/homework activity.
+  average: number | null;
   exams: ReportCardExam[];
+  quizzes: ReportCardQuizSummary;
+  homework: ReportCardHomeworkSummary;
 }
 
 export interface ReportCardResponse {
@@ -670,7 +698,13 @@ export interface ReportCardResponse {
   term: string | null;
   subjects: ReportCardSubject[];
   // Weighted average percentage across all graded exams (null if none yet).
+  // Deliberately EXAMS-ONLY: blending exams, quizzes and homework into a single
+  // headline number needs a stated weighting policy, which is a product decision
+  // (and one a parent will argue with), not something to infer here.
   overallAverage: number | null;
+  // `term` filters exams only — quizzes and homework carry no term column, so
+  // their roll-ups are all-time. The UI says so when a term is selected.
+  quizzesAndHomeworkAreAllTime: boolean;
 }
 
 // --- Quizzes (doc 03, doc 12 §6) -----------------------------------------------

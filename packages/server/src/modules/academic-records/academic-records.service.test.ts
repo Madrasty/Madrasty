@@ -5,6 +5,9 @@ import type {
   AcademicRecordsRepository,
   CreateExamInput,
   ExamRow,
+  HomeworkAssignedRow,
+  HomeworkSubmissionStatRow,
+  QuizStatRow,
   ResultRow,
   StudentResultRow,
   SubjectTranslationRow,
@@ -22,6 +25,9 @@ class FakeRepo implements AcademicRecordsRepository {
   names = new Map<string, string>();
   slugs = new Map<string, string | null>([['subj-math', 'math']]);
   translations: SubjectTranslationRow[] = [];
+  quizStats = new Map<string, QuizStatRow[]>();
+  homeworkAssigned = new Map<string, HomeworkAssignedRow[]>();
+  homeworkSubmissions = new Map<string, HomeworkSubmissionStatRow[]>();
   private seq = 0;
 
   async createExam(input: CreateExamInput): Promise<ExamRow> {
@@ -114,6 +120,16 @@ class FakeRepo implements AcademicRecordsRepository {
   }
   async getSubjectTranslations(ids: string[]) {
     return this.translations.filter((t) => ids.includes(t.entityId));
+  }
+  // Report-card roll-ups — keyed by student, as the real queries are.
+  async listQuizStatsForStudent(studentId: string) {
+    return this.quizStats.get(studentId) ?? [];
+  }
+  async listHomeworkAssignedForStudent(studentId: string) {
+    return this.homeworkAssigned.get(studentId) ?? [];
+  }
+  async listHomeworkSubmissionsForStudent(studentId: string) {
+    return this.homeworkSubmissions.get(studentId) ?? [];
   }
 }
 
@@ -311,5 +327,86 @@ describe('AcademicRecordsService — report card', () => {
     const card = await svc.getReportCard({ id: 'stud-z', role: 'student' }, 'stud-z', undefined, LOCALE);
     expect(card.subjects).toHaveLength(0);
     expect(card.overallAverage).toBeNull();
+  });
+
+  it('reports zeroed quiz/homework summaries for an exams-only subject', async () => {
+    const card = await svc.getReportCard({ id: 'stud-a', role: 'student' }, 'stud-a', undefined, LOCALE);
+    expect(card.subjects[0].quizzes).toEqual({ count: 0, average: null });
+    expect(card.subjects[0].homework).toMatchObject({
+      assigned: 0,
+      submitted: 0,
+      completionRate: null,
+      average: null,
+    });
+  });
+});
+
+// The doc 10 §3.1 roll-up: exams + quiz averages + homework completion, per
+// subject. Attendance is still missing (needs steps 8–9).
+describe('AcademicRecordsService — report card roll-ups', () => {
+  let repo: FakeRepo;
+  let svc: AcademicRecordsService;
+  const student = { id: 'stud-a', role: 'student' as const };
+
+  beforeEach(() => {
+    repo = new FakeRepo();
+    svc = new AcademicRecordsService(repo);
+  });
+
+  it('averages the best attempt per quiz', async () => {
+    repo.quizStats.set('stud-a', [
+      { subjectId: 'subj-math', quizId: 'q1', bestPercentage: '90' },
+      { subjectId: 'subj-math', quizId: 'q2', bestPercentage: '60' },
+    ]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    expect(card.subjects[0].quizzes).toEqual({ count: 2, average: 75 });
+  });
+
+  it('computes completion, on-time and graded averages for homework', async () => {
+    repo.homeworkAssigned.set('stud-a', [{ subjectId: 'subj-math', assigned: 4 }]);
+    repo.homeworkSubmissions.set('stud-a', [
+      { subjectId: 'subj-math', status: 'graded', grade: '18', maxGrade: '20' }, // 90%
+      { subjectId: 'subj-math', status: 'graded', grade: '14', maxGrade: '20' }, // 70%
+      { subjectId: 'subj-math', status: 'late', grade: null, maxGrade: '20' },
+    ]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    expect(card.subjects[0].homework).toEqual({
+      assigned: 4,
+      submitted: 3,
+      late: 1,
+      graded: 2,
+      completionRate: 75, // 3 of 4
+      onTimeRate: 50, // 2 of 4 on time
+      average: 80, // mean of 90% and 70%
+    });
+  });
+
+  it('surfaces a subject the student has ignored — 0% completion, no exams', async () => {
+    repo.homeworkAssigned.set('stud-a', [{ subjectId: 'subj-math', assigned: 3 }]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    expect(card.subjects).toHaveLength(1);
+    expect(card.subjects[0].average).toBeNull(); // no exams in this subject
+    expect(card.subjects[0].homework.completionRate).toBe(0);
+  });
+
+  it('keeps the headline average exams-only', async () => {
+    repo.quizStats.set('stud-a', [
+      { subjectId: 'subj-math', quizId: 'q1', bestPercentage: '100' },
+    ]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    // A perfect quiz must not invent an overall average out of zero exams.
+    expect(card.overallAverage).toBeNull();
+    expect(card.quizzesAndHomeworkAreAllTime).toBe(true);
+  });
+
+  it('never reports over 100% completion when submissions outlive enrollment', async () => {
+    repo.homeworkAssigned.set('stud-a', [{ subjectId: 'subj-math', assigned: 1 }]);
+    repo.homeworkSubmissions.set('stud-a', [
+      { subjectId: 'subj-math', status: 'submitted', grade: null, maxGrade: '20' },
+      { subjectId: 'subj-math', status: 'submitted', grade: null, maxGrade: '20' },
+    ]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    expect(card.subjects[0].homework.completionRate).toBe(100);
+    expect(card.subjects[0].homework.onTimeRate).toBe(100);
   });
 });

@@ -9,6 +9,10 @@ import {
   translations,
   enrollments,
   parentChildren,
+  quizzes,
+  quizAttempts,
+  homeworkAssignments,
+  homeworkSubmissions,
 } from '../../db/schema/index';
 
 export interface ExamRow {
@@ -51,6 +55,30 @@ export interface UserBrief {
   fullName: string | null;
 }
 
+// One quiz the student has attempted, reduced to their best score, tagged with
+// the subject of the program the quiz belongs to (doc 10 §3.1 roll-up).
+export interface QuizStatRow {
+  subjectId: string;
+  quizId: string;
+  bestPercentage: string;
+}
+
+// How many homework assignments were SET for this student per subject — i.e.
+// assignments in programs they are actively enrolled in.
+export interface HomeworkAssignedRow {
+  subjectId: string;
+  assigned: number;
+}
+
+// One of the student's homework submissions, with the assignment's max grade so
+// an absolute grade can be turned into a percentage.
+export interface HomeworkSubmissionStatRow {
+  subjectId: string;
+  status: string;
+  grade: string | null;
+  maxGrade: string;
+}
+
 export interface SubjectTranslationRow {
   entityId: string;
   locale: string;
@@ -86,6 +114,13 @@ export interface AcademicRecordsRepository {
   listResultsForStudent(studentId: string, term?: string): Promise<StudentResultRow[]>;
   listEnrolledStudents(programId: string): Promise<UserBrief[]>;
 
+  // Report-card roll-ups beyond exams (doc 10 §3.1). Quizzes and homework hang
+  // off programs, so their subject comes from `learning_programs.subject_id`.
+  // Neither carries a term, so these are all-time — see ReportCardResponse.
+  listQuizStatsForStudent(studentId: string): Promise<QuizStatRow[]>;
+  listHomeworkAssignedForStudent(studentId: string): Promise<HomeworkAssignedRow[]>;
+  listHomeworkSubmissionsForStudent(studentId: string): Promise<HomeworkSubmissionStatRow[]>;
+
   isApprovedParentOf(parentId: string, studentId: string): Promise<boolean>;
   getUsersBrief(ids: string[]): Promise<UserBrief[]>;
   getSubjectSlugs(ids: string[]): Promise<Array<{ id: string; slug: string | null }>>;
@@ -116,6 +151,15 @@ const resultColumns = {
 
 function fullNameOf(metadata: unknown): string | null {
   return (metadata as { fullName?: string } | null)?.fullName ?? null;
+}
+
+// `learning_programs.subject_id` is nullable, but a report card groups BY subject
+// — a program with no subject has nowhere to go. The queries below exclude those
+// rows in SQL; this narrows the type to match.
+function withSubject<T extends { subjectId: string | null }>(
+  rows: T[],
+): Array<T & { subjectId: string }> {
+  return rows.filter((r): r is T & { subjectId: string } => r.subjectId !== null);
 }
 
 export class DrizzleAcademicRecordsRepository implements AcademicRecordsRepository {
@@ -224,6 +268,70 @@ export class DrizzleAcademicRecordsRepository implements AcademicRecordsReposito
       .innerJoin(users, eq(enrollments.studentId, users.id))
       .where(and(eq(enrollments.programId, programId), eq(enrollments.status, 'active')));
     return rows.map((r) => ({ id: r.id, fullName: fullNameOf(r.metadata) }));
+  }
+
+  // Best attempt per quiz (retakes shouldn't drag the average down), tagged with
+  // the subject of the quiz's program.
+  async listQuizStatsForStudent(studentId: string): Promise<QuizStatRow[]> {
+    const rows = await this.db
+      .select({
+        subjectId: learningPrograms.subjectId,
+        quizId: quizzes.id,
+        bestPercentage: sql<string>`max(${quizAttempts.percentage})`,
+      })
+      .from(quizAttempts)
+      .innerJoin(quizzes, eq(quizAttempts.quizId, quizzes.id))
+      .innerJoin(learningPrograms, eq(quizzes.programId, learningPrograms.id))
+      .where(and(eq(quizAttempts.studentId, studentId), isNotNull(learningPrograms.subjectId)))
+      .groupBy(learningPrograms.subjectId, quizzes.id);
+    return withSubject(rows);
+  }
+
+  // What was SET for the student: assignments in programs they're enrolled in.
+  async listHomeworkAssignedForStudent(studentId: string): Promise<HomeworkAssignedRow[]> {
+    const rows = await this.db
+      .select({
+        subjectId: learningPrograms.subjectId,
+        assigned: sql<number>`count(distinct ${homeworkAssignments.id})::int`,
+      })
+      .from(homeworkAssignments)
+      .innerJoin(learningPrograms, eq(homeworkAssignments.programId, learningPrograms.id))
+      .innerJoin(
+        enrollments,
+        and(
+          eq(enrollments.programId, homeworkAssignments.programId),
+          eq(enrollments.studentId, studentId),
+          eq(enrollments.status, 'active'),
+        ),
+      )
+      .where(isNotNull(learningPrograms.subjectId))
+      .groupBy(learningPrograms.subjectId);
+    return withSubject(rows);
+  }
+
+  async listHomeworkSubmissionsForStudent(
+    studentId: string,
+  ): Promise<HomeworkSubmissionStatRow[]> {
+    const rows = await this.db
+      .select({
+        subjectId: learningPrograms.subjectId,
+        status: homeworkSubmissions.status,
+        grade: homeworkSubmissions.grade,
+        maxGrade: homeworkAssignments.maxGrade,
+      })
+      .from(homeworkSubmissions)
+      .innerJoin(
+        homeworkAssignments,
+        eq(homeworkSubmissions.assignmentId, homeworkAssignments.id),
+      )
+      .innerJoin(learningPrograms, eq(homeworkAssignments.programId, learningPrograms.id))
+      .where(
+        and(
+          eq(homeworkSubmissions.studentId, studentId),
+          isNotNull(learningPrograms.subjectId),
+        ),
+      );
+    return withSubject(rows);
   }
 
   async isApprovedParentOf(parentId: string, studentId: string): Promise<boolean> {

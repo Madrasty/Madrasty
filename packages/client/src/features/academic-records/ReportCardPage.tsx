@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ConversationParticipant, ReportCardResponse } from '@madrasty/shared';
+import type {
+  ConversationParticipant,
+  ReportCardResponse,
+  ReportCardSubject,
+} from '@madrasty/shared';
 import { Icon } from '../../components/Icon';
 import { useAuth } from '../auth/AuthProvider';
 import { messagingApi } from '../messaging/messaging.api';
@@ -8,8 +12,8 @@ import { academicRecordsApi } from './academic-records.api';
 
 // Report card (doc 10 §3.1): the "real school" artifact parents want. Role-aware
 // — a student sees their own; a parent picks a child (discovered via the
-// messaging contacts endpoint) and sees theirs. EXAMS-ONLY for now: quiz /
-// homework / attendance roll-ups land with later roadmap steps (7–9).
+// messaging contacts endpoint) and sees theirs. Aggregates exams + quiz averages
+// + homework completion; attendance still waits on steps 8–9.
 export function ReportCardPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -120,8 +124,15 @@ function ReportCardBody({ studentId }: { studentId: string }) {
             <h2 className="text-body-lg font-semibold text-on-surface">
               {subject.subjectName ?? t('academic.unknownSubject')}
             </h2>
-            <ScorePill value={subject.average} />
+            {subject.average !== null ? (
+              <ScorePill value={subject.average} />
+            ) : (
+              <span className="text-label-md text-on-surface-variant">{t('academic.noExamsYet')}</span>
+            )}
           </div>
+
+          <SubjectSummary quizzes={subject.quizzes} homework={subject.homework} />
+
           <ul className="divide-y divide-outline-variant">
             {subject.exams.map((exam) => (
               <li key={exam.examId} className="flex flex-wrap items-center gap-unit-sm p-unit-md">
@@ -142,7 +153,72 @@ function ReportCardBody({ studentId }: { studentId: string }) {
           </ul>
         </div>
       ))}
-      <p className="text-label-sm text-on-surface-variant">{t('academic.examsOnlyNote')}</p>
+      <p className="text-label-sm text-on-surface-variant">{t('academic.overallExamsOnlyNote')}</p>
+      {card.term && card.quizzesAndHomeworkAreAllTime && (
+        <p className="text-label-sm text-on-surface-variant">{t('academic.allTimeNote')}</p>
+      )}
+      <p className="text-label-sm text-on-surface-variant">{t('academic.noAttendanceNote')}</p>
+    </div>
+  );
+}
+
+// The quiz + homework strip under each subject header (doc 10 §3.1). Shown even
+// when empty for homework, because "0 of 4 handed in" is the point.
+function SubjectSummary({
+  quizzes,
+  homework,
+}: {
+  quizzes: ReportCardSubject['quizzes'];
+  homework: ReportCardSubject['homework'];
+}) {
+  const { t } = useTranslation();
+  if (quizzes.count === 0 && homework.assigned === 0 && homework.submitted === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-unit-md border-b border-outline-variant bg-surface-container-low px-unit-md py-unit-sm">
+      {quizzes.count > 0 && (
+        <Stat
+          icon="quiz"
+          label={t('academic.quizAverage', { count: quizzes.count })}
+          value={quizzes.average}
+        />
+      )}
+      {(homework.assigned > 0 || homework.submitted > 0) && (
+        <>
+          <Stat
+            icon="assignment_turned_in"
+            label={t('academic.homeworkDone', {
+              submitted: homework.submitted,
+              assigned: homework.assigned,
+            })}
+            value={homework.completionRate}
+          />
+          {homework.late > 0 && (
+            <Stat
+              icon="schedule"
+              label={t('academic.onTime')}
+              value={homework.onTimeRate}
+            />
+          )}
+          {homework.graded > 0 && (
+            <Stat
+              icon="grading"
+              label={t('academic.homeworkAverage', { count: homework.graded })}
+              value={homework.average}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function Stat({ icon, label, value }: { icon: string; label: string; value: number | null }) {
+  return (
+    <div className="flex items-center gap-unit-sm">
+      <Icon name={icon} className="text-[1.1rem] text-on-surface-variant" />
+      <span className="text-label-md text-on-surface-variant">{label}</span>
+      {value !== null && <ScorePill value={value} />}
     </div>
   );
 }

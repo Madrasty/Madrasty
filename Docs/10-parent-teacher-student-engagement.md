@@ -48,6 +48,15 @@ Three things make this feel like "a real school" rather than a dashboard bolted 
 - Each exam produces an `exam_result` per student: score, max_score, teacher_comment, graded_at.
 - A **Report Card view** aggregates: exam scores + quiz averages + homework completion rate + attendance, per subject, per term — this is the "real school" artifact parents actually want to see and can even export as a PDF (reuse your `pdf` skill/tooling for this later).
 
+**Aggregation rules as built** (exams, quizzes and homework are wired; attendance waits on live classes and tutoring bookings):
+- Exams and quizzes/homework reach a subject by different paths: exams carry `subject_id` directly, while quizzes and homework hang off a program, so their subject comes from `learning_programs.subject_id`. A program with no subject is excluded — there is no column to group it under.
+- **Quiz average = the mean of the student's BEST attempt per quiz.** Retakes are allowed by design (doc 12 §5), so counting every attempt would punish the student for practising.
+- **Homework completion = submitted / assigned**, where *assigned* counts assignments across programs the student is **actively enrolled in** — the rate measures them against the whole workload set for them, not just the subset they chose to hand in. On-time rate excludes `late` submissions (doc 10 §4's `homework_ontime_rate`); the homework average covers graded submissions only.
+- **The headline `overallAverage` stays exams-only, weighted.** Blending exams, quizzes and homework into one number requires a stated weighting policy — a product decision, and one parents will challenge — so the three are reported side by side instead of silently averaged.
+- A subject appears on the card if it has **any** activity, including homework assigned but never submitted: "0 of 4 handed in" is exactly the signal a parent needs.
+- **The `term` filter applies to exams only.** `quizzes` and `homework_assignments` carry no term column, so those roll-ups are all-time; the response flags this (`quizzesAndHomeworkAreAllTime`) and the UI says so whenever a term is selected. Adding a real term dimension to quizzes/homework is the follow-up if per-term figures are needed.
+- These are **live queries** today, which is fine at current volume. `progress_snapshots` (§4) is the pre-computed path to move to when the read cost bites — see the design note there.
+
 ### 3.2 Progress Tracking
 - Per-program progress: % of lessons completed, last activity date, quiz average, homework on-time rate.
 - Per-subject rollup: combines all programs/exams under that subject for the student's grade level.
