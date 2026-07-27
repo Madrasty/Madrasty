@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
 import { Button } from '../../components/Button';
 import { LanguageToggle } from '../../components/LanguageToggle';
+import { Logo } from '../../components/Logo';
 
 const FEATURES = [
   { key: 'feature1', icon: 'menu_book', span: true },
@@ -18,7 +19,7 @@ export function LandingPage() {
     <div className="min-h-screen bg-background text-on-surface">
       <header className="fixed top-0 z-50 flex h-16 w-full items-center border-b border-outline-variant bg-surface/80 backdrop-blur-md">
         <div className="app-container flex w-full items-center justify-between">
-          <div className="text-headline-lg font-black text-primary">{t('app.name')}</div>
+          <Logo size={36} />
           <nav className="hidden gap-unit-lg md:flex">
             <a href="#features" className="text-label-md text-on-surface-variant hover:text-primary">
               {t('landing.navFeatures')}

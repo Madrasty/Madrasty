@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from './Icon';
 import { LanguageToggle } from './LanguageToggle';
+import { Logo } from './Logo';
 import { useAuth } from '../features/auth/AuthProvider';
 
 // Docked header, offset by the 280px sidebar on desktop. `md:ms-[280px]` uses
@@ -18,7 +19,7 @@ export function TopBar() {
 
   return (
     <header className="fixed top-0 z-30 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface/80 px-unit-lg backdrop-blur-md md:ms-[280px] md:w-[calc(100%-280px)]">
-      <div className="text-headline-md font-black text-primary md:hidden">{t('app.name')}</div>
+      <Logo size={28} className="md:hidden" />
 
       <div className="ms-auto flex items-center gap-unit-md">
         <LanguageToggle />

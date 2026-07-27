@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { LanguageToggle } from '../../components/LanguageToggle';
+import { Logo } from '../../components/Logo';
 
 interface AuthLayoutProps {
   title: string;
@@ -13,13 +13,11 @@ interface AuthLayoutProps {
 
 // Centered card shell shared by every auth screen (DESIGN.md surfaces + spacing).
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
-  const { t } = useTranslation();
-
   return (
     <div className="flex min-h-screen flex-col bg-background text-on-surface">
       <header className="flex h-16 items-center justify-between px-unit-lg">
-        <Link to="/" className="text-headline-md font-black text-primary">
-          {t('app.name')}
+        <Link to="/">
+          <Logo size={30} />
         </Link>
         <LanguageToggle />
       </header>

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { Icon } from './Icon';
+import { Logo } from './Logo';
 import type { NavItem } from '../app/navigation';
 
 interface SidebarProps {
@@ -17,8 +18,9 @@ export function Sidebar({ items }: SidebarProps) {
   return (
     <aside className="fixed start-0 top-0 z-40 hidden h-screen w-[280px] flex-col border-e border-outline-variant bg-surface p-unit-lg md:flex">
       <div className="mb-unit-lg">
-        <h1 className="text-headline-lg font-bold text-primary">{t('app.name')}</h1>
-        <p className="text-label-md text-on-surface-variant">{t('app.tagline')}</p>
+        <h1>
+          <Logo size={40} withTagline />
+        </h1>
       </div>
 
       <nav className="flex flex-1 flex-col gap-unit-sm">

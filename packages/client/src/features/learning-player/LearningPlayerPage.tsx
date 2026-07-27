@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
+import { LogoMark } from '../../components/Logo';
 import { LanguageToggle } from '../../components/LanguageToggle';
 
 const RESOURCES = [
@@ -26,6 +27,7 @@ export function LearningPlayerPage() {
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-unit-lg">
         <Link to="/" className="flex items-center gap-2 text-label-md text-on-surface-variant hover:text-primary">
           <Icon name="arrow_back" className="rtl:-scale-x-100" />
+          <LogoMark size={20} />
           {t('app.name')}
         </Link>
         <LanguageToggle />

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { TransactionView } from '@madrasty/shared';
 import { Icon } from '../../components/Icon';
+import { LogoMark } from '../../components/Logo';
 import { LanguageToggle } from '../../components/LanguageToggle';
 import { paymentsApi, PENDING_TXN_KEY } from './payments.api';
 
@@ -60,6 +61,7 @@ export function CheckoutReturnPage() {
           className="flex items-center gap-2 text-label-md text-on-surface-variant hover:text-primary"
         >
           <Icon name="arrow_back" className="rtl:-scale-x-100" />
+          <LogoMark size={20} />
           {t('app.name')}
         </Link>
         <LanguageToggle />

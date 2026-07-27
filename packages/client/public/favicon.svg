@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Madrasty mark — keep in sync with src/components/Logo.tsx (LogoMark). -->
+  <path d="M32 5 L32 29 H5 Z" fill="#3b7cf1" stroke="#3b7cf1" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M32 5 L59 29 H32 Z" fill="#2563eb" stroke="#2563eb" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M5 55 V37 a4 4 0 0 1 4-4 H30 V59 H21 V48 a6 6 0 0 0-12 0 V59 H9 a4 4 0 0 1-4-4 Z" fill="#2563eb"/>
+  <rect x="34" y="33" width="25" height="26" rx="4" fill="#17a06b"/>
+  <path d="M39 39 H54 a2.5 2.5 0 0 1 2.5 2.5 V50 a2.5 2.5 0 0 1 -2.5 2.5 H39" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>
