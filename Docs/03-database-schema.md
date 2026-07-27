@@ -134,16 +134,40 @@ quizzes (
   metadata JSONB          -- question set can live here OR in a normalized quiz_questions table
 )
 
+-- The assignment a homework-type lesson carries (one per lesson). `brief` is
+-- JSONB { ar, en } — teacher-authored, low-volume text, so it stays inline like
+-- exams.title rather than going through the translations table.
+homework_assignments (
+  id UUID PK,
+  lesson_id UUID REFERENCES lessons UNIQUE,
+  program_id UUID REFERENCES learning_programs,  -- denormalized from the lesson
+  teacher_id UUID REFERENCES users,
+  brief JSONB,                    -- { "ar": "...", "en": "..." }
+  max_grade NUMERIC DEFAULT 100,
+  due_at TIMESTAMPTZ NULL,
+  allow_late BOOLEAN DEFAULT true, -- false = hard deadline, late submits rejected
+  metadata JSONB,
+  created_at TIMESTAMPTZ
+)
+
 homework_submissions (
   id UUID PK,
+  assignment_id UUID REFERENCES homework_assignments,
   student_id UUID REFERENCES users,
-  assignment_id UUID,
+  content TEXT,            -- text-only for now; attachments land in metadata once
+                           -- object storage is wired (doc 01 §6)
   status TEXT,             -- submitted|graded|late
   grade NUMERIC NULL,
+  teacher_comment TEXT NULL,
   graded_by TEXT,          -- 'teacher' | 'ai'
-  metadata JSONB
+  grader_id UUID REFERENCES users NULL,
+  graded_at TIMESTAMPTZ NULL,
+  submitted_at TIMESTAMPTZ,
+  metadata JSONB,
+  UNIQUE (assignment_id, student_id)
 )
 ```
+*(Unlike `quiz_attempts`, `homework_submissions` is **not** append-only: one row per (assignment, student), replaceable while ungraded, and grading updates the same row — the same upsert shape as `exam_results`. The append-only rule applies to money and points, not grades. Submitting completes the homework lesson, so prerequisite gating (doc 12 §5) unlocks on submit rather than on grade — grading is asynchronous and shouldn't block a student.)*
 
 ### live sessions / private tutoring booking
 ```sql

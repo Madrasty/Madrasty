@@ -137,7 +137,7 @@ audio_lesson_details (
 )
 
 -- 'quiz' type reuses the existing `quizzes` table (doc 03), now referencing lesson_id instead of a bare lesson/course split
--- 'homework' type reuses the existing `homework_submissions` table (doc 03), tied via lesson_id/assignment_id
+-- 'homework' type reuses `homework_assignments` + `homework_submissions` (doc 03): one assignment per homework lesson (`homework_assignments.lesson_id` UNIQUE), one submission per (assignment, student). Submissions are text-only until object storage is wired (doc 01 §6); submitting completes the lesson, so prerequisite gating unlocks on submit, not on grade
 -- 'exam' type reuses the existing `exams`/`exam_results` tables (doc 10) — an exam-type lesson's `lesson.id` becomes the `exams.course_id`-equivalent link (rename that FK to `program_id` — see §7 migration notes)
 -- 'private_session' type reuses `tutoring_slots`/`bookings` (doc 03), scoped to lesson_id + program_id
 ```

@@ -29,6 +29,8 @@ const GATED_PATHS = [
   '/app/marketplace',
   '/app/catalog',
   '/app/catalog/some-program-id',
+  '/app/teacher/homework',
+  '/app/homework/some-assignment-id',
   '/checkout/return',
   '/learn',
 ];

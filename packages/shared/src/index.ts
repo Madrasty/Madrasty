@@ -760,3 +760,86 @@ export interface AttemptResultView extends AttemptSummary {
 export interface QuizByLessonResponse {
   quizId: string | null;
 }
+
+// --- Homework (doc 03 "homework_submissions", doc 12 §6) -----------------------
+// A homework-type lesson carries one assignment; each enrolled student has at
+// most one submission on it. MVP submissions are TEXT-ONLY — file/image upload
+// waits on the object-storage provider (doc 01 §6), and `metadata` on the
+// submission row is where those attachment references will land.
+export const HOMEWORK_SUBMISSION_STATUSES = ['submitted', 'late', 'graded'] as const;
+export type HomeworkSubmissionStatus = (typeof HOMEWORK_SUBMISSION_STATUSES)[number];
+
+// Teacher creates the assignment on a homework-type lesson.
+export interface CreateAssignmentRequest {
+  lessonId: string;
+  brief: LocalizedInput;
+  maxGrade?: number; // defaults server-side
+  dueAt?: string | null; // ISO 8601; null = no deadline
+  allowLate?: boolean; // reject submissions after dueAt when false
+}
+
+export interface UpdateAssignmentRequest {
+  brief?: LocalizedInput;
+  maxGrade?: number;
+  dueAt?: string | null;
+  allowLate?: boolean;
+}
+
+// The caller's own submission (student view) or one row of the grading queue.
+export interface HomeworkSubmissionView {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  content: string;
+  status: HomeworkSubmissionStatus;
+  grade: number | null;
+  teacherComment: string | null;
+  gradedAt: string | null;
+  submittedAt: string;
+}
+
+export interface HomeworkAssignmentView {
+  id: string;
+  lessonId: string;
+  programId: string;
+  brief: string | null; // resolved for the request locale
+  maxGrade: number;
+  dueAt: string | null;
+  allowLate: boolean;
+  createdAt: string;
+  // Student view: their own submission so far (null if they haven't submitted).
+  mySubmission: HomeworkSubmissionView | null;
+  // Owner/admin view only — how much is waiting to be graded.
+  submissionCount?: number;
+  pendingReviewCount?: number;
+}
+
+// Student submits (or replaces, while still ungraded) their answer text.
+export interface SubmitHomeworkRequest {
+  content: string;
+}
+
+// Teacher grades one submission. `grade` is absolute, 0…assignment.maxGrade.
+export interface GradeHomeworkRequest {
+  grade: number;
+  teacherComment?: string | null;
+}
+
+// One row of the teacher's grading queue: who submitted, and what (if anything)
+// they've been given so far.
+export interface HomeworkQueueRow {
+  student: ConversationParticipant;
+  submission: HomeworkSubmissionView;
+}
+
+export interface HomeworkQueueResponse {
+  assignment: HomeworkAssignmentView;
+  rows: HomeworkQueueRow[];
+  // Enrolled students with no submission yet (so the teacher can chase them).
+  missing: ConversationParticipant[];
+}
+
+// Resolve an assignment id for a given lesson (used by the builder/submit page).
+export interface HomeworkByLessonResponse {
+  assignmentId: string | null;
+}

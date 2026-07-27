@@ -27,6 +27,8 @@ import { TeacherGradebookPage } from '../features/academic-records/TeacherGradeb
 import { ReportCardPage } from '../features/academic-records/ReportCardPage';
 import { QuizBuilderPage } from '../features/quizzes/QuizBuilderPage';
 import { QuizPlayerPage } from '../features/quizzes/QuizPlayerPage';
+import { HomeworkBuilderPage } from '../features/homework/HomeworkBuilderPage';
+import { HomeworkSubmitPage } from '../features/homework/HomeworkSubmitPage';
 import { MyProgramsPage } from '../features/teacher-authoring/MyProgramsPage';
 import { NewProgramPage } from '../features/teacher-authoring/NewProgramPage';
 import { ProgramEditorPage } from '../features/teacher-authoring/ProgramEditorPage';
@@ -107,6 +109,13 @@ export const routes: RouteObject[] = [
   {
     path: '/app/quiz/:quizId',
     element: gated(['student', 'teacher', 'admin', 'center_admin'], <QuizPlayerPage />),
+  },
+
+  // Homework (doc 12 §6) — teacher assignment + grading queue, student submit.
+  { path: '/app/teacher/homework', element: teacherArea(<HomeworkBuilderPage />) },
+  {
+    path: '/app/homework/:assignmentId',
+    element: gated(['student', 'teacher', 'admin', 'center_admin'], <HomeworkSubmitPage />),
   },
 
   // Teacher authoring (doc 12).

@@ -8,4 +8,5 @@ export * from './loyalty';
 export * from './messaging';
 export * from './academic-records';
 export * from './quizzes';
+export * from './homework';
 export * from './admin';
