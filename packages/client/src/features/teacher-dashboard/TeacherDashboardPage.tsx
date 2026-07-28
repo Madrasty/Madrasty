@@ -11,8 +11,8 @@ import { messagingApi } from '../messaging/messaging.api';
 import { DashboardHeader, DashboardError } from '../dashboard/DashboardChrome';
 
 const STATUS_TONE: Record<string, string> = {
-  published: 'bg-green-500/15 text-green-700 dark:text-green-400',
-  pending_review: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
+  published: 'bg-secondary-container text-on-secondary-container',
+  pending_review: 'bg-tertiary-fixed text-on-tertiary-fixed',
   draft: 'bg-surface-container-high text-on-surface-variant',
   archived: 'bg-surface-container-high text-on-surface-variant',
 };
@@ -115,7 +115,7 @@ export function TeacherDashboardPage() {
               <li key={p.id}>
                 <Link
                   to={`/app/teacher/programs/${p.id}`}
-                  className="flex items-center gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md transition-colors hover:bg-surface-container-low"
+                  className="flex items-center gap-unit-md rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md transition-colors hover:bg-surface-container-low"
                 >
                   <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Icon name="menu_book" filled />

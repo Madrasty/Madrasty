@@ -95,12 +95,12 @@ export function HomeworkSubmitPage() {
         </p>
       </div>
 
-      <section className="whitespace-pre-wrap rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md text-body-lg">
+      <section className="whitespace-pre-wrap rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md text-body-lg">
         {assignment.brief}
       </section>
 
       {graded && mine && (
-        <div className="flex items-center justify-between gap-unit-md rounded-xl border border-green-500/40 bg-green-500/10 p-unit-lg text-green-700 dark:text-green-400">
+        <div className="flex items-center justify-between gap-unit-md rounded-xl border border-secondary/40 bg-secondary-container p-unit-lg text-on-secondary-container">
           <div>
             <p className="text-headline-md font-bold">
               {mine.grade} / {assignment.maxGrade}
@@ -122,7 +122,7 @@ export function HomeworkSubmitPage() {
           rows={10}
           disabled={locked}
           placeholder={t('homework.answerPlaceholder')}
-          className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary disabled:opacity-60"
+          className="field w-full disabled:opacity-60"
         />
         <p className="text-label-sm text-on-surface-variant">
           {!isStudent
@@ -141,7 +141,7 @@ export function HomeworkSubmitPage() {
             type="button"
             onClick={submit}
             disabled={saving || content.trim() === ''}
-            className="inline-flex items-center gap-2 self-start rounded-xl bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             <Icon name="send" className="text-[1.1rem]" />
             {saving

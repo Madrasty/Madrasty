@@ -55,7 +55,7 @@ export function CheckoutReturnPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-on-surface">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-unit-lg">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant/60 bg-surface px-unit-lg">
         <Link
           to="/"
           className="flex items-center gap-2 text-label-md text-on-surface-variant hover:text-primary"
@@ -99,9 +99,9 @@ function StatusIcon({ phase }: { phase: Phase }) {
 function Actions({ phase, programId }: { phase: Phase; programId: string | null }) {
   const { t } = useTranslation();
   const primary =
-    'inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-unit-lg text-label-md font-medium text-on-primary hover:opacity-90';
+    'inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-unit-lg text-label-md font-medium text-on-primary hover:opacity-90';
   const secondary =
-    'inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-outline-variant px-unit-lg text-label-md font-medium text-on-surface hover:bg-surface-container-low';
+    'inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-outline-variant/60 px-unit-lg text-label-md font-medium text-on-surface hover:bg-surface-container-low';
 
   if (phase === 'polling') return null;
 

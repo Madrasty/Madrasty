@@ -58,10 +58,10 @@ export function MyProgramsPage() {
       )}
 
       {programs !== null && programs.length > 0 && (
-        <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
+        <div className="overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
           <table className="w-full text-start text-sm">
             <thead>
-              <tr className="border-b border-outline-variant bg-surface-container-low text-xs uppercase tracking-wider text-on-surface-variant">
+              <tr className="border-b border-outline-variant/60 bg-surface-container-low text-xs uppercase tracking-wider text-on-surface-variant">
                 <th className="px-unit-md py-3 text-start font-semibold">
                   {t('authoring.myPrograms.colTitle')}
                 </th>

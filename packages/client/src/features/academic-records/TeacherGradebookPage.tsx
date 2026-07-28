@@ -79,7 +79,7 @@ export function TeacherGradebookPage() {
       <div className="grid min-h-[28rem] grid-cols-1 gap-unit-md md:grid-cols-[20rem_1fr]">
         <ExamList exams={exams} error={error} selectedId={selectedId} onSelect={openExam} />
 
-        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest">
+        <div className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
           {creating ? (
             <NewExamForm
               programs={programs}
@@ -125,7 +125,7 @@ function ExamList({
   }
   if (exams === null) {
     return (
-      <div className="rounded-xl border border-outline-variant bg-surface-container-lowest">
+      <div className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
         <CenteredSpinner />
       </div>
     );
@@ -231,7 +231,7 @@ function NewExamForm({
 
   return (
     <form onSubmit={submit} className="flex h-full flex-col">
-      <header className="flex items-center gap-2 border-b border-outline-variant p-unit-md">
+      <header className="flex items-center gap-2 border-b border-outline-variant/60 p-unit-md">
         <button
           type="button"
           onClick={onCancel}
@@ -253,7 +253,7 @@ function NewExamForm({
             <select
               value={programId}
               onChange={(e) => setProgramId(e.target.value)}
-              className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+              className="field w-full"
             >
               <option value="">{t('academic.selectProgram')}</option>
               {programs.map((p) => (
@@ -286,11 +286,11 @@ function NewExamForm({
         {error && <p className="text-body-sm font-semibold text-error">{error}</p>}
       </div>
 
-      <div className="border-t border-outline-variant p-unit-md">
+      <div className="border-t border-outline-variant/60 p-unit-md">
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-full bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           <Icon name="save" className="text-[1.1rem]" />
           {saving ? t('academic.saving') : t('academic.createExam')}
@@ -305,7 +305,7 @@ function GradebookView({ gradebook }: { gradebook: GradebookResponse }) {
   const { exam, rows } = gradebook;
   return (
     <div className="flex h-full flex-col">
-      <header className="border-b border-outline-variant p-unit-md">
+      <header className="border-b border-outline-variant/60 p-unit-md">
         <p className="text-body-lg font-semibold text-on-surface">
           {exam.title || t('academic.untitledExam')}
         </p>
@@ -373,7 +373,7 @@ function GradeRow({
   };
 
   return (
-    <li className="flex flex-wrap items-center gap-unit-sm rounded-xl border border-outline-variant p-unit-md">
+    <li className="flex flex-wrap items-center gap-unit-sm rounded-xl border border-outline-variant/60 p-unit-md">
       <span className="min-w-[8rem] flex-1 text-body-md font-medium text-on-surface">
         {row.student.fullName ?? t('academic.unknownStudent')}
       </span>
@@ -382,9 +382,8 @@ function GradeRow({
         value={score}
         onChange={(e) => setScore(e.target.value)}
         placeholder="—"
-        className={`w-20 rounded-lg border bg-surface-container-lowest px-2 py-1.5 text-center text-body-md outline-none focus:border-primary ${
-          error ? 'border-error' : 'border-outline-variant'
-        }`}
+        aria-invalid={Boolean(error)}
+        className="field-sm w-20 text-center"
       />
       <span className="w-14 text-center text-label-md text-on-surface-variant">
         {percentage !== null ? `${percentage}%` : ''}
@@ -394,7 +393,7 @@ function GradeRow({
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder={t('academic.commentPlaceholder')}
-        className="min-w-[8rem] flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest px-unit-sm py-1.5 text-body-sm outline-none focus:border-primary"
+        className="field-sm min-w-[8rem] flex-1"
       />
       <button
         type="button"
@@ -441,7 +440,7 @@ function TextInput({
       dir={dir}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+      className="field w-full"
     />
   );
 }

@@ -5,8 +5,10 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-// DESIGN.md "Input Fields": label above field, 1px border, primary-blue
-// focus ring. `text-start` + logical padding keep this RTL-safe.
+// DESIGN.md "Input Fields": label above field, 1px border, primary-blue focus
+// border. The field itself is the shared `.field` class (styles/index.css) so a
+// hand-rolled <input className="field"> elsewhere is pixel-identical to this.
+// `text-start` + logical padding keep the whole thing RTL-safe.
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, id, className = '', ...props }, ref) => {
     const generatedId = useId();
@@ -23,9 +25,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           aria-invalid={Boolean(error)}
-          className={`h-10 rounded border bg-surface-container-lowest px-unit-md text-body-md text-on-surface outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary-container/40 ${
-            error ? 'border-error' : 'border-outline-variant'
-          } ${className}`}
+          className={`field placeholder:text-outline ${className}`}
           {...props}
         />
         {error && <span className="text-label-sm text-error">{error}</span>}

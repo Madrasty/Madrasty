@@ -85,7 +85,7 @@ export function StudentDashboardPage() {
                 <li key={p.id}>
                   <Link
                     to={`/app/catalog/${p.id}`}
-                    className="flex items-center gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md transition-colors hover:bg-surface-container-low"
+                    className="flex items-center gap-unit-md rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md transition-colors hover:bg-surface-container-low"
                   >
                     <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Icon name="menu_book" filled />
@@ -112,7 +112,7 @@ export function StudentDashboardPage() {
           <LoyaltyWidget />
           <Link
             to="/app/student/report-card"
-            className="flex items-center justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg transition-colors hover:bg-surface-container-low"
+            className="flex items-center justify-between rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg transition-colors hover:bg-surface-container-low"
           >
             <span className="flex items-center gap-unit-sm">
               <Icon name="assignment" className="text-primary" />

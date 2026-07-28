@@ -83,7 +83,7 @@ export function ProgramEditorPage() {
       </Link>
 
       {/* Program header */}
-      <div className="flex flex-wrap items-start justify-between gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
+      <div className="flex flex-wrap items-start justify-between gap-unit-md rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg">
         <div>
           <div className="mb-unit-xs flex items-center gap-unit-sm">
             <h1 className="text-headline-md font-semibold">
@@ -171,7 +171,7 @@ function ChapterBlock({
   }
 
   return (
-    <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
+    <section className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg">
       <div className="mb-unit-md">
         <span className="text-label-sm uppercase tracking-wider text-on-surface-variant">
           {t('authoring.editor.chapterLabel', { n: index + 1 })}
@@ -186,7 +186,7 @@ function ChapterBlock({
           chapter.lessons.map((lesson) => (
             <div
               key={lesson.id}
-              className="flex flex-wrap items-center gap-unit-md rounded-lg border border-outline-variant bg-surface p-unit-sm"
+              className="flex flex-wrap items-center gap-unit-md rounded-lg border border-outline-variant/60 bg-surface p-unit-sm"
             >
               <Icon name={lessonIcon(lesson.lessonType)} className="text-on-surface-variant" />
               <div className="min-w-0 flex-1">

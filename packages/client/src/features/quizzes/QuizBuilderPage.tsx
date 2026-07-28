@@ -84,7 +84,7 @@ export function QuizBuilderPage() {
           <select
             value={programId}
             onChange={(e) => setProgramId(e.target.value)}
-            className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+            className="field w-full"
           >
             <option value="">{t('quiz.selectProgram')}</option>
             {programs.map((p) => (
@@ -101,7 +101,7 @@ export function QuizBuilderPage() {
             <select
               value={lessonId}
               onChange={(e) => openLesson(e.target.value)}
-              className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+              className="field w-full"
             >
               <option value="">{t('quiz.selectLesson')}</option>
               {quizLessons.map((l) => (
@@ -192,7 +192,7 @@ function QuestionCard({
 }) {
   const { t } = useTranslation();
   return (
-    <li className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md">
+    <li className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md">
       <div className="flex items-start justify-between gap-2">
         <p className="text-body-md font-semibold text-on-surface">
           {index + 1}. {question.prompt || t('quiz.untitledQuestion')}
@@ -213,7 +213,7 @@ function QuestionCard({
             <li
               key={o.id}
               className={`flex items-center gap-2 rounded-lg px-unit-sm py-1 text-body-sm ${
-                correct ? 'bg-green-500/10 font-medium text-green-700 dark:text-green-400' : 'text-on-surface-variant'
+                correct ? 'bg-secondary-container font-medium text-on-secondary-container' : 'text-on-surface-variant'
               }`}
             >
               <Icon
@@ -293,7 +293,7 @@ function AddQuestionForm({
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder={t('quiz.promptPlaceholder')}
-        className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+        className="field w-full"
       />
       <div className="flex flex-col gap-2">
         {options.map((opt, i) => (
@@ -310,7 +310,7 @@ function AddQuestionForm({
               value={opt}
               onChange={(e) => setOption(i, e.target.value)}
               placeholder={t('quiz.optionPlaceholder', { n: i + 1 })}
-              className="flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest px-unit-sm py-1.5 text-body-sm outline-none focus:border-primary"
+              className="field-sm flex-1"
             />
             {options.length > 2 && (
               <button
@@ -345,7 +345,7 @@ function AddQuestionForm({
             type="number"
             value={points}
             onChange={(e) => setPoints(e.target.value)}
-            className="w-16 rounded-lg border border-outline-variant bg-surface-container-lowest px-2 py-1 text-center text-body-sm outline-none focus:border-primary"
+            className="field-sm w-16 text-center"
           />
         </label>
         <span className="text-label-sm text-on-surface-variant">{t('quiz.markCorrectHint')}</span>
@@ -354,7 +354,7 @@ function AddQuestionForm({
       <button
         type="submit"
         disabled={saving}
-        className="inline-flex items-center gap-2 self-start rounded-xl bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+        className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         <Icon name="add" className="text-[1.1rem]" />
         {saving ? t('quiz.saving') : t('quiz.addQuestion')}

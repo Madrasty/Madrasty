@@ -5,7 +5,7 @@ import { LogoMark } from '../../components/Logo';
 import { LanguageToggle } from '../../components/LanguageToggle';
 
 const RESOURCES = [
-  { id: 'slides', icon: 'picture_as_pdf', iconClass: 'bg-error/10 text-error', action: 'download' },
+  { id: 'slides', icon: 'picture_as_pdf', iconClass: 'bg-error-container text-on-error-container', action: 'download' },
   { id: 'calculator', icon: 'link', iconClass: 'bg-primary/10 text-primary', action: 'open_in_new' },
 ] as const;
 
@@ -24,7 +24,7 @@ export function LearningPlayerPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-on-surface">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant bg-surface px-unit-lg">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-outline-variant/60 bg-surface px-unit-lg">
         <Link to="/" className="flex items-center gap-2 text-label-md text-on-surface-variant hover:text-primary">
           <Icon name="arrow_back" className="rtl:-scale-x-100" />
           <LogoMark size={20} />
@@ -41,7 +41,7 @@ export function LearningPlayerPage() {
           </div>
 
           {/* AI assistant */}
-          <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low">
+          <div className="overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container-low">
             <div className="flex items-center justify-between bg-surface px-4 py-2">
               <span className="flex items-center gap-2 text-label-md font-bold text-primary">
                 <Icon name="smart_toy" /> {t('player.aiAssistant')}
@@ -52,7 +52,7 @@ export function LearningPlayerPage() {
                 {t('player.aiPrompt')}
               </div>
             </div>
-            <div className="flex items-center gap-2 border-t border-outline-variant bg-surface p-2">
+            <div className="flex items-center gap-2 border-t border-outline-variant/60 bg-surface p-2">
               <input
                 type="text"
                 placeholder={t('player.aiPlaceholder')}
@@ -65,10 +65,10 @@ export function LearningPlayerPage() {
           </div>
 
           {/* Lesson info + tabs */}
-          <div className="flex flex-col gap-unit-md rounded-xl border border-outline-variant bg-surface p-unit-lg">
+          <div className="flex flex-col gap-unit-md rounded-xl border border-outline-variant/60 bg-surface p-unit-lg">
             <h1 className="text-headline-lg">{t('player.lessonTitle')}</h1>
             <p className="max-w-3xl text-body-lg text-on-surface-variant">{t('player.lessonDescription')}</p>
-            <div className="mt-4 flex gap-unit-lg border-b border-outline-variant">
+            <div className="mt-4 flex gap-unit-lg border-b border-outline-variant/60">
               <button className="flex items-center gap-2 border-b-2 border-primary pb-2 text-label-md text-primary">
                 <Icon name="description" className="text-[1.1rem]" /> {t('player.tabs.resources')}
               </button>
@@ -83,7 +83,7 @@ export function LearningPlayerPage() {
               {RESOURCES.map((resource) => (
                 <button
                   key={resource.id}
-                  className="group flex items-center justify-between rounded-lg border border-outline-variant p-3 text-start transition-colors hover:bg-surface-container-low"
+                  className="group flex items-center justify-between rounded-lg border border-outline-variant/60 p-3 text-start transition-colors hover:bg-surface-container-low"
                 >
                   <span className="flex items-center gap-3">
                     <span className={`flex h-10 w-10 items-center justify-center rounded ${resource.iconClass}`}>
@@ -106,8 +106,8 @@ export function LearningPlayerPage() {
         </main>
 
         {/* Course content sidebar */}
-        <aside className="w-full shrink-0 border-t border-outline-variant bg-surface lg:w-[320px] lg:border-s lg:border-t-0">
-          <div className="flex flex-col gap-4 border-b border-outline-variant bg-surface-container-low p-unit-md">
+        <aside className="w-full shrink-0 border-t border-outline-variant/60 bg-surface lg:w-[320px] lg:border-s lg:border-t-0">
+          <div className="flex flex-col gap-4 border-b border-outline-variant/60 bg-surface-container-low p-unit-md">
             <h2 className="text-headline-md">{t('player.courseContent')}</h2>
             <div>
               <div className="mb-2 flex justify-between text-sm">
@@ -124,7 +124,7 @@ export function LearningPlayerPage() {
             <CollapsedChapter label={t('player.chapters.preCalc')} />
             <CollapsedChapter label={t('player.chapters.functions')} />
             <div className="overflow-hidden rounded-lg border border-primary bg-surface ring-1 ring-primary/20">
-              <div className="flex items-center justify-between border-b border-outline-variant/50 bg-surface-container-low px-4 py-3">
+              <div className="flex items-center justify-between border-b border-outline-variant/60/50 bg-surface-container-low px-4 py-3">
                 <span className="text-label-md font-bold text-primary">{t('player.chapters.calculus')}</span>
                 <Icon name="expand_less" className="text-primary" />
               </div>
@@ -172,7 +172,7 @@ export function LearningPlayerPage() {
 
 function CollapsedChapter({ label }: { label: string }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-outline-variant bg-surface">
+    <div className="overflow-hidden rounded-lg border border-outline-variant/60 bg-surface">
       <button className="flex w-full items-center justify-between px-4 py-3 text-start transition-colors hover:bg-surface-container-low">
         <span className="text-label-md font-bold">{label}</span>
         <Icon name="expand_more" className="text-on-surface-variant" />

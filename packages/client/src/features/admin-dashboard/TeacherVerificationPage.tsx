@@ -55,10 +55,10 @@ export function TeacherVerificationPage() {
         emptyTitle={t('admin.verification.empty')}
         emptyHint={t('admin.verification.emptyHint')}
       >
-        <div className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
+        <div className="overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
           <table className="w-full text-start text-sm">
             <thead>
-              <tr className="border-b border-outline-variant bg-surface-container-low text-xs uppercase tracking-wider text-on-surface-variant">
+              <tr className="border-b border-outline-variant/60 bg-surface-container-low text-xs uppercase tracking-wider text-on-surface-variant">
                 <th className="px-unit-md py-3 text-start font-semibold">
                   {t('admin.verification.colApplicant')}
                 </th>
@@ -132,7 +132,7 @@ export function RowActions({
         type="button"
         disabled={busy}
         onClick={onApprove}
-        className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-on-primary hover:opacity-90 disabled:opacity-50"
+        className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-on-primary hover:opacity-90 disabled:opacity-50"
       >
         <Icon name={busy ? 'progress_activity' : 'check'} className={busy ? 'animate-spin text-[1rem]' : 'text-[1rem]'} />
         {approveLabel}

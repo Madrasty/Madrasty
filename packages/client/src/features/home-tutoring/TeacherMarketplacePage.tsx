@@ -22,7 +22,7 @@ export function TeacherMarketplacePage() {
 
       <div className="flex flex-col gap-unit-lg lg:flex-row">
         {/* Filters */}
-        <aside className="h-fit w-full shrink-0 rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg lg:w-72">
+        <aside className="h-fit w-full shrink-0 rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg lg:w-72">
           <h2 className="mb-unit-md flex items-center gap-2 text-headline-md">
             <Icon name="tune" className="text-[1.25rem]" /> {t('marketplace.filters')}
           </h2>
@@ -49,7 +49,7 @@ export function TeacherMarketplacePage() {
             <h4 className="mb-3 text-label-md uppercase tracking-wider text-on-surface-variant">
               {t('marketplace.gradeLevel')}
             </h4>
-            <select className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-md outline-none focus:border-primary">
+            <select className="field w-full">
               <option>{t('marketplace.subjects.math')}</option>
             </select>
           </div>
@@ -79,7 +79,7 @@ export function TeacherMarketplacePage() {
               <span className="hidden text-label-md text-on-surface-variant sm:inline">
                 {t('marketplace.sortBy')}
               </span>
-              <select className="cursor-pointer rounded border border-outline-variant bg-surface-container-lowest px-2 py-1 text-label-md outline-none focus:border-primary">
+              <select className="field-sm cursor-pointer">
                 <option>{t('marketplace.sort.recommended')}</option>
                 <option>{t('marketplace.sort.topRated')}</option>
                 <option>{t('marketplace.sort.priceLow')}</option>
@@ -91,7 +91,7 @@ export function TeacherMarketplacePage() {
             {TUTORS.map((tutor) => (
               <article
                 key={tutor.id}
-                className={`flex flex-col gap-4 rounded-xl border border-outline-variant bg-gradient-to-br to-surface p-unit-md transition-transform hover:-translate-y-0.5 ${tutor.accent}`}
+                className={`flex flex-col gap-4 rounded-xl border border-outline-variant/60 bg-gradient-to-br to-surface p-unit-md transition-transform hover:-translate-y-0.5 ${tutor.accent}`}
               >
                 <div className="flex items-start gap-4">
                   <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-surface bg-surface-container-high text-primary">
@@ -119,7 +119,7 @@ export function TeacherMarketplacePage() {
                     {t(`marketplace.tutors.${tutor.id}Tag2`)}
                   </span>
                 </div>
-                <div className="mt-auto flex items-center justify-between border-t border-outline-variant/50 pt-4">
+                <div className="mt-auto flex items-center justify-between border-t border-outline-variant/60/50 pt-4">
                   <span className="text-label-md font-bold text-on-surface">
                     {t('marketplace.perHour', { price: tutor.price })}
                   </span>

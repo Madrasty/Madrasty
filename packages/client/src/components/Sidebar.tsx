@@ -8,33 +8,34 @@ interface SidebarProps {
   items: NavItem[];
 }
 
-// DESIGN.md "Navigation": 280px fixed rail, active item gets a soft-blue wash
-// and a 4px pill on the *leading* edge. `border-s-4` (border-inline-start) flips
-// that edge to the right automatically in RTL — never use border-l/border-r.
+// DESIGN.md "Navigation": 280px fixed rail. The active item is a filled pill
+// rather than an outlined row — one clearly-marked destination, everything else
+// quiet until hover. `ps-*`/`border-e` are logical properties, so the rail and
+// its indentation flip to the right in RTL with no second stylesheet.
 export function Sidebar({ items }: SidebarProps) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
 
   return (
-    <aside className="fixed start-0 top-0 z-40 hidden h-screen w-[280px] flex-col border-e border-outline-variant bg-surface p-unit-lg md:flex">
-      <div className="mb-unit-lg">
+    <aside className="fixed start-0 top-0 z-40 hidden h-screen w-[280px] flex-col border-e border-outline-variant/60 bg-surface-container-low p-unit-md md:flex">
+      <div className="mb-unit-lg px-unit-sm pt-unit-sm">
         <h1>
           <Logo size={40} withTagline />
         </h1>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-unit-sm">
+      <nav className="flex flex-1 flex-col gap-1">
         {items.map((item) => {
           const active = item.path === pathname;
-          const className = `flex items-center gap-unit-md rounded-lg border-s-4 px-unit-md py-unit-sm text-label-md transition-colors ${
+          const className = `flex items-center gap-unit-md rounded-full px-unit-md py-2.5 text-label-md transition-colors ${
             active
-              ? 'border-primary bg-primary-container text-on-primary-container'
-              : 'border-transparent text-on-surface-variant hover:bg-surface-container-high'
+              ? 'bg-primary-container text-on-primary-container font-semibold'
+              : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'
           }`;
           const content = (
             <>
-              <Icon name={item.icon} filled={active} />
-              {t(`nav.${item.labelKey}`)}
+              <Icon name={item.icon} filled={active} className="text-[1.25rem]" />
+              <span className="truncate">{t(`nav.${item.labelKey}`)}</span>
             </>
           );
 
@@ -48,7 +49,7 @@ export function Sidebar({ items }: SidebarProps) {
             <span
               key={item.labelKey}
               aria-disabled="true"
-              className={`${className} cursor-default opacity-60`}
+              className={`${className} cursor-default opacity-50`}
             >
               {content}
             </span>
@@ -56,9 +57,9 @@ export function Sidebar({ items }: SidebarProps) {
         })}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-unit-sm border-t border-outline-variant pt-unit-md">
-        <span className="flex cursor-default items-center gap-unit-md rounded-lg px-unit-md py-unit-sm text-label-md text-on-surface-variant opacity-60">
-          <Icon name="settings" />
+      <div className="mt-auto flex flex-col gap-1 border-t border-outline-variant/60 pt-unit-sm">
+        <span className="flex cursor-default items-center gap-unit-md rounded-full px-unit-md py-2.5 text-label-md text-on-surface-variant opacity-50">
+          <Icon name="settings" className="text-[1.25rem]" />
           {t('nav.settings')}
         </span>
       </div>

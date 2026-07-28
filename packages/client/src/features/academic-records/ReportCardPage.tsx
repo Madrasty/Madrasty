@@ -118,9 +118,9 @@ function ReportCardBody({ studentId }: { studentId: string }) {
       {card.subjects.map((subject) => (
         <div
           key={subject.subjectId}
-          className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest"
+          className="overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container-lowest"
         >
-          <div className="flex items-center justify-between gap-2 border-b border-outline-variant p-unit-md">
+          <div className="flex items-center justify-between gap-2 border-b border-outline-variant/60 p-unit-md">
             <h2 className="text-body-lg font-semibold text-on-surface">
               {subject.subjectName ?? t('academic.unknownSubject')}
             </h2>
@@ -175,7 +175,7 @@ function SubjectSummary({
   if (quizzes.count === 0 && homework.assigned === 0 && homework.submitted === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-unit-md border-b border-outline-variant bg-surface-container-low px-unit-md py-unit-sm">
+    <div className="flex flex-wrap gap-unit-md border-b border-outline-variant/60 bg-surface-container-low px-unit-md py-unit-sm">
       {quizzes.count > 0 && (
         <Stat
           icon="quiz"
@@ -242,10 +242,10 @@ function OverallCard({ average }: { average: number | null }) {
 function ScorePill({ value }: { value: number }) {
   const tone =
     value >= 75
-      ? 'bg-green-500/15 text-green-700 dark:text-green-400'
+      ? 'bg-secondary-container text-on-secondary-container'
       : value >= 60
-        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
-        : 'bg-error/15 text-error';
+        ? 'bg-tertiary-fixed text-on-tertiary-fixed'
+        : 'bg-error-container text-on-error-container';
   return (
     <span className={`rounded-full px-2.5 py-0.5 text-label-md font-semibold tabular-nums ${tone}`}>
       {value}%

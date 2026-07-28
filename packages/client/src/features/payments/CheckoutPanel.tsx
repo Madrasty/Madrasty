@@ -95,7 +95,7 @@ export function CheckoutPanel({ programId }: { programId: string }) {
     : null;
 
   return (
-    <div className="flex w-full flex-col gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg lg:w-80">
+    <div className="flex w-full flex-col gap-unit-md rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg lg:w-80">
       {/* Coupon */}
       <div className="flex flex-col gap-unit-xs">
         {appliedCoupon && quote?.couponValid ? (
@@ -154,7 +154,7 @@ export function CheckoutPanel({ programId }: { programId: string }) {
 
       {/* Order summary */}
       {quote && (
-        <div className="flex flex-col gap-unit-xs border-t border-outline-variant pt-unit-md text-label-md">
+        <div className="flex flex-col gap-unit-xs border-t border-outline-variant/60 pt-unit-md text-label-md">
           <Row label={t('checkout.summary.original')} value={money(quote.originalEgp)} />
           {Number(quote.couponDiscountEgp) > 0 && (
             <Row
@@ -173,7 +173,7 @@ export function CheckoutPanel({ programId }: { programId: string }) {
           <Row
             label={t('checkout.summary.total')}
             value={money(quote.finalEgp)}
-            className="mt-unit-xs border-t border-outline-variant pt-unit-sm text-body-lg font-bold"
+            className="mt-unit-xs border-t border-outline-variant/60 pt-unit-sm text-body-lg font-bold"
           />
           {(quote.pointsToEarn > 0 || quote.couponBonusPoints > 0) && (
             <p className="mt-unit-xs inline-flex items-center gap-1 text-label-sm text-secondary">

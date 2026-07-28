@@ -63,7 +63,7 @@ export function ProgramDetailPage() {
 
       {program && !error && (
         <>
-          <header className="flex flex-col gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg lg:flex-row lg:items-start lg:justify-between">
+          <header className="flex flex-col gap-unit-md rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg lg:flex-row lg:items-start lg:justify-between">
             <div className="flex flex-col gap-unit-sm">
               <div className="flex flex-wrap items-center gap-2">
                 {program.gradeLevel && (
@@ -119,8 +119,8 @@ export function ProgramDetailPage() {
 function ChapterBlock({ chapter }: { chapter: ChapterView }) {
   const { t } = useTranslation();
   return (
-    <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
-      <div className="border-b border-outline-variant bg-surface-container-low px-unit-md py-unit-sm">
+    <section className="overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
+      <div className="border-b border-outline-variant/60 bg-surface-container-low px-unit-md py-unit-sm">
         <h3 className="text-body-lg font-semibold text-on-surface">
           {chapter.title || t('catalog.untitledChapter')}
         </h3>

@@ -125,7 +125,7 @@ function ProgramCard({ program }: { program: ProgramSummary }) {
   return (
     <Link
       to={`/app/catalog/${program.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container-lowest transition-shadow hover:shadow-md"
     >
       <div className="flex h-28 items-center justify-center bg-primary/5 text-primary/70">
         <Icon name="menu_book" filled className="text-[2.5rem]" />

@@ -13,16 +13,24 @@ export function BottomNav({ items }: BottomNavProps) {
   const { pathname } = useLocation();
 
   return (
-    <nav className="fixed bottom-0 z-40 flex h-16 w-full items-center justify-around border-t border-outline-variant bg-surface md:hidden">
+    <nav className="fixed bottom-0 z-40 flex h-16 w-full items-stretch justify-around border-t border-outline-variant/60 bg-surface/95 backdrop-blur-md md:hidden">
       {items.map((item) => {
         const active = item.path === pathname;
-        const className = `flex w-16 flex-col items-center justify-center rounded-lg p-2 text-label-sm ${
-          active ? 'font-bold text-primary' : 'text-on-surface-variant'
+        const className = `flex w-16 flex-col items-center justify-center gap-0.5 pt-1 text-label-sm transition-colors ${
+          active ? 'text-primary-container' : 'text-on-surface-variant'
         }`;
+        // The active tab is marked by a filled icon in a soft brand pill — the
+        // bottom bar has no room for the sidebar's full-width pill.
         const content = (
           <>
-            <Icon name={item.icon} filled={active} />
-            <span className="mt-1">{t(`nav.${item.labelKey}`)}</span>
+            <span
+              className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
+                active ? 'bg-primary-fixed' : ''
+              }`}
+            >
+              <Icon name={item.icon} filled={active} className="text-[1.25rem]" />
+            </span>
+            <span className="max-w-full truncate px-1">{t(`nav.${item.labelKey}`)}</span>
           </>
         );
         return item.path ? (

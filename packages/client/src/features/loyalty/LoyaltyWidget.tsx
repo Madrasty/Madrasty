@@ -29,7 +29,7 @@ export function LoyaltyWidget() {
       : 100;
 
   return (
-    <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg">
+    <section className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg">
       <div className="mb-unit-md flex items-center justify-between">
         <h2 className="text-headline-md">{t('loyalty.title')}</h2>
         <Icon name="loyalty" className="text-primary" />

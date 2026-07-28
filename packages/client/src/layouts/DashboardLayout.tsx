@@ -22,7 +22,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar items={ROLE_NAV[role]} />
       <TopBar />
       <main className="app-container pb-24 pt-16 md:ms-[280px] md:pb-unit-xl">
-        <div className="py-unit-lg">{children}</div>
+        <div className="py-unit-lg md:py-unit-xl">{children}</div>
       </main>
       <BottomNav items={ROLE_BOTTOM_NAV[role]} />
     </div>

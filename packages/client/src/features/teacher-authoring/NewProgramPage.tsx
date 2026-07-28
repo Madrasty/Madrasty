@@ -69,7 +69,7 @@ export function NewProgramPage() {
 
       <form
         onSubmit={onSubmit}
-        className="flex flex-col gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg"
+        className="flex flex-col gap-unit-md rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg"
         noValidate
       >
         <FormError message={error} />

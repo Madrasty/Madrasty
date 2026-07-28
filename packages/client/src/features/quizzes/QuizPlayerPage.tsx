@@ -84,7 +84,7 @@ export function QuizPlayerPage() {
           return (
             <li
               key={q.id}
-              className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md"
+              className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md"
             >
               <p className="text-body-lg font-semibold text-on-surface">
                 {i + 1}. {q.prompt}
@@ -95,7 +95,7 @@ export function QuizPlayerPage() {
                   // After grading: mark the correct option and a wrong choice.
                   let stateClass = 'border-outline-variant';
                   if (perQ) {
-                    if (o.id === perQ.correctOptionId) stateClass = 'border-green-500 bg-green-500/10';
+                    if (o.id === perQ.correctOptionId) stateClass = 'border-secondary bg-secondary-container';
                     else if (o.id === perQ.chosenOptionId) stateClass = 'border-error bg-error/10';
                   } else if (chosen) {
                     stateClass = 'border-primary bg-primary/5';
@@ -129,7 +129,7 @@ export function QuizPlayerPage() {
         <button
           type="button"
           onClick={load}
-          className="inline-flex items-center gap-2 self-start rounded-xl bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90"
         >
           <Icon name="refresh" className="text-[1.1rem]" />
           {t('quiz.retake')}
@@ -139,7 +139,7 @@ export function QuizPlayerPage() {
           type="button"
           onClick={submit}
           disabled={!allAnswered || submitting}
-          className="inline-flex items-center gap-2 self-start rounded-xl bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           <Icon name="task_alt" className="text-[1.1rem]" />
           {submitting
@@ -156,8 +156,8 @@ export function QuizPlayerPage() {
 function ResultBanner({ result, passing }: { result: AttemptResultView; passing: number }) {
   const { t } = useTranslation();
   const tone = result.passed
-    ? 'border-green-500/40 bg-green-500/10 text-green-700 dark:text-green-400'
-    : 'border-error/40 bg-error/10 text-error';
+    ? 'border-secondary/40 bg-secondary-container text-on-secondary-container'
+    : 'border-error/40 bg-error-container text-on-error-container';
   return (
     <div className={`flex items-center justify-between gap-unit-md rounded-xl border p-unit-lg ${tone}`}>
       <div>

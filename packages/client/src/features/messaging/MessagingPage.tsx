@@ -104,7 +104,7 @@ export function MessagingPage() {
           dateFmt={dateFmt}
         />
 
-        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest">
+        <div className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
           {composing && isParent ? (
             <NewConversationPanel
               onStarted={(convo) => {
@@ -172,7 +172,7 @@ function ConversationList({
   }
   if (conversations === null) {
     return (
-      <div className="rounded-xl border border-outline-variant bg-surface-container-lowest">
+      <div className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
         <CenteredSpinner />
       </div>
     );
@@ -279,7 +279,7 @@ function ThreadView({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="border-b border-outline-variant p-unit-md">
+      <header className="border-b border-outline-variant/60 p-unit-md">
         <p className="text-body-lg font-semibold text-on-surface">
           {otherParty(conversation, role) || t('messaging.unknownUser')}
         </p>
@@ -323,11 +323,11 @@ function ThreadView({
       </div>
 
       {readOnly ? (
-        <p className="border-t border-outline-variant p-unit-md text-center text-label-md text-on-surface-variant">
+        <p className="border-t border-outline-variant/60 p-unit-md text-center text-label-md text-on-surface-variant">
           {t('messaging.readOnly')}
         </p>
       ) : (
-        <form onSubmit={submit} className="flex items-end gap-2 border-t border-outline-variant p-unit-md">
+        <form onSubmit={submit} className="flex items-end gap-2 border-t border-outline-variant/60 p-unit-md">
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -339,12 +339,12 @@ function ThreadView({
             }}
             rows={1}
             placeholder={t('messaging.composerPlaceholder')}
-            className="max-h-32 min-h-[2.75rem] flex-1 resize-none rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+            className="field max-h-32 min-h-[2.75rem] flex-1 resize-none"
           />
           <button
             type="submit"
             disabled={sending || draft.trim().length === 0}
-            className="inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-unit-md text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-unit-md text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             <Icon name="send" className="text-[1.1rem] rtl:-scale-x-100" />
             <span className="hidden sm:inline">{sending ? t('messaging.sending') : t('messaging.send')}</span>
@@ -398,7 +398,7 @@ function NewConversationPanel({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex items-center gap-2 border-b border-outline-variant p-unit-md">
+      <header className="flex items-center gap-2 border-b border-outline-variant/60 p-unit-md">
         <button
           type="button"
           onClick={onCancel}
@@ -432,7 +432,7 @@ function NewConversationPanel({
                     type="button"
                     disabled={startingKey !== null}
                     onClick={() => start(contact)}
-                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-outline-variant p-unit-md text-start transition-colors hover:bg-surface-container-low disabled:opacity-50"
+                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-outline-variant/60 p-unit-md text-start transition-colors hover:bg-surface-container-low disabled:opacity-50"
                   >
                     <span>
                       <span className="block text-body-md font-semibold text-on-surface">

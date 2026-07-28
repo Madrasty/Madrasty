@@ -140,7 +140,7 @@ export function GuardianApprovalPage() {
       title={t('auth.approval.title')}
       subtitle={t('auth.approval.forStudent', { name: studentName })}
     >
-      <div className="mb-unit-md rounded-lg border border-outline-variant bg-surface-container-low p-unit-md">
+      <div className="mb-unit-md rounded-lg border border-outline-variant/60 bg-surface-container-low p-unit-md">
         <p className="text-label-sm uppercase tracking-wider text-on-surface-variant">
           {t('auth.approval.requestLabel')}
         </p>

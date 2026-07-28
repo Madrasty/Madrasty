@@ -58,7 +58,7 @@ export function ProgramApprovalsPage() {
           {(programs ?? []).map((program) => (
             <div
               key={program.id}
-              className="flex flex-col gap-unit-md rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-unit-md rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 flex-col gap-1">
                 <h2 className="truncate text-body-lg font-semibold text-on-surface">

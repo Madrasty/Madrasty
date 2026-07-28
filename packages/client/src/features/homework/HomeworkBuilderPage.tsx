@@ -93,7 +93,7 @@ export function HomeworkBuilderPage() {
           <select
             value={programId}
             onChange={(e) => setProgramId(e.target.value)}
-            className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+            className="field w-full"
           >
             <option value="">{t('homework.selectProgram')}</option>
             {programs.map((p) => (
@@ -112,7 +112,7 @@ export function HomeworkBuilderPage() {
             <select
               value={lessonId}
               onChange={(e) => openLesson(e.target.value)}
-              className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+              className="field w-full"
             >
               <option value="">{t('homework.selectLesson')}</option>
               {homeworkLessons.map((l) => (
@@ -214,7 +214,7 @@ function AssignmentEditor({
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col gap-unit-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md"
+      className="flex flex-col gap-unit-sm rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-body-lg font-semibold">
@@ -236,7 +236,7 @@ function AssignmentEditor({
         onChange={(e) => setBrief(e.target.value)}
         rows={5}
         placeholder={t('homework.briefPlaceholder')}
-        className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-unit-md py-2 text-body-md outline-none focus:border-primary"
+        className="field w-full"
       />
 
       <div className="flex flex-wrap items-end gap-unit-md">
@@ -247,7 +247,7 @@ function AssignmentEditor({
             min="1"
             value={maxGrade}
             onChange={(e) => setMaxGrade(e.target.value)}
-            className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest px-2 py-1.5 text-body-sm outline-none focus:border-primary"
+            className="field-sm w-24"
           />
         </label>
         <label className="flex flex-col gap-1">
@@ -256,7 +256,7 @@ function AssignmentEditor({
             type="datetime-local"
             value={dueAt}
             onChange={(e) => setDueAt(e.target.value)}
-            className="rounded-lg border border-outline-variant bg-surface-container-lowest px-2 py-1.5 text-body-sm outline-none focus:border-primary"
+            className="field-sm"
           />
         </label>
         <label className="flex items-center gap-2 pb-1.5 text-label-md text-on-surface-variant">
@@ -272,7 +272,7 @@ function AssignmentEditor({
 
       {error && <p className="text-body-sm font-semibold text-error">{error}</p>}
       {saved && !error && (
-        <p className="text-body-sm font-semibold text-green-700 dark:text-green-400">
+        <p className="text-body-sm font-semibold text-secondary">
           {t('homework.saved')}
         </p>
       )}
@@ -280,7 +280,7 @@ function AssignmentEditor({
       <button
         type="submit"
         disabled={saving}
-        className="inline-flex items-center gap-2 self-start rounded-xl bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+        className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-unit-lg py-2 text-label-lg font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
       >
         <Icon name="save" className="text-[1.1rem]" />
         {saving ? t('homework.saving') : t('homework.save')}
@@ -388,7 +388,7 @@ function SubmissionCard({
   };
 
   return (
-    <li className="rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-md">
+    <li className="rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-md">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-body-md font-semibold">{student.fullName || student.id}</p>
         <StatusChip status={submission.status} />
@@ -413,7 +413,7 @@ function SubmissionCard({
             max={maxGrade}
             value={grade}
             onChange={(e) => setGrade(e.target.value)}
-            className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest px-2 py-1.5 text-body-sm outline-none focus:border-primary"
+            className="field-sm w-24"
           />
         </label>
         <label className="flex flex-1 flex-col gap-1">
@@ -422,14 +422,14 @@ function SubmissionCard({
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder={t('homework.feedbackPlaceholder')}
-            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-2 py-1.5 text-body-sm outline-none focus:border-primary"
+            className="field-sm w-full"
           />
         </label>
         <button
           type="button"
           onClick={save}
           disabled={saving}
-          className="inline-flex items-center gap-1 rounded-xl bg-primary px-unit-md py-2 text-label-md font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="inline-flex items-center gap-1 rounded-full bg-primary px-unit-md py-2 text-label-md font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           <Icon name="grading" className="text-[1rem]" />
           {saving ? t('homework.saving') : t('homework.saveGrade')}
@@ -444,9 +444,9 @@ export function StatusChip({ status }: { status: string }) {
   const { t } = useTranslation();
   const tone =
     status === 'graded'
-      ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+      ? 'bg-secondary-container text-on-secondary-container'
       : status === 'late'
-        ? 'bg-error/10 text-error'
+        ? 'bg-error-container text-on-error-container'
         : 'bg-surface-container text-on-surface-variant';
   return (
     <span className={`rounded-full px-unit-md py-0.5 text-label-sm font-medium ${tone}`}>

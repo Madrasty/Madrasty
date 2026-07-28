@@ -96,7 +96,7 @@ export function ParentDashboardPage() {
             {children.map((child) => (
               <li
                 key={child.id}
-                className="flex flex-col gap-unit-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-unit-lg"
+                className="flex flex-col gap-unit-sm rounded-xl border border-outline-variant/60 bg-surface-container-lowest p-unit-lg"
               >
                 <div className="flex items-center gap-unit-sm">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -112,7 +112,7 @@ export function ParentDashboardPage() {
                   </div>
                   <StatusBadge approved={child.approvedAt !== null} />
                 </div>
-                <div className="flex items-center justify-between border-t border-outline-variant pt-unit-sm">
+                <div className="flex items-center justify-between border-t border-outline-variant/60 pt-unit-sm">
                   <span className="text-label-md text-on-surface-variant">{t('dashboard.reportAverage')}</span>
                   <span className="text-body-md font-bold text-primary">
                     {child.average !== null ? `${child.average}%` : t('dashboard.notGradedYet')}
@@ -150,11 +150,11 @@ export function ParentDashboardPage() {
 function StatusBadge({ approved }: { approved: boolean }) {
   const { t } = useTranslation();
   return approved ? (
-    <span className="rounded-full bg-green-500/15 px-2.5 py-0.5 text-label-sm font-semibold text-green-700 dark:text-green-400">
+    <span className="rounded-full bg-secondary-container px-2.5 py-0.5 text-label-sm font-semibold text-on-secondary-container">
       {t('dashboard.statusActive')}
     </span>
   ) : (
-    <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-label-sm font-semibold text-amber-700 dark:text-amber-400">
+    <span className="rounded-full bg-tertiary-fixed px-2.5 py-0.5 text-label-sm font-semibold text-on-tertiary-fixed">
       {t('dashboard.statusPending')}
     </span>
   );

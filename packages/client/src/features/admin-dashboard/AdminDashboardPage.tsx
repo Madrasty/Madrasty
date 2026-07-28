@@ -96,8 +96,8 @@ function QueueCard({
 }) {
   const { t } = useTranslation();
   return (
-    <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest">
-      <div className="flex items-center justify-between border-b border-outline-variant p-unit-md">
+    <section className="overflow-hidden rounded-xl border border-outline-variant/60 bg-surface-container-lowest">
+      <div className="flex items-center justify-between border-b border-outline-variant/60 p-unit-md">
         <span className="flex items-center gap-2">
           <Icon name={icon} className="text-primary" />
           <h3 className="text-body-lg font-semibold">{title}</h3>
@@ -113,7 +113,7 @@ function QueueCard({
             {items.slice(0, 5).map((item) => (
               <li
                 key={item.id}
-                className="flex items-center justify-between gap-2 rounded-lg border border-outline-variant px-unit-md py-2"
+                className="flex items-center justify-between gap-2 rounded-lg border border-outline-variant/60 px-unit-md py-2"
               >
                 <span className="min-w-0">
                   <span className="block truncate text-body-md font-medium text-on-surface">{item.primary}</span>

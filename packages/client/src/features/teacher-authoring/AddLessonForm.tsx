@@ -24,7 +24,7 @@ interface AddLessonFormProps {
 }
 
 const SELECT_CLASS =
-  'h-10 rounded border border-outline-variant bg-surface-container-lowest px-unit-md text-body-md text-on-surface outline-none focus:border-primary';
+  'field';
 
 // Which detail fields each lesson type needs (matches the server handler schemas).
 function detailFieldsFor(type: LessonType): Array<'videoUrl' | 'audioUrl' | 'fileUrl' | 'meetingUrl' | 'durationSeconds' | 'pageCount' | 'scheduledStart'> {
@@ -121,7 +121,7 @@ export function AddLessonForm({ programId, chapterId, existingLessons, onCreated
   return (
     <form
       onSubmit={onSubmit}
-      className="flex flex-col gap-unit-md rounded-lg border border-outline-variant bg-surface-container-low p-unit-md"
+      className="flex flex-col gap-unit-md rounded-lg border border-outline-variant/60 bg-surface-container-low p-unit-md"
       noValidate
     >
       <FormError message={error} />

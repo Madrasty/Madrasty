@@ -108,7 +108,7 @@ export function AddStudentPage() {
             id="relationship"
             value={relationship}
             onChange={(e) => setRelationship(e.target.value as GuardianRelationship)}
-            className="h-10 rounded border border-outline-variant bg-surface-container-lowest px-unit-md text-body-md text-on-surface outline-none focus:border-primary"
+            className="field"
           >
             {RELATIONSHIPS.map((rel) => (
               <option key={rel} value={rel}>

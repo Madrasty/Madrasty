@@ -1,11 +1,44 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#2563eb" />
     <title>Madrasty</title>
+    <script>
+      // Applied before first paint so the page never flashes the wrong theme or
+      // writing direction. React reads this state back on mount (useTheme /
+      // useDocumentDirection) rather than re-deciding it.
+      //
+      // `%VITE_*%` are substituted by Vite from the root .env at build time —
+      // this file must not hardcode a locale (see CLAUDE.md).
+      (function () {
+        var doc = document.documentElement;
+
+        var defaultLocale = '%VITE_DEFAULT_LOCALE%';
+        var supported = '%VITE_SUPPORTED_LOCALES%'.split(',');
+        var rtl = ['ar'];
+
+        var locale = defaultLocale;
+        var theme = 'light';
+        try {
+          var storedLocale = localStorage.getItem('madrasty_locale');
+          if (storedLocale && supported.indexOf(storedLocale) !== -1) locale = storedLocale;
+          if (localStorage.getItem('madrasty_theme') === 'dark') theme = 'dark';
+        } catch (e) {
+          // Storage unavailable (private mode) — fall through to the defaults.
+        }
+
+        doc.lang = locale;
+        doc.dir = rtl.indexOf(locale) !== -1 ? 'rtl' : 'ltr';
+        if (theme === 'dark') {
+          doc.classList.add('dark');
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#0d1a2b');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
