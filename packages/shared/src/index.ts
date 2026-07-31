@@ -643,8 +643,8 @@ export interface GradebookResponse {
 
 // --- Report card (aggregated view for a parent/student) ---
 // Doc 10 §3.1 defines this as exams + quiz averages + homework completion +
-// attendance. Exams, quizzes and homework are wired; ATTENDANCE is still missing
-// — it needs live classes (step 8) and tutoring bookings (step 9) to exist.
+// attendance. All four are wired; attendance currently covers live classes only
+// — tutoring bookings (doc 13) will feed the same `attendance_records` table.
 export interface ReportCardExam {
   examId: string;
   title: string | null;
@@ -691,6 +691,7 @@ export interface ReportCardSubject {
   exams: ReportCardExam[];
   quizzes: ReportCardQuizSummary;
   homework: ReportCardHomeworkSummary;
+  attendance: ReportCardAttendanceSummary;
 }
 
 export interface ReportCardResponse {
@@ -952,4 +953,111 @@ export interface AiUsageView {
 export interface ListAiConversationsResponse {
   conversations: AiConversationSummary[];
   usage: AiUsageView;
+}
+
+// --- Live classes + attendance (doc 01 §5, doc 10 §3.4, doc 12 §6) -------------
+// A live LESSON is the session: its schedule and runtime state live on the
+// live-lesson detail row, so there is no separate "live session" entity. Joining
+// records attendance automatically — teachers never take a register by hand.
+
+export const ATTENDANCE_STATUSES = ['present', 'late', 'absent'] as const;
+export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];
+
+// Which kind of session an attendance row belongs to (doc 10 §4). `tutoring`
+// lands with home tutoring (doc 13).
+export const ATTENDANCE_SESSION_TYPES = ['live_class', 'tutoring'] as const;
+export type AttendanceSessionType = (typeof ATTENDANCE_SESSION_TYPES)[number];
+
+// Derived from the runtime columns, never stored: scheduled → live → ended.
+export const LIVE_CLASS_STATUSES = ['scheduled', 'live', 'ended'] as const;
+export type LiveClassStatus = (typeof LIVE_CLASS_STATUSES)[number];
+
+export interface AttendanceRecordView {
+  studentId: string;
+  status: AttendanceStatus;
+  recordedAt: string;
+  // From the join/leave events (doc 10 §3.4), null when a teacher recorded the
+  // row by hand without the student ever joining.
+  firstJoinedAt: string | null;
+  lastLeftAt: string | null;
+  minutesPresent: number | null;
+  // True when a teacher/admin overrode what the join events recorded.
+  overridden: boolean;
+}
+
+export interface LiveClassView {
+  lessonId: string;
+  programId: string;
+  chapterId: string;
+  title: string | null;
+  programTitle: string | null;
+  scheduledStart: string | null;
+  scheduledEnd: string | null;
+  status: LiveClassStatus;
+  startedAt: string | null;
+  endedAt: string | null;
+  // Set once the teacher uploads a recording — the lesson then replays like a
+  // recorded one (doc 12 §4).
+  recordingUrl: string | null;
+  // Whether THIS viewer may join right now, and why not when they can't.
+  canJoin: boolean;
+  joinBlockedReason: 'not_started' | 'ended' | 'too_early' | 'not_enrolled' | null;
+  // Earliest a student may join (scheduled start minus the join window).
+  joinOpensAt: string | null;
+  // Student view: their own attendance so far.
+  myAttendance: AttendanceRecordView | null;
+  // Teacher/admin view: how the room is filling up.
+  attendanceCounts?: { present: number; late: number; absent: number; enrolled: number };
+}
+
+export interface ListLiveClassesResponse {
+  classes: LiveClassView[];
+}
+
+// What a client needs to join the room — and nothing more. The provider's
+// signing secret never leaves the server.
+export interface RtcCredentialsView {
+  provider: string;
+  appId: string;
+  channel: string;
+  uid: number;
+  token: string;
+  expiresAt: string;
+}
+
+export interface JoinLiveClassResponse {
+  liveClass: LiveClassView;
+  credentials: RtcCredentialsView;
+  // Only the teacher publishes audio/video; students subscribe.
+  role: 'host' | 'audience';
+  // The attendance row this join just wrote (null for the teacher — a teacher is
+  // not marked present in their own class).
+  attendance: AttendanceRecordView | null;
+}
+
+export interface LiveClassRosterRow {
+  student: ConversationParticipant;
+  attendance: AttendanceRecordView | null;
+}
+
+export interface LiveClassRosterResponse {
+  liveClass: LiveClassView;
+  rows: LiveClassRosterRow[];
+}
+
+// Teacher override when the automatic record is wrong (doc 10 §3.4).
+export interface SetAttendanceRequest {
+  studentId: string;
+  status: AttendanceStatus;
+}
+
+// Attendance standing for one subject on the report card (doc 10 §3.1). Counts
+// only sessions the student was expected at — i.e. classes that actually ran.
+export interface ReportCardAttendanceSummary {
+  sessions: number;
+  present: number;
+  late: number;
+  absent: number;
+  // (present + late) / sessions, as a percentage. Null when no session has run.
+  attendanceRate: number | null;
 }

@@ -3,6 +3,7 @@ import { HttpError } from '../../lib/http-error';
 import { AcademicRecordsService, type Actor } from './academic-records.service';
 import type {
   AcademicRecordsRepository,
+  AttendanceStatRow,
   CreateExamInput,
   ExamRow,
   HomeworkAssignedRow,
@@ -28,6 +29,7 @@ class FakeRepo implements AcademicRecordsRepository {
   quizStats = new Map<string, QuizStatRow[]>();
   homeworkAssigned = new Map<string, HomeworkAssignedRow[]>();
   homeworkSubmissions = new Map<string, HomeworkSubmissionStatRow[]>();
+  attendance = new Map<string, AttendanceStatRow[]>();
   private seq = 0;
 
   async createExam(input: CreateExamInput): Promise<ExamRow> {
@@ -130,6 +132,9 @@ class FakeRepo implements AcademicRecordsRepository {
   }
   async listHomeworkSubmissionsForStudent(studentId: string) {
     return this.homeworkSubmissions.get(studentId) ?? [];
+  }
+  async listAttendanceForStudent(studentId: string) {
+    return this.attendance.get(studentId) ?? [];
   }
 }
 
@@ -387,6 +392,46 @@ describe('AcademicRecordsService — report card roll-ups', () => {
     expect(card.subjects).toHaveLength(1);
     expect(card.subjects[0].average).toBeNull(); // no exams in this subject
     expect(card.subjects[0].homework.completionRate).toBe(0);
+  });
+
+  it('computes an attendance rate that counts late as attended', async () => {
+    repo.attendance.set('stud-a', [
+      { subjectId: 'subj-math', status: 'present' },
+      { subjectId: 'subj-math', status: 'late' },
+      { subjectId: 'subj-math', status: 'present' },
+      { subjectId: 'subj-math', status: 'absent' },
+    ]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    expect(card.subjects[0].attendance).toEqual({
+      sessions: 4,
+      present: 2,
+      late: 1,
+      absent: 1,
+      // A student who turned up late was there — 3 of 4.
+      attendanceRate: 75,
+    });
+  });
+
+  it('surfaces a subject known only through attendance', async () => {
+    repo.attendance.set('stud-a', [{ subjectId: 'subj-math', status: 'absent' }]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    expect(card.subjects).toHaveLength(1);
+    expect(card.subjects[0].attendance.attendanceRate).toBe(0);
+  });
+
+  it('reports no attendance rate before any class has run', async () => {
+    repo.quizStats.set('stud-a', [
+      { subjectId: 'subj-math', quizId: 'q1', bestPercentage: '80' },
+    ]);
+    const card = await svc.getReportCard(student, 'stud-a', undefined, LOCALE);
+    // Null, not 0% — "no classes yet" is not the same as "missed everything".
+    expect(card.subjects[0].attendance).toEqual({
+      sessions: 0,
+      present: 0,
+      late: 0,
+      absent: 0,
+      attendanceRate: null,
+    });
   });
 
   it('keeps the headline average exams-only', async () => {

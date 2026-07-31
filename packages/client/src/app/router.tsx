@@ -30,6 +30,7 @@ import { QuizPlayerPage } from '../features/quizzes/QuizPlayerPage';
 import { HomeworkBuilderPage } from '../features/homework/HomeworkBuilderPage';
 import { HomeworkSubmitPage } from '../features/homework/HomeworkSubmitPage';
 import { AiTutorPage } from '../features/ai-tutor/AiTutorPage';
+import { LiveClassesPage } from '../features/live-classes/LiveClassesPage';
 import { MyProgramsPage } from '../features/teacher-authoring/MyProgramsPage';
 import { NewProgramPage } from '../features/teacher-authoring/NewProgramPage';
 import { ProgramEditorPage } from '../features/teacher-authoring/ProgramEditorPage';
@@ -122,6 +123,11 @@ export const routes: RouteObject[] = [
   // AI Q&A tutor (doc 01 §3, doc 09 phase 3) — students only; the server refuses
   // every other role.
   { path: '/app/ai', element: gated(['student'], <AiTutorPage />) },
+
+  // Live classes (doc 01 §5, doc 10 §3.4) — one role-aware screen: a teacher runs
+  // their own classes, a student joins the ones they're enrolled in.
+  { path: '/app/teacher/live', element: teacherArea(<LiveClassesPage />) },
+  { path: '/app/live', element: gated(['student'], <LiveClassesPage />) },
 
   // Teacher authoring (doc 12).
   { path: '/app/teacher/programs', element: teacherArea(<MyProgramsPage />) },

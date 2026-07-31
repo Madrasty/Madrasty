@@ -4,6 +4,7 @@ import type {
   GradebookResponse,
   GradebookStudentRow,
   RecordResultRequest,
+  ReportCardAttendanceSummary,
   ReportCardExam,
   ReportCardHomeworkSummary,
   ReportCardQuizSummary,
@@ -15,6 +16,7 @@ import { config } from '../../config/index';
 import { HttpError } from '../../lib/http-error';
 import type {
   AcademicRecordsRepository,
+  AttendanceStatRow,
   ExamRow,
   HomeworkSubmissionStatRow,
   QuizStatRow,
@@ -114,6 +116,28 @@ function summarizeHomework(
     onTimeRate:
       assigned > 0 ? round1(Math.min(Math.max(submitted - late, 0) / assigned, 1) * 100) : null,
     average,
+  };
+}
+
+// Attendance roll-up for one subject (doc 10 §3.1, §3.4). Only classes that
+// actually RAN produce rows — a class is registered when the teacher ends it,
+// which is also when non-attendees are marked absent. So `sessions` is a real
+// denominator rather than "classes the student happened to join".
+//
+// `late` counts toward the rate: a student who turned up late was there. The
+// separate count is kept so a parent can see the pattern.
+function summarizeAttendance(rows: AttendanceStatRow[]): ReportCardAttendanceSummary {
+  const present = rows.filter((r) => r.status === 'present').length;
+  const late = rows.filter((r) => r.status === 'late').length;
+  const absent = rows.filter((r) => r.status === 'absent').length;
+  const sessions = rows.length;
+
+  return {
+    sessions,
+    present,
+    late,
+    absent,
+    attendanceRate: sessions > 0 ? round1(((present + late) / sessions) * 100) : null,
   };
 }
 
@@ -241,14 +265,16 @@ export class AcademicRecordsService {
       throw HttpError.forbidden('not_authorized', 'You cannot view this report card.');
     }
 
-    // Three independent sources, one per assessment type (doc 10 §3.1). `term`
-    // filters exams only — quizzes/homework carry no term column.
-    const [results, quizStats, homeworkAssigned, homeworkSubmissions] = await Promise.all([
-      this.repo.listResultsForStudent(studentId, term),
-      this.repo.listQuizStatsForStudent(studentId),
-      this.repo.listHomeworkAssignedForStudent(studentId),
-      this.repo.listHomeworkSubmissionsForStudent(studentId),
-    ]);
+    // Four independent sources, one per column of doc 10 §3.1's report card.
+    // `term` filters exams only — quizzes, homework and attendance carry no term.
+    const [results, quizStats, homeworkAssigned, homeworkSubmissions, attendance] =
+      await Promise.all([
+        this.repo.listResultsForStudent(studentId, term),
+        this.repo.listQuizStatsForStudent(studentId),
+        this.repo.listHomeworkAssignedForStudent(studentId),
+        this.repo.listHomeworkSubmissionsForStudent(studentId),
+        this.repo.listAttendanceForStudent(studentId),
+      ]);
 
     // A subject belongs on the card if it has ANY activity — a program whose
     // homework the student has ignored still needs to show up, precisely because
@@ -259,6 +285,7 @@ export class AcademicRecordsService {
         ...quizStats.map((q) => q.subjectId),
         ...homeworkAssigned.map((h) => h.subjectId),
         ...homeworkSubmissions.map((h) => h.subjectId),
+        ...attendance.map((a) => a.subjectId),
       ]),
     ];
 
@@ -295,6 +322,7 @@ export class AcademicRecordsService {
           homeworkAssigned.find((h) => h.subjectId === subjectId)?.assigned ?? 0,
           homeworkSubmissions.filter((h) => h.subjectId === subjectId),
         ),
+        attendance: summarizeAttendance(attendance.filter((a) => a.subjectId === subjectId)),
       };
     });
 

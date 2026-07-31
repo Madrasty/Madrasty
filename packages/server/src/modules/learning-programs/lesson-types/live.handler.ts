@@ -32,10 +32,17 @@ export class LiveLessonHandler implements LessonTypeHandler {
   }
 
   async onPublish(): Promise<void> {
-    // A real impl would provision the meeting room / schedule reminders here.
+    // Nothing to provision here on purpose: the room is created when the teacher
+    // actually starts the class (live-classes module), not when the lesson is
+    // published. A room provisioned at publish time would sit open — and its
+    // join tokens valid — for however long the gap to the lesson happens to be.
   }
 
   async onComplete(): Promise<void> {
-    // Attendance + recording→replay handling lands with the live-classes module.
+    // Attendance is not recorded here: it comes from real join/leave events
+    // against the live-classes module (doc 10 §3.4), and a student marking a
+    // lesson complete is not evidence they attended it. Recording→replay stays
+    // manual for now — the teacher sets `recordingUrl` after the session, and
+    // the lesson then plays back like a recorded one (doc 12 §4).
   }
 }

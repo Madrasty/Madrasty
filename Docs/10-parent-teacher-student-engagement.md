@@ -48,7 +48,7 @@ Three things make this feel like "a real school" rather than a dashboard bolted 
 - Each exam produces an `exam_result` per student: score, max_score, teacher_comment, graded_at.
 - A **Report Card view** aggregates: exam scores + quiz averages + homework completion rate + attendance, per subject, per term — this is the "real school" artifact parents actually want to see and can even export as a PDF (reuse your `pdf` skill/tooling for this later).
 
-**Aggregation rules as built** (exams, quizzes and homework are wired; attendance waits on live classes and tutoring bookings):
+**Aggregation rules as built** (all four are wired; attendance covers live classes — tutoring bookings will feed the same `attendance_records` table):
 - Exams and quizzes/homework reach a subject by different paths: exams carry `subject_id` directly, while quizzes and homework hang off a program, so their subject comes from `learning_programs.subject_id`. A program with no subject is excluded — there is no column to group it under.
 - **Quiz average = the mean of the student's BEST attempt per quiz.** Retakes are allowed by design (doc 12 §5), so counting every attempt would punish the student for practising.
 - **Homework completion = submitted / assigned**, where *assigned* counts assignments across programs the student is **actively enrolled in** — the rate measures them against the whole workload set for them, not just the subset they chose to hand in. On-time rate excludes `late` submissions (doc 10 §4's `homework_ontime_rate`); the homework average covers graded submissions only.
@@ -70,6 +70,7 @@ Three things make this feel like "a real school" rather than a dashboard bolted 
 
 ### 3.4 Attendance (ties into "real school" feel)
 - For live classes/tutoring sessions: attendance auto-recorded from session join/leave events.
+- **As built (live classes):** a live LESSON is the session — there is no separate session entity. The teacher starts the class (which provisions the realtime room), a student's join writes `present`, or `late` past `LIVE_CLASS_LATE_GRACE_MINUTES` after the scheduled start, and ending the class marks every enrolled student who never joined as `absent`. That last step is what makes the rate meaningful: without it the denominator would only ever contain students who showed up. A teacher can correct any row; the correction is kept alongside what the join events originally recorded, and a later rejoin does not silently undo it.
 - Parents see attendance history per subject — absence patterns are one of the top things parents want visibility into per `plan.md`.
 
 ### 3.5 Notifications that make this feel alive

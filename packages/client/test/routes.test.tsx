@@ -32,6 +32,8 @@ const GATED_PATHS = [
   '/app/teacher/homework',
   '/app/homework/some-assignment-id',
   '/app/ai',
+  '/app/live',
+  '/app/teacher/live',
   '/checkout/return',
   '/learn',
 ];

@@ -766,7 +766,8 @@
     "homeworkAverage": "Homework graded ({{count}})",
     "overallExamsOnlyNote": "The overall average is weighted across exams only — quiz and homework figures are shown per subject.",
     "allTimeNote": "Quiz and homework figures cover all terms; the term filter applies to exams.",
-    "noAttendanceNote": "Attendance will be added once live classes and tutoring sessions launch."
+    "attendance": "Attendance {{attended}}/{{sessions}}",
+    "attendanceScopeNote": "Attendance covers live classes; private tutoring sessions will be included once booking launches."
   },
   "dashboard": {
     "welcome": "Welcome back, {{name}}",
@@ -929,5 +930,63 @@
     "tooFast": "You are asking too quickly — wait a moment and try again.",
     "notEnrolled": "You are no longer enrolled in this program.",
     "guardianRequired": "A guardian must approve your account before you can use the tutor."
+  },
+  "live": {
+    "title": "Live classes",
+    "teacherSubtitle": "Start a class, and attendance is recorded from who actually joins.",
+    "studentSubtitle": "Join your class while it is running — joining marks you present.",
+    "untitled": "Untitled class",
+    "selectPrompt": "Choose a class to see its details.",
+    "empty": "No live classes",
+    "emptyHintTeacher": "Add a live lesson to one of your programs and it will show up here.",
+    "emptyHintStudent": "Live lessons from your enrolled programs appear here.",
+    "loadError": "We could not load your classes.",
+    "classStatus": {
+      "scheduled": "Scheduled",
+      "live": "Live now",
+      "ended": "Ended"
+    },
+    "status": {
+      "present": "Present",
+      "late": "Late",
+      "absent": "Absent"
+    },
+    "startClass": "Start class",
+    "endClass": "End class",
+    "enterRoom": "Enter the room",
+    "join": "Join",
+    "leave": "Leave",
+    "viewRegister": "Register",
+    "student": "Student",
+    "attendance": "Attendance",
+    "override": "Correct",
+    "overridden": "Corrected by the teacher",
+    "noRecord": "No record",
+    "unknownStudent": "Unnamed student",
+    "counts": "{{attended}} of {{enrolled}} attended",
+    "myAttendance": "You are marked: {{status}}",
+    "blocked": {
+      "not_started": "The teacher has not started this class yet.",
+      "ended": "This class has ended.",
+      "too_early": "You can join shortly before the class starts.",
+      "not_enrolled": "You are not enrolled in this program."
+    },
+    "connecting": "Connecting…",
+    "connectFailed": "We could not connect you to the room.",
+    "muteMic": "Mute microphone",
+    "unmuteMic": "Unmute microphone",
+    "stopCamera": "Turn camera off",
+    "startCamera": "Turn camera on",
+    "stubProvider": "Video is disabled in this environment",
+    "stubProviderHint": "No realtime credentials are configured, so the room runs with a stub provider. Attendance and the register still work.",
+    "errors": {
+      "notStarted": "This class has not started yet.",
+      "ended": "This class has ended.",
+      "notEnrolled": "You are not enrolled in this program.",
+      "guardianRequired": "A guardian must approve this account first.",
+      "unavailable": "Live classes are not available right now.",
+      "tooFast": "Too many attempts — wait a moment and try again.",
+      "generic": "Something went wrong. Try again."
+    }
   }
 }

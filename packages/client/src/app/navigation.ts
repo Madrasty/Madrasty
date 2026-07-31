@@ -23,6 +23,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/student' },
     { labelKey: 'reportCard', icon: 'assignment', path: '/app/student/report-card' },
     { labelKey: 'aiTutor', icon: 'smart_toy', path: '/app/ai' },
+    { labelKey: 'liveClasses', icon: 'videocam', path: '/app/live' },
     { labelKey: 'learningPrograms', icon: 'school', path: '/app/catalog' },
     { labelKey: 'marketplace', icon: 'storefront', path: '/app/marketplace' },
     { labelKey: 'tutoring', icon: 'record_voice_over' },
@@ -47,7 +48,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
     { labelKey: 'quizzes', icon: 'quiz', path: '/app/teacher/quizzes' },
     { labelKey: 'homework', icon: 'assignment_turned_in', path: '/app/teacher/homework' },
     { labelKey: 'students', icon: 'groups' },
-    { labelKey: 'liveClasses', icon: 'videocam' },
+    { labelKey: 'liveClasses', icon: 'videocam', path: '/app/teacher/live' },
     { labelKey: 'earnings', icon: 'account_balance_wallet' },
   ],
   admin: [

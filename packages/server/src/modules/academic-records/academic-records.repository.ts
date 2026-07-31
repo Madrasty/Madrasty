@@ -13,6 +13,9 @@ import {
   quizAttempts,
   homeworkAssignments,
   homeworkSubmissions,
+  attendanceRecords,
+  lessons,
+  chapters,
 } from '../../db/schema/index';
 
 export interface ExamRow {
@@ -79,6 +82,13 @@ export interface HomeworkSubmissionStatRow {
   maxGrade: string;
 }
 
+// One attendance row for a live class the student was expected at, with the
+// subject resolved through lesson → chapter → program (doc 10 §3.4).
+export interface AttendanceStatRow {
+  subjectId: string;
+  status: string;
+}
+
 export interface SubjectTranslationRow {
   entityId: string;
   locale: string;
@@ -120,6 +130,9 @@ export interface AcademicRecordsRepository {
   listQuizStatsForStudent(studentId: string): Promise<QuizStatRow[]>;
   listHomeworkAssignedForStudent(studentId: string): Promise<HomeworkAssignedRow[]>;
   listHomeworkSubmissionsForStudent(studentId: string): Promise<HomeworkSubmissionStatRow[]>;
+  // Attendance for live classes that actually ran (doc 10 §3.4). Tutoring
+  // bookings (doc 13) will land in the same table under the other session type.
+  listAttendanceForStudent(studentId: string): Promise<AttendanceStatRow[]>;
 
   isApprovedParentOf(parentId: string, studentId: string): Promise<boolean>;
   getUsersBrief(ids: string[]): Promise<UserBrief[]>;
@@ -328,6 +341,28 @@ export class DrizzleAcademicRecordsRepository implements AcademicRecordsReposito
       .where(
         and(
           eq(homeworkSubmissions.studentId, studentId),
+          isNotNull(learningPrograms.subjectId),
+        ),
+      );
+    return withSubject(rows);
+  }
+
+  // Attendance is stored polymorphically (doc 10 §4): for a live class the
+  // `session_id` is the LESSON id, which is how this joins back to a subject.
+  async listAttendanceForStudent(studentId: string): Promise<AttendanceStatRow[]> {
+    const rows = await this.db
+      .select({
+        subjectId: learningPrograms.subjectId,
+        status: attendanceRecords.status,
+      })
+      .from(attendanceRecords)
+      .innerJoin(lessons, eq(lessons.id, attendanceRecords.sessionId))
+      .innerJoin(chapters, eq(lessons.chapterId, chapters.id))
+      .innerJoin(learningPrograms, eq(chapters.programId, learningPrograms.id))
+      .where(
+        and(
+          eq(attendanceRecords.studentId, studentId),
+          eq(attendanceRecords.sessionType, 'live_class'),
           isNotNull(learningPrograms.subjectId),
         ),
       );

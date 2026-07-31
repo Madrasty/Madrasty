@@ -13,7 +13,8 @@ import { academicRecordsApi } from './academic-records.api';
 // Report card (doc 10 §3.1): the "real school" artifact parents want. Role-aware
 // — a student sees their own; a parent picks a child (discovered via the
 // messaging contacts endpoint) and sees theirs. Aggregates exams + quiz averages
-// + homework completion; attendance still waits on steps 8–9.
+// + homework completion + live-class attendance (doc 10 §3.1). Attendance covers
+// live classes today; tutoring bookings feed the same table later (doc 13).
 export function ReportCardPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -131,7 +132,11 @@ function ReportCardBody({ studentId }: { studentId: string }) {
             )}
           </div>
 
-          <SubjectSummary quizzes={subject.quizzes} homework={subject.homework} />
+          <SubjectSummary
+            quizzes={subject.quizzes}
+            homework={subject.homework}
+            attendance={subject.attendance}
+          />
 
           <ul className="divide-y divide-outline-variant">
             {subject.exams.map((exam) => (
@@ -157,22 +162,32 @@ function ReportCardBody({ studentId }: { studentId: string }) {
       {card.term && card.quizzesAndHomeworkAreAllTime && (
         <p className="text-label-sm text-on-surface-variant">{t('academic.allTimeNote')}</p>
       )}
-      <p className="text-label-sm text-on-surface-variant">{t('academic.noAttendanceNote')}</p>
+      <p className="text-label-sm text-on-surface-variant">{t('academic.attendanceScopeNote')}</p>
     </div>
   );
 }
 
-// The quiz + homework strip under each subject header (doc 10 §3.1). Shown even
-// when empty for homework, because "0 of 4 handed in" is the point.
+// The quiz + homework + attendance strip under each subject header (doc 10
+// §3.1). Shown even when empty for homework, because "0 of 4 handed in" is the
+// point — and likewise for attendance once any class has actually run.
 function SubjectSummary({
   quizzes,
   homework,
+  attendance,
 }: {
   quizzes: ReportCardSubject['quizzes'];
   homework: ReportCardSubject['homework'];
+  attendance: ReportCardSubject['attendance'];
 }) {
   const { t } = useTranslation();
-  if (quizzes.count === 0 && homework.assigned === 0 && homework.submitted === 0) return null;
+  if (
+    quizzes.count === 0 &&
+    homework.assigned === 0 &&
+    homework.submitted === 0 &&
+    attendance.sessions === 0
+  ) {
+    return null;
+  }
 
   return (
     <div className="flex flex-wrap gap-unit-md border-b border-outline-variant/60 bg-surface-container-low px-unit-md py-unit-sm">
@@ -208,6 +223,16 @@ function SubjectSummary({
             />
           )}
         </>
+      )}
+      {attendance.sessions > 0 && (
+        <Stat
+          icon="videocam"
+          label={t('academic.attendance', {
+            attended: attendance.present + attendance.late,
+            sessions: attendance.sessions,
+          })}
+          value={attendance.attendanceRate}
+        />
       )}
     </div>
   );

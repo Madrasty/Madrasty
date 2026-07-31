@@ -169,7 +169,33 @@ homework_submissions (
 ```
 *(Unlike `quiz_attempts`, `homework_submissions` is **not** append-only: one row per (assignment, student), replaceable while ungraded, and grading updates the same row — the same upsert shape as `exam_results`. The append-only rule applies to money and points, not grades. Submitting completes the homework lesson, so prerequisite gating (doc 12 §5) unlocks on submit rather than on grade — grading is asynchronous and shouldn't block a student.)*
 
-### live sessions / private tutoring booking
+### live classes / attendance
+```sql
+attendance_records (
+  id UUID PK,
+  student_id UUID REFERENCES users,
+  session_type TEXT,          -- 'live_class' | 'tutoring'
+  session_id UUID,            -- live LESSON id, or booking id (doc 13) — deliberately not an FK
+  status TEXT,                -- present|absent|late
+  recorded_by UUID REFERENCES users NULL,  -- set only when a teacher overrode the automatic record
+  metadata JSONB,             -- { first_joined_at, last_left_at, minutes_present, auto_status }
+  recorded_at TIMESTAMPTZ,
+  UNIQUE (session_type, session_id, student_id)
+)
+-- Full definition in doc 10 §4; the columns beyond it (recorded_by, metadata,
+-- the unique index) are what makes the row correctable and auditable.
+-- NOT append-only: one row per (session, student), upserted — a rejoin after a
+-- dropout must not create a second conflicting row, and a teacher override
+-- corrects the same row. Same call as exam_results; the append-only rule covers
+-- money and points, not attendance.
+-- A live LESSON is the session: there is no `live_sessions` table. Schedule and
+-- runtime state (channel_name, started_at, ended_at) live on the per-lesson-type
+-- detail table `live_lesson_details` (doc 12 §6), so a live class costs zero new
+-- tables here. `channel_name` is the realtime provider's room id, provisioned
+-- server-side when the teacher starts — never sent by a client.
+```
+
+### private tutoring booking
 ```sql
 tutoring_slots (
   id UUID PK,
@@ -346,6 +372,7 @@ loyalty_tiers (
 | Add seasonal 2x points campaign | Data/config change in rules engine (doc 05), not schema |
 | Educational Center B2B tier | New `centers` + `center_memberships` tables, existing tables untouched |
 | Parent-teacher messaging, exams, report cards, attendance | New tables only (`exams`, `exam_results`, `conversations`, `messages`, `attendance_records`, `progress_snapshots`) — see doc 10, none of the tables above change |
+| Add live video classes | 1 new table (`attendance_records`) + 3 columns on `live_lesson_details` — the lesson IS the session, so the curriculum tree is untouched |
 | Add National ID / school-based verification tiers | New tables only (`identity_verifications`, `school_verifications`) plus a `verification_level` column already reserved on `users` — see doc 11 |
 | Add an AI Q&A tutor | New tables only (`ai_conversations`, `ai_messages`) — the usage cap reads the same append-only message table, no counter columns anywhere |
 | Add in-person home tutoring marketplace | New tables only (`saved_addresses`, `teacher_service_areas`, `home_tutoring_bookings`, `session_ratings`) — see doc 13, `transactions`/`teacher_profiles` reused as-is |

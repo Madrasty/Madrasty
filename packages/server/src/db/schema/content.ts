@@ -118,6 +118,18 @@ export const liveLessonDetails = pgTable('live_lesson_details', {
   // Populated after the session; once set, the lesson replays like a recorded one.
   recordingUrl: text('recording_url'),
   attendanceTaken: boolean('attendance_taken').notNull().default(false),
+  // --- Runtime state, written by the live-classes module (doc 10 §3.4) ---
+  // A live LESSON is the session: there is no separate `live_sessions` table, so
+  // these three columns carry what a running class needs beyond its schedule.
+  // The teacher's authoring form owns the columns above; only start/end writes
+  // these, which is why the two never clobber each other on upsert.
+  //
+  // Room identifier at the realtime provider (Agora channel name). Provisioned
+  // on start, never sent by a client — a client-chosen room is a free pass into
+  // someone else's class.
+  channelName: text('channel_name'),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  endedAt: timestamp('ended_at', { withTimezone: true }),
 });
 
 export const pdfLessonDetails = pgTable('pdf_lesson_details', {

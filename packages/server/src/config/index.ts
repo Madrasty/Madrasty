@@ -105,9 +105,19 @@ const envSchema = z.object({
   MUX_TOKEN_ID: z.string().optional(),
   MUX_TOKEN_SECRET: z.string().optional(),
 
-  // Realtime / live classes (doc 01 §5).
+  // Realtime / live classes (doc 01 §5, doc 10 §3.4).
   AGORA_APP_ID: z.string().optional(),
   AGORA_APP_CERTIFICATE: z.string().optional(),
+  // Which realtime provider backs live classes. `mock` is a no-credential stub
+  // for dev/tests; it is refused in production (see live-classes/providers).
+  RTC_PROVIDER: z.enum(['agora', 'mock']).default('agora'),
+  // Join-token lifetime. Short on purpose: a token is a key to a paid classroom,
+  // so it should outlive a lesson, not a term. Clients re-join to refresh.
+  RTC_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(4 * 60 * 60),
+  // How early a student may join before the scheduled start, and how long after
+  // the scheduled start counts as `present` rather than `late` (doc 10 §3.4).
+  LIVE_CLASS_JOIN_WINDOW_MINUTES: z.coerce.number().int().nonnegative().default(15),
+  LIVE_CLASS_LATE_GRACE_MINUTES: z.coerce.number().int().nonnegative().default(10),
 
   // Notifications (doc 01 §3).
   SMTP_HOST: z.string().optional(),
