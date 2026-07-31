@@ -9,4 +9,5 @@ export * from './messaging';
 export * from './academic-records';
 export * from './quizzes';
 export * from './homework';
+export * from './ai';
 export * from './admin';

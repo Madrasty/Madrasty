@@ -245,6 +245,50 @@ admin_audit_log (
 
 ---
 
+## AI Q&A tutor — doc 01 §3 "AI Services", doc 09 phase 3:
+
+```sql
+ai_conversations (
+  id UUID PK,
+  student_id UUID REFERENCES users,             -- owner; only students hold conversations
+  program_id UUID REFERENCES learning_programs, -- curriculum scope (nullable)
+  lesson_id  UUID REFERENCES lessons,           -- narrower scope (nullable)
+  title TEXT,                                   -- derived from the first question, never typed
+  metadata JSONB,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+)
+-- program_id is denormalized off the lesson so the enrollment check on every
+-- question doesn't re-walk lesson→chapter→program (same trick as quizzes/homework).
+-- Both scope columns nullable: an unscoped conversation is general study help.
+-- No deleted_at — a thread is disposable per-student chat, not a shared record.
+
+ai_messages (
+  id UUID PK,
+  conversation_id UUID REFERENCES ai_conversations,
+  student_id UUID REFERENCES users,   -- denormalized: the quota query never joins
+  role TEXT,                          -- 'user' | 'assistant'
+  content TEXT,
+  model TEXT,                         -- which model answered (null on user turns)
+  provider TEXT,                      -- 'anthropic' | ... (doc 01 §3 provider abstraction)
+  input_tokens INT,
+  output_tokens INT,
+  metadata JSONB,
+  created_at TIMESTAMPTZ
+)
+-- APPEND-ONLY (ledger pattern): never edited or deleted in place, so this one
+-- table is the transcript, the audit trail of what the model was asked, AND the
+-- usage ledger. The per-student daily question cap (doc 09's "budget a monthly
+-- cap per user tier") is COUNT(*) over role='user' since the window start — no
+-- mutable counter column to drift or need resetting.
+-- Access is re-checked per question, never inherited from the thread: the
+-- student must be active with an approved guardian (doc 01 §7, doc 11) AND hold
+-- an active enrollment in the scoped program, so a refund cuts off answers
+-- immediately rather than at the next login.
+```
+
+---
+
 ## Loyalty / Points / Coupons — see doc 05 for full detail, core tables here:
 
 ```sql
@@ -303,6 +347,7 @@ loyalty_tiers (
 | Educational Center B2B tier | New `centers` + `center_memberships` tables, existing tables untouched |
 | Parent-teacher messaging, exams, report cards, attendance | New tables only (`exams`, `exam_results`, `conversations`, `messages`, `attendance_records`, `progress_snapshots`) — see doc 10, none of the tables above change |
 | Add National ID / school-based verification tiers | New tables only (`identity_verifications`, `school_verifications`) plus a `verification_level` column already reserved on `users` — see doc 11 |
+| Add an AI Q&A tutor | New tables only (`ai_conversations`, `ai_messages`) — the usage cap reads the same append-only message table, no counter columns anywhere |
 | Add in-person home tutoring marketplace | New tables only (`saved_addresses`, `teacher_service_areas`, `home_tutoring_bookings`, `session_ratings`) — see doc 13, `transactions`/`teacher_profiles` reused as-is |
 
 > **Note:** doc [10-parent-teacher-student-engagement.md](./10-parent-teacher-student-engagement.md) adds the full table definitions for exams, attendance, messaging, and progress tracking. They're kept in that doc (not duplicated here) since they're a self-contained feature — refer to doc 10 as the source of truth for those tables.

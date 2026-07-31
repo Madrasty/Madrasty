@@ -877,3 +877,79 @@ export interface HomeworkQueueResponse {
 export interface HomeworkByLessonResponse {
   assignmentId: string | null;
 }
+
+// --- AI Q&A tutor (doc 01 §3 "AI Services", doc 09 phase 3) --------------------
+// A student asks curriculum questions and an LLM answers with the lesson/program
+// they are studying supplied as context. Prompt-based, not fine-tuned (doc 01 §1
+// non-goals). Conversations are per-student and append-only: every turn is a row
+// in `ai_messages`, which doubles as the usage ledger the daily cap is computed
+// from (doc 09's "budget a monthly cap per user tier").
+
+export const AI_MESSAGE_ROLES = ['user', 'assistant'] as const;
+export type AiMessageRole = (typeof AI_MESSAGE_ROLES)[number];
+
+// One turn. `tokens` is present on assistant turns only (what the call cost).
+export interface AiMessageView {
+  id: string;
+  role: AiMessageRole;
+  content: string;
+  createdAt: string;
+  tokens?: { input: number; output: number } | null;
+}
+
+// A conversation header, as shown in the sidebar list.
+export interface AiConversationSummary {
+  id: string;
+  // Derived from the first question; the student never types a title.
+  title: string | null;
+  // Optional curriculum scope — what the tutor was given as context.
+  programId: string | null;
+  lessonId: string | null;
+  programTitle: string | null;
+  lessonTitle: string | null;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AiConversationView extends AiConversationSummary {
+  messages: AiMessageView[];
+}
+
+// Scope a new conversation to a lesson (preferred) or a whole program. Both are
+// optional — an unscoped conversation is general study help with no curriculum
+// context attached.
+export interface StartAiConversationRequest {
+  lessonId?: string | null;
+  programId?: string | null;
+  // First question. Optional: the UI may open an empty conversation first.
+  question?: string;
+}
+
+export interface AskAiRequest {
+  question: string;
+}
+
+// The answer plus the quota left, so the UI can show "N questions left today"
+// without a second round trip.
+export interface AskAiResponse {
+  conversationId: string;
+  question: AiMessageView;
+  answer: AiMessageView;
+  usage: AiUsageView;
+}
+
+// Daily quota (doc 09 cost notes). `limit` is the per-student daily allowance;
+// `used` counts questions asked since midnight UTC.
+export interface AiUsageView {
+  used: number;
+  limit: number;
+  remaining: number;
+  // ISO timestamp when the window rolls over.
+  resetsAt: string;
+}
+
+export interface ListAiConversationsResponse {
+  conversations: AiConversationSummary[];
+  usage: AiUsageView;
+}

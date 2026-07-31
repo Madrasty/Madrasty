@@ -29,6 +29,7 @@ import { QuizBuilderPage } from '../features/quizzes/QuizBuilderPage';
 import { QuizPlayerPage } from '../features/quizzes/QuizPlayerPage';
 import { HomeworkBuilderPage } from '../features/homework/HomeworkBuilderPage';
 import { HomeworkSubmitPage } from '../features/homework/HomeworkSubmitPage';
+import { AiTutorPage } from '../features/ai-tutor/AiTutorPage';
 import { MyProgramsPage } from '../features/teacher-authoring/MyProgramsPage';
 import { NewProgramPage } from '../features/teacher-authoring/NewProgramPage';
 import { ProgramEditorPage } from '../features/teacher-authoring/ProgramEditorPage';
@@ -117,6 +118,10 @@ export const routes: RouteObject[] = [
     path: '/app/homework/:assignmentId',
     element: gated(['student', 'teacher', 'admin', 'center_admin'], <HomeworkSubmitPage />),
   },
+
+  // AI Q&A tutor (doc 01 §3, doc 09 phase 3) — students only; the server refuses
+  // every other role.
+  { path: '/app/ai', element: gated(['student'], <AiTutorPage />) },
 
   // Teacher authoring (doc 12).
   { path: '/app/teacher/programs', element: teacherArea(<MyProgramsPage />) },

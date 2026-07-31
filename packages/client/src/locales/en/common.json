@@ -34,7 +34,8 @@
     "gradebook": "Gradebook",
     "reportCard": "Report Card",
     "quizzes": "Quizzes",
-    "homework": "Homework"
+    "homework": "Homework",
+    "aiTutor": "AI Tutor"
   },
   "topbar": {
     "search": "Search",
@@ -901,5 +902,32 @@
     "alreadyGraded": "This submission has already been graded.",
     "notEnrolled": "You need to be enrolled in this program to open this homework.",
     "previewNote": "You're viewing this as a teacher — only enrolled students can submit."
+  },
+  "aiTutor": {
+    "title": "AI Tutor",
+    "subtitle": "Ask about anything you are studying and get a step-by-step explanation.",
+    "quota": "{{remaining}} of {{limit}} questions left today",
+    "scopeLabel": "What is this about?",
+    "scopeNone": "General study help",
+    "untitledProgram": "Untitled program",
+    "untitledConversation": "New conversation",
+    "newConversation": "New conversation",
+    "delete": "Delete conversation",
+    "empty": "No conversations yet",
+    "emptyHint": "Pick a program and start a conversation to get help with it.",
+    "selectPrompt": "Choose a conversation, or start a new one.",
+    "askPrompt": "Ask your first question about this material.",
+    "placeholder": "Type your question…",
+    "send": "Send question",
+    "thinking": "Thinking…",
+    "disclaimer": "The tutor explains and gives hints — it will not do graded work for you, and it can be wrong. Check with your teacher when it matters.",
+    "loadError": "We could not load your conversations.",
+    "askError": "We could not answer that question. Try again.",
+    "busy": "The tutor is busy right now. Try again in a moment.",
+    "unavailable": "The AI tutor is not available right now.",
+    "limitReached": "You have used all of your AI questions for today.",
+    "tooFast": "You are asking too quickly — wait a moment and try again.",
+    "notEnrolled": "You are no longer enrolled in this program.",
+    "guardianRequired": "A guardian must approve your account before you can use the tutor."
   }
 }

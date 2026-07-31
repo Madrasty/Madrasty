@@ -68,9 +68,29 @@ const envSchema = z.object({
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
-  // AI services (doc 01 §3).
+  // AI services (doc 01 §3, doc 09 phase 3 "AI Q&A").
   ANTHROPIC_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
+  // Which AI provider answers questions. `mock` is a no-network stub for dev and
+  // tests; it is refused in production (see providers/registry.ts).
+  AI_PROVIDER: z.enum(['anthropic', 'mock']).default('anthropic'),
+  // Model id + generation limits. Defaulted here rather than hard-coded in the
+  // provider so switching models is a config change, not a code change.
+  AI_MODEL: z.string().default('claude-opus-5'),
+  // Deliberately well below the model's ceiling: a tutor answer is short by
+  // design and this is the per-answer cost cap (doc 09's per-user AI budget).
+  // Raise it if answers start truncating.
+  AI_MAX_OUTPUT_TOKENS: z.coerce.number().int().positive().default(4096),
+  // Thinking depth / token spend. `medium` is the cost-quality balance for
+  // short curriculum answers; raise for harder subjects.
+  AI_EFFORT: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).default('medium'),
+  // Per-student daily question allowance (doc 09: "budget a monthly cap per user
+  // tier to avoid runaway cost from heavy AI users"). Counted from the
+  // append-only ai_messages ledger, so there is no counter to drift.
+  AI_DAILY_QUESTION_LIMIT: z.coerce.number().int().positive().default(30),
+  // How many prior turns of a conversation are replayed to the model. Bounds the
+  // input cost of a long thread.
+  AI_CONTEXT_MESSAGE_LIMIT: z.coerce.number().int().positive().default(20),
 
   // Object storage (doc 01 §5).
   S3_ENDPOINT: z.string().optional(),

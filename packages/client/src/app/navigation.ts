@@ -22,6 +22,7 @@ export const ROLE_NAV: Record<DashboardRole, NavItem[]> = {
   student: [
     { labelKey: 'dashboard', icon: 'dashboard', path: '/app/student' },
     { labelKey: 'reportCard', icon: 'assignment', path: '/app/student/report-card' },
+    { labelKey: 'aiTutor', icon: 'smart_toy', path: '/app/ai' },
     { labelKey: 'learningPrograms', icon: 'school', path: '/app/catalog' },
     { labelKey: 'marketplace', icon: 'storefront', path: '/app/marketplace' },
     { labelKey: 'tutoring', icon: 'record_voice_over' },
